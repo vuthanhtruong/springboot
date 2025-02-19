@@ -327,7 +327,7 @@ public class AdminPost {
             ModelMap.addAttribute("searchResults", searchResults);
         }
         else if(searchType.equalsIgnoreCase("id")){
-            Students students = entityManager.find(Students.class, Integer.parseInt(keyword));
+            Students students = entityManager.find(Students.class, keyword);
             ModelMap.addAttribute("students", students);
         }
         return "DanhSachTimKiemHocSinh";
@@ -347,7 +347,7 @@ public class AdminPost {
                     .setParameter("keyword", "%" + keyword + "%")
                     .getResultList();
         } else if (searchType.equalsIgnoreCase("id")) {
-            Teachers teacher = entityManager.find(Teachers.class, Long.parseLong(keyword));
+            Teachers teacher = entityManager.find(Teachers.class, keyword);
             searchResults = (teacher != null) ? List.of(teacher) : List.of();
         } else {
             searchResults = List.of();
@@ -371,7 +371,7 @@ public class AdminPost {
                     .setParameter("keyword", "%" + keyword + "%")
                     .getResultList();
         } else if (searchType.equalsIgnoreCase("id")) {
-            Employees employee = entityManager.find(Employees.class, Long.parseLong(keyword));
+            Employees employee = entityManager.find(Employees.class, keyword);
             searchResults = (employee != null) ? List.of(employee) : List.of();
         } else {
             searchResults = List.of();

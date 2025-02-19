@@ -369,11 +369,6 @@ public class NhanVienGet {
             return "redirect:/DangNhapNhanVien";
         }
 
-        // Đảm bảo ID hợp lệ: TeacherID phải bắt đầu bằng "TEA"
-        if (!teacherId.startsWith("TEA")) {
-            return "redirect:/ChiTietLopHoc/" + roomId + "?error=InvalidTeacherID";
-        }
-
         // Tìm đối tượng Room theo ID
         Room room = entityManager.find(Room.class, roomId);
         if (room == null) {
@@ -411,12 +406,6 @@ public class NhanVienGet {
             return "redirect:/DangNhapNhanVien";
         }
 
-        // Đảm bảo ID hợp lệ: StudentID phải bắt đầu bằng "STU"
-        if (!studentId.startsWith("STU")) {
-            return "redirect:/ChiTietLopHoc/" + roomId + "?error=InvalidStudentID";
-        }
-
-        // Tìm đối tượng Room theo ID
         Room room = entityManager.find(Room.class, roomId);
         if (room == null) {
             return "redirect:/ChiTietLopHoc/" + roomId + "?error=RoomNotFound";

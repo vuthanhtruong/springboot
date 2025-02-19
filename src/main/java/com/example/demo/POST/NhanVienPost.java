@@ -421,11 +421,7 @@ public class NhanVienPost {
             LocalDateTime thoiGianBatDau = LocalDateTime.parse(startTime, formatter);
             LocalDateTime thoiGianKetThuc = LocalDateTime.parse(endTime, formatter);
 
-            Object room = entityManager.find(Rooms.class, roomId);
-            if (room == null) {
-                room = entityManager.find(OnlineRooms.class, roomId);
-            }
-
+            Room room = entityManager.find(Room.class, roomId);
             if (room instanceof Rooms) {
                 ((Rooms) room).setStartTime(thoiGianBatDau);
                 ((Rooms) room).setEndTime(thoiGianKetThuc);
