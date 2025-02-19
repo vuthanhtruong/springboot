@@ -38,13 +38,9 @@ public class StudentPost {
             return "redirect:/DangKyHocSinh?error=password_mismatch";
         }
 
-        // Kiểm tra nếu StudentID không bắt đầu bằng "STU"
-        if (!studentID.startsWith("STU")) {
-            return "redirect:/DangKyHocSinh?error=invalid_studentID";
-        }
 
         List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
-        Admin admin = entityManager.find(Admin.class, admins.get(0));
+        Admin admin = admins.get(0);  // Lấy trực tiếp đối tượng Admin từ danh sách
         Employees employee = entityManager.find(Employees.class, employeeID);
 
         if (employee == null) {

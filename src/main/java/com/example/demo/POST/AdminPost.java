@@ -56,7 +56,8 @@ public class AdminPost {
             return "redirect:/DangNhapAdmin?error=notLoggedIn";
         }
         List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
-        Admin admin = entityManager.find(Admin.class, admins.get(0));
+        Admin admin = admins.get(0);  // Lấy trực tiếp đối tượng Admin từ danh sách
+
 
         // Lấy thông tin Employee
         Employees employee = entityManager.find(Employees.class, employeeID);
@@ -125,7 +126,8 @@ public class AdminPost {
             return "redirect:/DangNhapAdmin?error=notLoggedIn";
         }
         List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
-        Admin admin = entityManager.find(Admin.class, admins.get(0));
+        Admin admin = admins.get(0);  // Lấy trực tiếp đối tượng Admin từ danh sách
+
 
 
         // Lấy thông tin Employee
@@ -189,7 +191,8 @@ public class AdminPost {
             return "redirect:/ThemNhanVien?error=notLoggedIn";
         }
         List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
-        Admin admin = entityManager.find(Admin.class, admins.get(0));
+        Admin admin = admins.get(0);  // Lấy trực tiếp đối tượng Admin từ danh sách
+
 
 
         Employees existingEmployee = entityManager.find(Employees.class, EmployeeID);

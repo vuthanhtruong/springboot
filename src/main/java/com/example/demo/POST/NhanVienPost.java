@@ -29,7 +29,7 @@ public class NhanVienPost {
                                  @RequestParam String LastName, @RequestParam String Email,@RequestParam String PhoneNumber,
                                  @RequestParam String Password) {
         List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
-        Admin admin = entityManager.find(Admin.class, admins.get(0));
+        Admin admin = admins.get(0);
         Employees employees = new Employees();
         employees.setId(EmployeeID);
         employees.setFirstName(FirstName);

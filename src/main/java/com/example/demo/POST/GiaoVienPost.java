@@ -39,7 +39,7 @@ public class GiaoVienPost {
             return "redirect:/DangKyGiaoVien?error=passwordsNotMatch";
         }
         List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
-        Admin admin = entityManager.find(Admin.class, admins.get(0));
+        Admin admin = admins.get(0);  // Lấy trực tiếp đối tượng Admin từ danh sách
         Employees employee = entityManager.find(Employees.class, employeeID);
 
         // Kiểm tra nếu TeacherID đã tồn tại
