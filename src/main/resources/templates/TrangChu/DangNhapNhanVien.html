@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập Nhân viên</title>
+  <link rel="stylesheet"
+        href="/DangNhapNhanVien.css">
+</head>
+<body>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Đăng nhập dành cho Nhân viên</h2>
+
+  <!-- Form Đăng nhập bằng EmployeeID -->
+  <form action="/DangNhapNhanVien" method="post" class="card p-4 shadow">
+    <div class="mb-3">
+      <label for="employeeID" class="form-label">Mã nhân viên (ID):</label>
+      <input type="text" class="form-control" id="EmployeeID" name="EmployeeID" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Mật khẩu:</label>
+      <input type="password" class="form-control" id="Password" name="Password" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+  </form>
+
+  <!-- Nút Đăng ký -->
+  <div class="text-center mt-3">
+    <p>Bạn chưa có tài khoản?</p>
+    <a href="/DangKyNhanVien" class="btn btn-success">Đăng ký</a>
+  </div>
+
+  <!-- Nút quay lại Trang chủ -->
+  <div class="text-center mt-3">
+    <a href="/TrangChu" class="btn btn-secondary">Quay lại Trang Chủ</a>
+  </div>
+</div>
+
+</body>
+</html>

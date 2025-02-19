@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng ký Nhân viên</title>
+  <link rel="stylesheet"
+        href="/DangKyNhanVien.css">
+</head>
+<body>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Đăng ký dành cho Nhân viên</h2>
+
+  <form action="/DangKyNhanVien" method="post" class="card p-4 shadow needs-validation" novalidate>
+    <div class="mb-3">
+      <label for="firstName" class="form-label">ID</label>
+      <input type="text" class="form-control" id="EmployeeID" name="EmployeeID" required>
+      <div class="invalid-feedback">Vui lòng nhập ID.</div>
+    </div>
+
+    <!-- Họ -->
+    <div class="mb-3">
+      <label for="firstName" class="form-label">Họ</label>
+      <input type="text" class="form-control" id="FirstName" name="FirstName" required>
+      <div class="invalid-feedback">Vui lòng nhập họ.</div>
+    </div>
+
+    <!-- Tên -->
+    <div class="mb-3">
+      <label for="lastName" class="form-label">Tên</label>
+      <input type="text" class="form-control" id="LastName" name="LastName" required>
+      <div class="invalid-feedback">Vui lòng nhập tên.</div>
+    </div>
+
+    <!-- Email -->
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" class="form-control" id="Email" name="Email" required>
+      <div class="invalid-feedback">Vui lòng nhập email hợp lệ.</div>
+    </div>
+
+    <!-- Số điện thoại -->
+    <div class="mb-3">
+      <label for="phoneNumber" class="form-label">Số điện thoại</label>
+      <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber"
+             pattern="^\+?[0-9]{10,15}$" required>
+      <div class="invalid-feedback">Số điện thoại không hợp lệ (10-15 số).</div>
+    </div>
+
+    <!-- Mật khẩu -->
+    <div class="mb-3">
+      <label for="password" class="form-label">Mật khẩu</label>
+      <input type="password" class="form-control" id="Password" name="Password" required>
+      <div class="invalid-feedback">Vui lòng nhập mật khẩu.</div>
+    </div>
+
+    <!-- Nút đăng ký -->
+    <button type="submit" class="btn btn-primary">Đăng ký</button>
+    <a href="/DangNhapNhanVien" class="btn btn-outline-secondary">Quay Lại Đăng Nhập</a>
+
+  </form>
+</div>
+
+</body>
+</html>

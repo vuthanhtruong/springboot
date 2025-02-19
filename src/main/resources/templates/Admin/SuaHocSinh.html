@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Sửa Học Sinh</title>
+  <link rel="stylesheet" href="/SuaHocSinh.css">
+</head>
+<body>
+<h2>Sửa Học Sinh</h2>
+<form th:action="@{'/SuaHocSinh/' + ${student.id}}" method="post">
+  <input type="hidden" name="studentID" th:value="${student.id}" />
+
+  <label for="firstName">Họ:</label>
+  <input type="text" id="firstName" name="firstName" th:value="${student.firstName}" required />
+  <br/>
+
+  <label for="lastName">Tên:</label>
+  <input type="text" id="lastName" name="lastName" th:value="${student.lastName}" required />
+  <br/>
+
+  <label for="email">Email:</label>
+  <input type="email" id="email" name="email" th:value="${student.email}" required />
+  <br/>
+
+  <label for="phoneNumber">Số điện thoại:</label>
+  <input type="text" id="phoneNumber" name="phoneNumber" th:value="${student.phoneNumber}" required />
+  <br/>
+
+  <label for="misId">MIS ID:</label>
+  <input type="text" id="misId" name="misId" th:value="${student.misId}" />
+  <br/>
+
+  <label for="employee">Nhân viên phụ trách:</label>
+  <select id="employee" name="employeeID">
+    <option value="">-- Chọn nhân viên --</option>
+    <option th:each="emp : ${employees}" th:value="${emp.id}"
+            th:text="${emp.firstName + ' ' + emp.lastName}"
+            th:selected="${student.employee != null and student.employee.id == emp.id}">
+    </option>
+  </select>
+  <br/>
+
+  <button type="submit">Cập nhật</button>
+  <a href="/DanhSachHocSinh">Quay lại danh sách Học Sinh</a>
+</form>
+</body>
+</html>

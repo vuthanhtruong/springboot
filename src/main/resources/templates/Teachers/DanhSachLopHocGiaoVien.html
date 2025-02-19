@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danh Sách Lớp Học</title>
+  <link rel="stylesheet" href="DanhSachLopHocGiaoVien.css">
+</head>
+<body>
+<header>
+  <h1>Danh Sách Lớp Học</h1>
+  <nav>
+    <a href="/TrangChuGiaoVien">Quay về Trang Chủ Giáo Viên</a>
+  </nav>
+</header>
+<main class="container">
+  <!-- Phân chia màn hình thành 2 cột -->
+  <section class="section left">
+    <h2>Lớp Học Truyền Thống</h2>
+    <ul>
+      <th:block th:each="room : ${rooms}">
+        <li>
+          <a th:href="@{'/ChiTietLopHocGiaoVien/' + ${room.roomId}}" th:text="${room.roomName} + ' - ' + ${room.address}"></a>
+        </li>
+      </th:block>
+    </ul>
+  </section>
+  <section class="section right">
+    <h2>Lớp Học Online</h2>
+    <ul>
+      <th:block th:each="onlineRoom : ${onlineRooms}">
+        <li>
+          <a th:href="@{'/ChiTietLopHocGiaoVien/' + ${onlineRoom.roomId}}" th:text="${onlineRoom.roomName}"></a>
+        </li>
+      </th:block>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Thêm Học Sinh</title>
+  <link rel="stylesheet" th:href="@{/ThemHocSinhCuaBan.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<div class="container mt-5">
+  <h1 class="text-center text-primary"><i class="fas fa-user-plus"></i> Thêm Học Sinh Mới</h1>
+
+  <form th:action="@{/ThemHocSinhCuaBan}" method="post" class="mt-4">
+    <div class="mb-3">
+      <label class="form-label">Mã Học Sinh (ID):</label>
+      <input type="text" class="form-control" name="studentID" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Họ:</label>
+      <input type="text" class="form-control" name="firstName" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Tên:</label>
+      <input type="text" class="form-control" name="lastName" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Email:</label>
+      <input type="email" class="form-control" name="email" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Mật khẩu:</label>
+      <input type="password" class="form-control" name="password" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Số Điện Thoại:</label>
+      <input type="text" class="form-control" name="phoneNumber" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Mã MIS:</label>
+      <input type="text" class="form-control" name="misId">
+    </div>
+
+    <div class="text-center">
+      <button type="submit" class="btn btn-success">
+        <i class="fas fa-save"></i> Lưu Học Sinh
+      </button>
+      <a th:href="@{/DanhSachHocSinhCuaBan}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+      </a>
+    </div>
+  </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Thêm Phòng Học</title>
+  <link rel="stylesheet" type="text/css" href="/ThemPhongHoc.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<h2><i class="fas fa-school"></i> Thêm Phòng Học</h2>
+
+<form action="/ThemPhongHoc" method="post">
+  <label for="roomId"><i class="fas fa-hashtag"></i> ID Phòng:</label>
+  <input type="text" id="roomId" name="roomId" required><br>
+
+  <label for="roomName"><i class="fas fa-door-open"></i> Tên Phòng:</label>
+  <input type="text" id="roomName" name="roomName" required><br>
+
+
+  <button type="submit"><i class="fas fa-plus-circle"></i> Thêm Phòng Học</button>
+  <a href="/DanhSachPhongHoc"><i class="fas fa-arrow-left"></i> Quay Lại</a>
+</form>
+
+<p th:if="${param.error}" style="color:red;"><i class="fas fa-exclamation-triangle"></i> Loại phòng không hợp lệ.</p>
+</body>
+</html>

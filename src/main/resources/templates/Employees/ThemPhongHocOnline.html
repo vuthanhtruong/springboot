@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Phòng Học Online</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/ThemPhongHocOnline.css}">
+</head>
+<body class="container mt-4">
+
+<h2 class="text-center"><i class="fas fa-laptop"></i> Thêm Phòng Học Online</h2>
+
+<!-- Form nhập thông tin -->
+<form th:action="@{/ThemPhongHocOnline}" method="post" class="form-container">
+    <div class="mb-3">
+        <label for="roomId" class="form-label"><i class="fas fa-door-open"></i>ID Phòng</label>
+        <input type="text" id="roomId" name="roomId" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="roomName" class="form-label"><i class="fas fa-door-open"></i> Tên Phòng</label>
+        <input type="text" id="roomName" name="roomName" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="status" class="form-label"><i class="fas fa-toggle-on"></i> Trạng Thái</label>
+        <select id="status" name="status" class="form-select">
+            <option value="true">Hoạt Động</option>
+            <option value="false">Không Hoạt Động</option>
+        </select>
+    </div>
+
+    <!-- Nút Thêm -->
+    <button type="submit" class="btn btn-success">
+        <i class="fas fa-save"></i> Lưu Phòng Học Online
+    </button>
+
+    <!-- Nút Quay Lại -->
+    <a th:href="@{/DanhSachPhongHoc}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay Lại
+    </a>
+</form>
+
+</body>
+</html>

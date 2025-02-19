@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Chỉnh Sửa Phòng Học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/SuaPhongHoc.css}">
+</head>
+<body class="container mt-4">
+
+<h2 class="text-center mb-4"><i class="fas fa-school"></i> Chỉnh Sửa Phòng Học</h2>
+
+<form th:action="@{/SuaPhongHocOffline}" method="post" class="border p-4">
+  <div class="mb-3">
+    <label for="roomId" class="form-label"><i class="fas fa-hashtag"></i> ID Phòng</label>
+    <input type="text" id="roomId" name="roomId" class="form-control" th:value="${room.roomId}" readonly>
+  </div>
+
+  <div class="mb-3">
+    <label for="roomName" class="form-label"><i class="fas fa-door-open"></i> Tên Phòng</label>
+    <input type="text" id="roomName" name="roomName" class="form-control" th:value="${room.roomName}" required>
+  </div>
+
+  <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Cập Nhật</button>
+  <a th:href="@{/DanhSachPhongHoc}" class="btn btn-secondary"><i class="fas fa-times"></i> Hủy</a>
+</form>
+
+</body>
+</html>

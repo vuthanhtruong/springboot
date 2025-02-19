@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kết Quả Tìm Kiếm Nhân Viên</title>
+  <link rel="stylesheet" href="/DanhSachTimKiemNhanVien.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>🔍 Kết Quả Tìm Kiếm Nhân Viên</h1>
+
+  <table border="1">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Họ</th>
+      <th>Tên</th>
+      <th>Email</th>
+      <th>Số Điện Thoại</th>
+      <th>Hành Động</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${employees != null and not #lists.isEmpty(employees)}"
+        th:each="employee : ${employees}">
+      <td th:text="${employee.id}"></td>
+      <td th:text="${employee.lastName}"></td>
+      <td th:text="${employee.firstName}"></td>
+      <td th:text="${employee.email}"></td>
+      <td th:text="${employee.phoneNumber}"></td>
+      <td>
+        <a th:href="@{/SuaNhanVien/{id}(id=${employee.id})}">✏️ Sửa</a> |
+        <a th:href="@{/XoaNhanVien/{id}(id=${employee.id})}"
+           onclick="return confirm('Bạn có chắc chắn muốn xóa?')">🗑️ Xóa</a>
+      </td>
+    </tr>
+
+    <tr th:if="${employees == null or #lists.isEmpty(employees)}">
+      <td colspan="6" class="text-center">❌ Không tìm thấy kết quả nào!</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <br>
+  <a href="/DanhSachNhanVien">📜 Quay lại Danh Sách Nhân Viên</a>
+  <br><br>
+  <a href="/TrangChuAdmin">🏠 Quay lại Trang Chủ của Admin</a>
+</div>
+
+</body>
+</html>

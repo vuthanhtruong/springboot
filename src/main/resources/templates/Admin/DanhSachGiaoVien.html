@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Giáo Viên</title>
+    <link rel="stylesheet" href="/DanhSachGiaoVien.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- Tiêu đề trang và các nút điều hướng -->
+    <div class="header">
+        <h1>📚 Danh Sách Giáo Viên</h1>
+        <div class="btn-group">
+            <a href="/TrangChuAdmin" class="btn btn-home">🏠 Quay lại Trang Chủ</a>
+            <a href="/ThemGiaoVien" class="btn btn-add">➕ Thêm Giáo Viên</a>
+        </div>
+    </div>
+
+    <!-- Form tìm kiếm giáo viên -->
+    <div class="search-section">
+        <form th:action="@{/TimKiemGiaoVien}" method="post" class="search-form">
+            <label for="searchType">🔍 Tìm kiếm theo:</label>
+            <select id="searchType" name="searchType">
+                <option value="id">ID</option>
+                <option value="name">Họ & Tên</option>
+            </select>
+            <input type="text" name="keyword" placeholder="Nhập từ khóa" required>
+            <button type="submit" class="btn-search">Tìm Kiếm</button>
+        </form>
+    </div>
+
+    <!-- Bảng danh sách giáo viên -->
+    <div class="table-section">
+        <table class="teacher-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Họ</th>
+                <th>Tên</th>
+                <th>Email</th>
+                <th>Số Điện Thoại</th>
+                <th>MIS ID</th>
+                <th>Nhân Viên Phụ Trách</th>
+                <th>Hành Động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="teacher : ${teachers}">
+                <td th:text="${teacher.id}"></td>
+                <td th:text="${teacher.lastName}"></td>
+                <td th:text="${teacher.firstName}"></td>
+                <td th:text="${teacher.email}"></td>
+                <td th:text="${teacher.phoneNumber}"></td>
+                <td th:text="${teacher.misID}"></td>
+                <td th:text="${teacher.employee != null ? teacher.employee.firstName + ' ' + teacher.employee.lastName : 'Không có'}"></td>
+                <td class="action-buttons">
+                    <a th:href="@{'/SuaGiaoVien/' + ${teacher.id}}" class="btn btn-edit">✏️ Sửa</a>
+                    <a th:href="@{'/XoaGiaoVien/' + ${teacher.id}}" onclick="return confirm('Bạn có chắc chắn muốn xóa?')" class="btn btn-delete">🗑️ Xóa</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

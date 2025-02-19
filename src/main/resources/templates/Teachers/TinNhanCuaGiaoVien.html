@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Tin Nhắn Của Giáo Viên</title>
+    <link rel="stylesheet" href="/TinNhanCuaGiaoVien.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Danh Sách Những Người Đã Nhắn Tin</h2>
+
+    <!-- Hiển thị danh sách người đã nhắn tin với giáo viên -->
+    <div>
+        <h3>Những người đã nhắn tin với bạn:</h3>
+        <ul>
+            <li th:each="contact : ${contacts}">
+                <!-- Liên kết đến trang cá nhân -->
+                <a th:href="@{/TrangCaNhan/{recipientID}(recipientID=${contact.id})}"
+                   th:text="${contact.getFirstName()}">Tên người liên lạc</a>
+
+                <!-- Nút gửi tin nhắn -->
+                <a th:href="@{/ChiTietTinNhanCuaGiaoVien/{recipientID}(recipientID=${contact.id})}"
+                   class="btn btn-primary" th:text="'Nhắn tin với ' + ${contact.getFirstName()}"></a>
+            </li>
+        </ul>
+    </div>
+
+    <a href="/TrangChuGiaoVien" class="btn btn-primary">Quay về Trang Chủ</a>
+
+</div>
+
+</body>
+</html>

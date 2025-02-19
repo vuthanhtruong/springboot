@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+:root {
+    --bg-gradient: linear-gradient(135deg, #1a002b, #657dcf, #240046);
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --border-glass: rgba(255, 255, 255, 0.3);
+    --shadow-glass: rgba(0, 0, 0, 0.2);
+    --neon-blue: #00eaff;
+    --neon-purple: #9d00ff;
+    --neon-pink: #ff0080;
+    --neon-green: #00ff88;
+    --neon-orange: #ff8800;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Orbitron', sans-serif;
+}
+
+body {
+    background: var(--bg-gradient);
+    color: white;
+    text-align: center;
+    padding: 50px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    font-size: 36px;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px var(--neon-blue);
+}
+
+header nav a {
+    font-size: 18px;
+    color: var(--neon-pink);
+    text-decoration: none;
+    text-transform: uppercase;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 20px;
+    transition: 0.3s;
+}
+
+header nav a:hover {
+    color: var(--neon-blue);
+    text-shadow: 0 0 10px var(--neon-blue);
+}
+
+/* Container Layout */
+.container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 50px;
+    gap: 30px;
+}
+
+/* Section Styling */
+.section {
+    background: var(--glass-bg);
+    padding: 20px;
+    border-radius: 15px;
+    border: 2px solid var(--border-glass);
+    box-shadow: 0 0 15px var(--shadow-glass);
+    backdrop-filter: blur(12px);
+    width: 48%;
+}
+
+h2 {
+    font-size: 28px;
+    color: var(--neon-green);
+    text-shadow: 0 0 12px var(--neon-green);
+    margin-bottom: 20px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    font-size: 18px;
+    color: white;
+    margin: 15px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 10px var(--shadow-glass);
+}
+
+ul li a {
+    color: var(--neon-pink);
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+ul li a:hover {
+    color: var(--neon-blue);
+    text-shadow: 0 0 10px var(--neon-blue);
+}
+
+/* Ensuring the items are responsive and maintain their layout */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .section {
+        width: 100%;
+    }
+}

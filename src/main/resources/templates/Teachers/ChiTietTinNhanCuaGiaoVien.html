@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Tin Nhắn Của Giáo Viên</title>
+    <link rel="stylesheet" href="/ChiTietTinNhanCuaGiaoVien.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Chi Tiết Tin Nhắn</h2>
+
+    <!-- Nút quay về trang chủ -->
+    <div class="back-button">
+        <a href="/TrangChuGiaoVien" class="btn btn-primary">Quay về Trang Chủ</a>
+    </div>
+
+    <!-- Hiển thị danh sách tin nhắn -->
+    <div th:each="message : ${messages}"
+         class="message-box"
+         th:classappend="${message.sender != null and message.sender.getId() == teacher.id} ? 'right' : 'left'">
+
+        <div class="message-header">
+            <!-- Hiển thị tên và ID người gửi (Kiểm tra null trước khi truy cập) -->
+            <span th:text="${message.sender != null and message.sender.getId() != null ?
+                (message.sender.getId() == teacher.id ? 'Giáo viên: ' + message.sender.getId()
+                : 'Học sinh: ' + message.sender.getId())
+                : 'Không xác định'}">
+            </span>
+        </div>
+
+        <div class="message-time" th:text="${#temporals.format(message.datetime, 'dd/MM/yyyy HH:mm')}"></div>
+        <div class="message-text" th:text="${message.text}"></div>
+    </div>
+
+    <!-- Form gửi tin nhắn -->
+    <div class="message-form">
+        <h3>Gửi tin nhắn mới</h3>
+        <form th:action="@{/ChiTietTinNhanCuaGiaoVien}" method="post">
+            <input type="hidden" name="studentID" th:value="${student.id}" />
+            <input type="hidden" name="teacherID" th:value="${teacher.id}" />
+            <textarea name="messageText" placeholder="Nhập tin nhắn..." required></textarea>
+            <button type="submit">Gửi</button>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

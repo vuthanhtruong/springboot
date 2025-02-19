@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Nhập Admin</title>
+  <link rel="stylesheet" href="/DangNhapAdmin.css">
+</head>
+<body>
+<div class="container">
+  <h2>Đăng Nhập Admin</h2>
+  <form action="/DangNhapAdmin" method="post">
+    <input type="text" name="AdminID" placeholder="ID Admin" required>
+    <input type="password" name="PasswordAdmin" placeholder="Mật khẩu" required>
+    <button type="submit">Đăng Nhập</button>
+  </form>
+
+  <!-- Hiển thị lỗi nếu có -->
+  <div class="error">
+    <span th:if="${param.error}">Sai ID hoặc mật khẩu!</span>
+  </div>
+
+  <!-- Nút quay lại Trang chủ -->
+  <a href="/TrangChu" class="back-button">← Quay lại Trang chủ</a>
+</div>
+</body>
+</html>

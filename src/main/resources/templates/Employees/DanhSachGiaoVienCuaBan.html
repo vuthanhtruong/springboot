@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh Sách Giáo Viên Của Bạn</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/DanhSachGiaoVienCuaBan.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        function searchTeachers() {
+            let input = document.getElementById("searchInput").value.toLowerCase();
+            let filterType = document.getElementById("searchFilter").value;
+            let rows = document.querySelectorAll("#teacherTable tbody tr");
+
+            rows.forEach(row => {
+                let id = row.querySelector("td:nth-child(1)").textContent.toLowerCase();
+                let fullName = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
+
+                if ((filterType === "id" && id.includes(input)) || (filterType === "name" && fullName.includes(input))) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+
+<div class="container mt-4">
+
+    <!-- Tiêu đề -->
+    <h1 class="text-center text-primary">
+        <i class="fas fa-chalkboard-teacher"></i> Danh Sách Giáo Viên Của Bạn
+    </h1>
+
+    <!-- Kiểm tra nếu session có EmployeeID -->
+    <div th:if="${session.EmployeeID}">
+        <p class="text-success text-center">
+            👤 <strong>Mã nhân viên:</strong> <span th:text="${session.EmployeeID}"></span>
+        </p>
+
+        <!-- Thanh tìm kiếm -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="input-group w-50">
+                <select id="searchFilter" class="form-select">
+                    <option value="name">🔍 Tìm theo Tên</option>
+                    <option value="id">🔍 Tìm theo ID</option>
+                </select>
+                <input type="text" id="searchInput" class="form-control" placeholder="Nhập từ khóa..." onkeyup="searchTeachers()">
+            </div>
+            <div>
+                <a th:href="@{/TrangChuNhanVien}" class="btn btn-secondary mx-2">
+                    <i class="fas fa-home"></i> Trang Chủ
+                </a>
+                <a th:href="@{/ThemGiaoVienCuaBan}" class="btn btn-success mx-2">
+                    <i class="fas fa-user-plus"></i> Thêm Giáo Viên
+                </a>
+            </div>
+        </div>
+
+        <!-- Bảng danh sách giáo viên -->
+        <div class="table-responsive">
+            <table id="teacherTable" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                <tr class="text-center">
+                    <th><i class="fas fa-id-badge"></i> ID</th>
+                    <th><i class="fas fa-user"></i> Họ và Tên</th>
+                    <th><i class="fas fa-envelope"></i> Email</th>
+                    <th><i class="fas fa-phone"></i> Số Điện Thoại</th>
+                    <th><i class="fas fa-cogs"></i> Hành Động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Duyệt danh sách giáo viên và lọc theo EmployeeID -->
+                <tr th:each="teacher : ${teachers}" th:if="${teacher.employee != null and teacher.employee.id == session.EmployeeID}">
+                    <td class="text-center" th:text="${teacher.id}"></td>
+                    <td th:text="${teacher.firstName + ' ' + teacher.lastName}"></td>
+                    <td th:text="${teacher.email}"></td>
+                    <td class="text-center" th:text="${teacher.phoneNumber}"></td>
+                    <td class="text-center">
+                        <!-- Nút Sửa -->
+                        <a th:href="@{/SuaGiaoVienCuaBan/{id}(id=${teacher.id})}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Sửa
+                        </a>
+                        <!-- Nút Xóa -->
+                        <a th:href="@{/XoaGiaoVienCuaBan/{id}(id=${teacher.id})}" class="btn btn-danger btn-sm"
+                           onclick="return confirm('Bạn có chắc muốn xóa giáo viên này không?');">
+                            <i class="fas fa-trash-alt"></i> Xóa
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Nếu không có EmployeeID trong session -->
+    <div th:unless="${session.EmployeeID}">
+        <p class="text-danger text-center">
+            <i class="fas fa-exclamation-triangle"></i> Bạn chưa đăng nhập hoặc không có quyền truy cập.
+        </p>
+    </div>
+
+</div>
+
+</body>
+</html>

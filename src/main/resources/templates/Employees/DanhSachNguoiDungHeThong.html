@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>📋 Danh Sách Người Dùng</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/DanhSachNguoiDungHeThong.css">
+</head>
+<body>
+<div class="container mt-5">
+  <h1 class="text-center text-primary"><i class="fas fa-users"></i> Danh Sách Người Dùng Hệ Thống</h1>
+
+  <div class="text-center mt-4">
+    <a th:href="@{/TrangChuNhanVien}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+  </div>
+
+  <div class="wrapper">
+    <!-- Nhân Viên -->
+    <div class="user-section">
+      <h2 class="text-secondary"><i class="fas fa-briefcase"></i> Nhân Viên</h2>
+      <table class="table table-striped">
+        <thead class="table-dark">
+        <tr>
+          <th>🆔 ID</th>
+          <th>👤 Họ và Tên</th>
+          <th>📧 Email</th>
+          <th>📞 Số Điện Thoại</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="emp : ${employee}">
+          <td th:text="${emp.id}"></td>
+          <td><i class="fas fa-user"></i> <span th:text="${emp.firstName} + ' ' + ${emp.lastName}"></span></td>
+          <td><i class="fas fa-envelope"></i> <span th:text="${emp.email}"></span></td>
+          <td><i class="fas fa-phone-alt"></i> <span th:text="${emp.phoneNumber}"></span></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Giáo Viên -->
+    <div class="user-section">
+      <h2 class="text-success"><i class="fas fa-chalkboard-teacher"></i> Giáo Viên</h2>
+      <table class="table table-striped">
+        <thead class="table-dark">
+        <tr>
+          <th>🆔 ID</th>
+          <th>👤 Họ và Tên</th>
+          <th>📧 Email</th>
+          <th>📞 Số Điện Thoại</th>
+          <th>👑 Người Quản Lý</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="teacher : ${teachers}">
+          <td th:text="${teacher.id}"></td>
+          <td><i class="fas fa-user"></i> <span th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"></span></td>
+          <td><i class="fas fa-envelope"></i> <span th:text="${teacher.email}"></span></td>
+          <td><i class="fas fa-phone-alt"></i> <span th:text="${teacher.phoneNumber}"></span></td>
+          <td>
+            <span th:if="${teacher.employee}"><i class="fas fa-user-tie"></i> <span th:text="${teacher.employee.firstName} + ' ' + ${teacher.employee.lastName}"></span></span>
+            <span th:unless="${teacher.employee}"><i class="fas fa-times-circle text-danger"></i> Không có</span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Học Sinh -->
+    <div class="user-section">
+      <h2 class="text-primary"><i class="fas fa-user-graduate"></i> Học Sinh</h2>
+      <table class="table table-striped">
+        <thead class="table-dark">
+        <tr>
+          <th>🆔 ID</th>
+          <th>👤 Họ và Tên</th>
+          <th>📧 Email</th>
+          <th>📞 Số Điện Thoại</th>
+          <th>👑 Người Quản Lý</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="student : ${students}">
+          <td th:text="${student.id}"></td>
+          <td><i class="fas fa-user"></i> <span th:text="${student.firstName} + ' ' + ${student.lastName}"></span></td>
+          <td><i class="fas fa-envelope"></i> <span th:text="${student.email}"></span></td>
+          <td><i class="fas fa-phone-alt"></i> <span th:text="${student.phoneNumber}"></span></td>
+          <td>
+            <span th:if="${student.employee}"><i class="fas fa-user-tie"></i> <span th:text="${student.employee.firstName} + ' ' + ${student.employee.lastName}"></span></span>
+            <span th:unless="${student.employee}"><i class="fas fa-times-circle text-danger"></i> Không có</span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

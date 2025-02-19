@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi Tiết Lớp Học Giáo Viên</title>
+  <link rel="stylesheet" href="/ChiTietLopHocGiaoVien.css">
+</head>
+
+<body>
+
+<header>
+  <h1>Chi Tiết Lớp Học Giáo Viên</h1>
+</header>
+
+<div class="container">
+  <!-- Thông Tin Lớp Học -->
+  <div class="class-detail">
+    <h2>Thông Tin Lớp Học</h2>
+    <div class="class-info">
+      <p><strong>Tên lớp học:</strong> <span th:text="${room.roomName}">Tên lớp học</span></p>
+
+      <p><strong>Địa chỉ:</strong>
+        <span th:if="${room instanceof T(com.example.demo.OOP.Rooms)}" th:text="${room.address}">Địa chỉ lớp học</span>
+        <span th:if="${room instanceof T(com.example.demo.OOP.OnlineRooms)}" th:text="${room.link}">Link lớp học trực tuyến</span>
+      </p>
+
+      <p><strong>Trạng thái:</strong>
+        <span th:text="${room.status ? 'Đang hoạt động' : 'Không hoạt động'}"></span>
+      </p>
+
+      <p><strong>Thời gian bắt đầu:</strong>
+        <span th:if="${room.startTime != null}" th:text="${#temporals.format(room.startTime, 'yyyy-MM-dd HH:mm')}"></span>
+        <span th:if="${room.startTime == null}">Chưa có thời gian</span>
+      </p>
+
+      <p><strong>Thời gian kết thúc:</strong>
+        <span th:if="${room.endTime != null}" th:text="${#temporals.format(room.endTime, 'yyyy-MM-dd HH:mm')}"></span>
+        <span th:if="${room.endTime == null}">Chưa có thời gian</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Nút điều hướng -->
+  <div class="buttons">
+    <a th:href="@{/TrangChuGiaoVien}" class="btn btn-primary">Quay về Trang Chủ</a>
+    <a th:href="@{/DanhSachLopHocGiaoVien}" class="btn btn-secondary">Quay về Danh Sách Lớp Học</a>
+    <button class="btn btn-members" th:data-room-id="${room.roomId}"
+            th:onclick="|window.location.href='/ThanhVienTrongLopGiaoVien/' + this.getAttribute('data-room-id')|">
+      Thành Viên Trong Lớp
+    </button>
+  </div>
+
+  <!-- Đăng bài -->
+  <div class="post-section">
+    <form action="/teacher/post" method="POST">
+      <textarea name="postContent" placeholder="Nhập nội dung bài đăng..." required></textarea>
+      <button type="submit">Đăng Bài</button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

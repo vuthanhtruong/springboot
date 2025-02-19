@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng Ký Học Sinh</title>
+    <link rel="stylesheet" href="/DangKyHocSinh.css">
+    <script>
+        function validateForm(event) {
+            var studentID = document.getElementById("studentID").value;
+            var password = document.getElementById("password").value;
+            var confirmPassword = document.getElementById("ConfirmPassword").value;
+
+            // Kiểm tra nếu StudentID không bắt đầu bằng "STU"
+            if (!studentID.startsWith("STU")) {
+                alert("Mã học sinh phải bắt đầu bằng 'STU'. Vui lòng nhập lại!");
+                event.preventDefault();
+                return false;
+            }
+
+            // Kiểm tra nếu mật khẩu không khớp
+            if (password !== confirmPassword) {
+                alert("Mật khẩu nhập lại không khớp. Vui lòng kiểm tra lại!");
+                event.preventDefault();
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+</head>
+<body class="d-flex align-items-center justify-content-center vh-100 bg-light">
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4">
+                <h2 class="text-center mb-4">Đăng Ký Học Sinh</h2>
+                <form action="/DangKyHocSinh" method="post" onsubmit="return validateForm(event)">
+                    <div class="mb-3">
+                        <label for="studentID" class="form-label">Mã Học Sinh (StudentID)</label>
+                        <input type="text" id="studentID" name="StudentID" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Mật Khẩu</label>
+                        <input type="password" id="password" name="Password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ConfirmPassword" class="form-label">Nhập lại mật khẩu</label>
+                        <input type="password" id="ConfirmPassword" name="ConfirmPassword" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="firstName" class="form-label">Họ</label>
+                        <input type="text" id="firstName" name="FirstName" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="lastName" class="form-label">Tên</label>
+                        <input type="text" id="lastName" name="LastName" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" name="Email" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label">Số Điện Thoại</label>
+                        <input type="text" id="phoneNumber" name="PhoneNumber" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="misId" class="form-label">MIS ID</label>
+                        <input type="text" id="misId" name="MisId" class="form-control">
+                    </div>
+
+                    <!-- Chọn nhân viên quản lý -->
+                    <div class="mb-3">
+                        <label for="employeeID" class="form-label">Nhân Viên Quản Lý</label>
+                        <select id="employeeID" name="EmployeeID" class="form-select" required>
+                            <option value="">-- Chọn Nhân Viên --</option>
+                            <option th:each="employee : ${employees}" th:value="${employee.employeeID}"
+                                    th:text="${employee.firstName + ' ' + employee.lastName}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">Đăng Ký</button>
+                        <a href="/DangNhapHocSinh" class="btn btn-outline-secondary">Quay Lại Đăng Nhập</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

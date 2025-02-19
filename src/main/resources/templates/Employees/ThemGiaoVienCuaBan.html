@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Giáo Viên</title>
+    <link rel="stylesheet" th:href="@{/ThemGiaoVienCuaBan.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="text-center text-primary"><i class="fas fa-user-plus"></i> Thêm Giáo Viên</h1>
+
+    <!-- Hiển thị thông báo lỗi nếu có -->
+    <div th:if="${error}" class="alert alert-danger text-center" role="alert">
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+    </div>
+
+    <form th:action="@{/ThemGiaoVienCuaBan}" method="post" class="mt-4">
+        <div class="mb-3">
+            <label for="teacherID" class="form-label">Mã Giáo Viên</label>
+            <input type="text" id="teacherID" name="teacherID" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Mật khẩu</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="firstName" class="form-label">Họ</label>
+            <input type="text" id="firstName" name="firstName" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="lastName" class="form-label">Tên</label>
+            <input type="text" id="lastName" name="lastName" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="phoneNumber" class="form-label">Số điện thoại</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="misID" class="form-label">MIS ID (tùy chọn)</label>
+            <input type="text" id="misID" name="misID" class="form-control">
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Lưu</button>
+            <a th:href="@{/DanhSachGiaoVienCuaBan}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại</a>
+            <a th:href="@{/TrangChuNhanVien}" class="btn btn-primary"><i class="fas fa-home"></i> Trang Chủ Nhân Viên</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

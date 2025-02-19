@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Giáo Viên</title>
+    <link rel="stylesheet" href="/ThemGiaoVien.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h2 class="mb-4">Thêm Giáo Viên</h2>
+    <form th:action="@{/ThemGiaoVien}" method="post">
+        <div th:if="${param.error}" class="alert alert-danger">
+            <p th:if="${param.error[0] == 'teacherIDExists'}">❌ Mã giáo viên đã tồn tại!</p>
+            <p th:if="${param.error[0] == 'emailExists'}">❌ Email này đã được sử dụng!</p>
+            <p th:if="${param.error[0] == 'phoneExists'}">❌ Số điện thoại này đã được sử dụng!</p>
+            <p th:if="${param.error[0] == 'misIDExists'}">❌ MIS ID đã tồn tại!</p>
+            <p th:if="${param.error[0] == 'employeeNotFound'}">❌ Nhân viên không tồn tại!</p>
+            <p th:if="${param.error[0] == 'notLoggedIn'}">❌ Bạn chưa đăng nhập!</p>
+        </div>
+        <div class="mb-3">
+            <label for="firstName" class="form-label">ID Giáo Viên</label>
+            <input type="text" class="form-control" id="idTeacher" name="TeacherID" required>
+        </div>
+        <div class="mb-3">
+            <label for="firstName" class="form-label">Tên</label>
+            <input type="text" class="form-control" id="firstName" name="FirstName" required>
+        </div>
+        <div class="mb-3">
+            <label for="lastName" class="form-label">Họ</label>
+            <input type="text" class="form-control" id="lastName" name="LastName" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Mật khẩu</label>
+            <input type="password" class="form-control" id="password" name="Password" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="Email" required>
+        </div>
+        <div class="mb-3">
+            <label for="phoneNumber" class="form-label">Số điện thoại</label>
+            <input type="text" class="form-control" id="phoneNumber" name="PhoneNumber" required>
+        </div>
+        <div class="mb-3">
+            <label for="misID" class="form-label">MIS ID</label>
+            <input type="text" class="form-control" id="misID" name="MisID">
+        </div>
+        <div class="mb-3">
+            <label for="employee" class="form-label">Chọn Nhân Viên</label>
+            <select class="form-select" id="employee" name="EmployeeID">
+            <option value="">-- Chọn nhân viên (không bắt buộc) --</option>
+                <option th:each="employee : ${employees}"
+                        th:value="${employee.id}"
+                        th:text="${employee.firstName + ' ' + employee.lastName}">
+                </option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Thêm Giáo Viên</button>
+        <div class="text-center mt-3">
+            <a href="/DanhSachGiaoVien" class="btn btn-secondary">Quay Lại Danh Sách Giáo Viên</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

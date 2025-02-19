@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Trang Chủ Học Sinh</title>
+  <link rel="stylesheet" href="/TrangChuHocSinh.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>🎓 Chào mừng, <span th:text="${student.firstName}"></span>!</h1>
+
+  <div class="info-box">
+    <p><strong>Mã học sinh:</strong> <span th:text="${student.studentID}"></span></p>
+    <p><strong>Họ và tên:</strong> <span th:text="${student.firstName} + ' ' + ${student.lastName}"></span></p>
+    <p><strong>Email:</strong> <span th:text="${student.email}"></span></p>
+    <p><strong>Số điện thoại:</strong> <span th:text="${student.phoneNumber}"></span></p>
+  </div>
+
+  <div class="actions">
+    <a href="/XemKhoaHoc" class="btn btn-primary">📚 Xem Khóa Học</a>
+    <a href="/SuaThongTinHocSinh" class="btn btn-warning">✏️ Cập Nhật Thông Tin</a>
+    <a href="/DangXuatHocSinh" class="btn btn-danger">🚪 Đăng Xuất</a>
+  </div>
+</div>
+
+</body>
+</html>

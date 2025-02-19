@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Thêm Học Sinh</title>
+  <link rel="stylesheet" href="/ThemHocSinh.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+  <h2>Thêm Học Sinh</h2>
+
+  <!-- Hiển thị lỗi -->
+  <div th:if="${param.error}" class="alert alert-danger">
+    <p th:if="${param.error[0] == 'studentIDExists'}">❌ Mã học sinh đã tồn tại!</p>
+    <p th:if="${param.error[0] == 'emailExists'}">❌ Email này đã được sử dụng!</p>
+    <p th:if="${param.error[0] == 'phoneExists'}">❌ Số điện thoại này đã được sử dụng!</p>
+    <p th:if="${param.error[0] == 'misIDExists'}">❌ MIS ID đã tồn tại!</p>
+    <p th:if="${param.error[0] == 'notLoggedIn'}">❌ Bạn chưa đăng nhập!</p>
+  </div>
+
+  <form th:action="@{/ThemHocSinh}" method="post">
+    <div class="input-group">
+      <label for="studentID"><i class="fas fa-id-card"></i> ID Học Sinh</label>
+      <input type="text" id="studentID" name="StudentID" required min="1">
+    </div>
+
+    <div class="input-group">
+      <label for="firstName"><i class="fas fa-user"></i> Tên</label>
+      <input type="text" id="firstName" name="FirstName" required>
+    </div>
+
+    <div class="input-group">
+      <label for="lastName"><i class="fas fa-user"></i> Họ</label>
+      <input type="text" id="lastName" name="LastName" required>
+    </div>
+
+    <div class="input-group">
+      <label for="email"><i class="fas fa-envelope"></i> Email</label>
+      <input type="email" id="email" name="Email" required>
+    </div>
+
+    <div class="input-group">
+      <label for="phoneNumber"><i class="fas fa-phone"></i> Số Điện Thoại</label>
+      <input type="text" id="phoneNumber" name="PhoneNumber" required>
+    </div>
+
+    <div class="input-group">
+      <label for="password"><i class="fas fa-lock"></i> Mật Khẩu</label>
+      <input type="password" id="password" name="Password" required>
+    </div>
+
+    <div class="input-group">
+      <label for="misID"><i class="fas fa-id-badge"></i> MIS ID</label>
+      <input type="text" id="misID" name="MisID">
+    </div>
+
+    <div class="input-group">
+      <label for="employee"><i class="fas fa-user-tie"></i> Nhân Viên Phụ Trách</label>
+      <select id="employee" name="EmployeeID">
+        <option value="">-- Chọn nhân viên (không bắt buộc) --</option>
+        <option th:each="employee : ${employees}"
+                th:value="${employee.id}"
+                th:text="${employee.firstName + ' ' + employee.lastName}">
+        </option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Thêm Học Sinh</button>
+
+    <div class="btn-container">
+      <a href="/DanhSachHocSinh" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay Lại</a>
+    </div>
+  </form>
+</div>
+</body>
+</html>

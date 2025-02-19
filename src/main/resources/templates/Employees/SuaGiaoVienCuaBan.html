@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sửa Giáo Viên</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/SuaGiaoVienCuaBan.css}">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h1 class="text-center text-primary"><i class="fas fa-edit"></i> Sửa Giáo Viên</h1>
+    <a th:href="@{/DanhSachGiaoVienCuaBan}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+
+    <!-- Hiển thị cảnh báo nếu không có quyền sửa -->
+    <div th:if="${session.EmployeeID != teachers.employee.id}" class="alert alert-danger mt-3">
+        <i class="fas fa-exclamation-triangle"></i> Bạn không có quyền chỉnh sửa giáo viên này.
+    </div>
+
+    <!-- Chỉ hiển thị form nếu có quyền chỉnh sửa -->
+    <form th:if="${session.EmployeeID == teachers.employee.id}"
+          th:action="@{/SuaGiaoVienCuaBan}" method="post" class="mt-4">
+        <input type="hidden" name="teacherID" th:value="${teachers.id}">
+
+        <div class="mb-3">
+            <label class="form-label">Họ</label>
+            <input type="text" class="form-control" name="firstName" th:value="${teachers.firstName}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Tên</label>
+            <input type="text" class="form-control" name="lastName" th:value="${teachers.lastName}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" th:value="${teachers.email}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Số Điện Thoại</label>
+            <input type="text" class="form-control" name="phoneNumber" th:value="${teachers.phoneNumber}" required>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> Lưu Thay Đổi
+            </button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh Sách Phòng Học</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/DanhSachPhongHoc.css}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="container mt-4">
+
+<h2 class="text-center mb-4"><i class="fas fa-school"></i> Danh Sách Phòng Học</h2>
+
+<!-- Thanh công cụ -->
+<div class="d-flex justify-content-between mb-3">
+  <div>
+    <a th:href="@{/ThemPhongHoc}" class="btn btn-primary me-2">
+      <i class="fas fa-plus-circle"></i> Thêm Phòng Học
+    </a>
+    <a th:href="@{/ThemPhongHocOnline}" class="btn btn-success">
+      <i class="fas fa-globe"></i> Thêm Phòng Online
+    </a>
+  </div>
+
+  <div class="d-flex">
+    <select id="searchType" class="form-select me-2">
+      <option value="name">Tìm theo Tên</option>
+      <option value="id">Tìm theo ID</option>
+    </select>
+    <input type="text" id="searchInput" class="form-control me-2"
+           placeholder="🔍 Nhập từ khóa..." onkeyup="filterRooms()">
+    <button class="btn btn-info" onclick="resetSearch()">
+      <i class="fas fa-sync-alt"></i> Reset
+    </button>
+  </div>
+
+  <a th:href="@{/TrangChuNhanVien}" class="btn btn-secondary">
+    <i class="fas fa-arrow-left"></i> Quay Lại Trang Chủ
+  </a>
+</div>
+
+<!-- Bố cục hai cột -->
+<div class="row">
+  <!-- Cột Phòng Học Offline -->
+  <div class="col-md-6">
+    <h3 class="text-center text-primary"><i class="fas fa-chalkboard"></i> Phòng Học Offline</h3>
+    <table class="table table-striped">
+      <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Tên Phòng</th>
+        <th>Nhân Viên Tạo</th>
+        <th>Thao Tác</th>
+      </tr>
+      </thead>
+      <tbody id="offlineRooms">
+      <tr th:each="room : ${rooms}" th:attr="data-id=${room.roomId}, data-name=${room.roomName}">
+        <td th:text="${room.roomId}"></td>
+        <td th:text="${room.roomName}"></td>
+        <td th:text="${room.employee.firstName + ' ' + room.employee.lastName}"></td>
+        <td>
+          <a th:href="@{/SuaPhongHocOffline/{id}(id=${room.roomId})}" class="btn btn-warning btn-sm">
+            <i class="fas fa-edit"></i> Sửa
+          </a>
+          <a th:href="@{/XoaPhongHocOffline/{id}(id=${room.roomId})}" class="btn btn-danger btn-sm"
+             onclick="return confirm('Bạn có chắc chắn muốn xóa?');">
+            <i class="fas fa-trash-alt"></i> Xóa
+          </a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Cột Phòng Học Online -->
+  <div class="col-md-6">
+    <h3 class="text-center text-success"><i class="fas fa-laptop"></i> Phòng Học Online</h3>
+    <table class="table table-striped">
+      <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Tên Phòng</th>
+        <th>Nhân Viên Tạo</th>
+        <th>Thao Tác</th>
+      </tr>
+      </thead>
+      <tbody id="onlineRooms">
+      <tr th:each="room : ${roomsonline}" th:attr="data-id=${room.roomId}, data-name=${room.roomName}">
+        <td th:text="${room.roomId}"></td>
+        <td th:text="${room.roomName}"></td>
+        <td th:text="${room.employee.firstName + ' ' + room.employee.lastName}"></td>
+        <td>
+          <a th:href="@{/SuaPhongHocOnline/{id}(id=${room.roomId})}" class="btn btn-warning btn-sm">
+            <i class="fas fa-edit"></i> Sửa
+          </a>
+          <a th:href="@{/XoaPhongHocOnline/{id}(id=${room.roomId})}" class="btn btn-danger btn-sm"
+             onclick="return confirm('Bạn có chắc chắn muốn xóa?');">
+            <i class="fas fa-trash-alt"></i> Xóa
+          </a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+  function filterRooms() {
+    let searchType = document.getElementById("searchType").value; // "id" hoặc "name"
+    let searchValue = document.getElementById("searchInput").value.toLowerCase();
+    let offlineRows = document.querySelectorAll("#offlineRooms tr");
+    let onlineRows = document.querySelectorAll("#onlineRooms tr");
+
+    offlineRows.forEach(row => {
+      let roomId = row.getAttribute("data-id").toLowerCase();
+      let roomName = row.getAttribute("data-name").toLowerCase();
+      let match = searchType === "id" ? roomId.includes(searchValue) : roomName.includes(searchValue);
+      row.style.display = match ? "" : "none";
+    });
+
+    onlineRows.forEach(row => {
+      let roomId = row.getAttribute("data-id").toLowerCase();
+      let roomName = row.getAttribute("data-name").toLowerCase();
+      let match = searchType === "id" ? roomId.includes(searchValue) : roomName.includes(searchValue);
+      row.style.display = match ? "" : "none";
+    });
+  }
+
+  function resetSearch() {
+    document.getElementById("searchInput").value = "";
+    filterRooms();
+  }
+</script>
+
+<!-- CSS -->
+<style>
+  #searchType, #searchInput {
+    max-width: 200px;
+  }
+</style>
+
+</body>
+</html>
