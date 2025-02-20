@@ -11,7 +11,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -91,18 +90,30 @@ public class GiaoVienGet {
     @GetMapping("ChiTietLopHocGiaoVien/{id}")
     public String ChiTietLopHocGiaoVien(@PathVariable String id, ModelMap model) {
         Object room = entityManager.find(Rooms.class, id);
-
         if (room == null) {
             room = entityManager.find(OnlineRooms.class, id);
         }
 
-        // Kiểm tra nếu room vẫn null sau khi tìm kiếm
         if (room == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Lớp học không tồn tại!");
         }
 
-        // Thêm vào model để Thymeleaf hiển thị đúng loại phòng
-        model.addAttribute("room", room);
+        String roomId;
+        if (room instanceof Rooms) {
+            roomId = ((Rooms) room).getRoomId();
+            model.addAttribute("room", room);
+        } else if (room instanceof OnlineRooms) {
+            roomId = ((OnlineRooms) room).getRoomId();
+            model.addAttribute("room", room);
+        } else {
+            throw new IllegalArgumentException("Loại phòng không hợp lệ!");
+        }
+
+        // Lấy bài đăng
+        List<Posts> posts = entityManager.createQuery("SELECT p FROM Posts p WHERE p.room.roomId = :roomId", Posts.class)
+                .setParameter("roomId", roomId)
+                .getResultList();
+        model.addAttribute("posts", posts);
 
         return "ChiTietLopHocGiaoVien";
     }
@@ -167,7 +178,6 @@ public class GiaoVienGet {
                 contacts.add(message.getRecipient());  // Người nhận khác giáo viên
             }
         }
-
         model.addAttribute("contacts", contacts);  // Danh sách các liên hệ (người đã nhắn tin)
         return "TinNhanCuaGiaoVien";  // Trả về view
     }

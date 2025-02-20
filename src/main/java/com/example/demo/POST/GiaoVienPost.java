@@ -1,27 +1,49 @@
 package com.example.demo.POST;
 import com.example.demo.OOP.*;
+import com.example.demo.Repository.DocumentsRepository;
+import com.example.demo.Repository.PersonRepository;
+import com.example.demo.Repository.PostsRepository;
 import com.mysql.cj.protocol.Message;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 @RequestMapping("/")
 @Transactional
 public class GiaoVienPost {
 
+
     @PersistenceContext
     private EntityManager entityManager;
+    @Autowired
+    private PersonRepository personRepository;
+
+    @Autowired
+    private PostsRepository postsRepository;
+
+    @Autowired
+    private DocumentsRepository documentsRepository;
+    @Transactional
 
     @PostMapping("/DangKyGiaoVien")
     public String dangKyGiaoVien(@RequestParam("EmployeeID") String employeeID,
@@ -124,6 +146,85 @@ public class GiaoVienPost {
 
         // Chuyển hướng đến trang chi tiết tin nhắn
         return "redirect:/ChiTietTinNhanCuaGiaoVien/" + studentID;
+    }
+    private static final Logger log = LoggerFactory.getLogger(GiaoVienPost.class);
+
+    @Value("${file.upload-dir:C:/uploads}")
+    private String uploadDir;
+    @Transactional
+    @PostMapping("/BaiPostGiaoVien")
+    public String handlePost(@RequestParam("postContent") String postContent,
+                             @RequestParam(value = "file", required = false) MultipartFile file,
+                             @RequestParam("roomId") String roomId,
+                             RedirectAttributes redirectAttributes,
+                             HttpSession session) {
+        try {
+            log.info("🔍 Bắt đầu xử lý bài đăng. Nội dung: {}", postContent);
+
+            // 🟢 Lấy ID giáo viên
+            String teacherId = (String) session.getAttribute("TeacherID");
+            if (teacherId == null) {
+                log.error("🚫 Không tìm thấy ID giáo viên.");
+                redirectAttributes.addFlashAttribute("error", "Lỗi: Không tìm thấy ID giáo viên.");
+                return "redirect:/DangNhapGiaoVien";
+            }
+
+            // 📚 Lấy thông tin giáo viên
+            Teachers teacher = entityManager.find(Teachers.class, teacherId);
+            if (teacher == null) {
+                throw new IllegalArgumentException("Không tìm thấy giáo viên với ID: " + teacherId);
+            }
+
+            // 📝 Tạo bài đăng
+            Posts newPost = new Posts();
+            newPost.setContent(postContent);
+            newPost.setCreator(teacher);
+
+            // 🏫 Lấy phòng học
+            Rooms room = entityManager.find(Rooms.class, roomId);
+            if (room == null) {
+                throw new IllegalArgumentException("Không tìm thấy phòng học với ID: " + roomId);
+            }
+            newPost.setRoom(room);
+
+            // 💾 Lưu bài post
+            entityManager.persist(newPost);
+            log.info("✅ Bài đăng đã được lưu với ID: {}", newPost.getPostId());
+
+            // 📂 Xử lý tệp
+            if (file != null && !file.isEmpty()) {
+                byte[] fileData = file.getBytes();
+                log.info("📏 Kích thước tệp (bytes): {}", fileData.length);
+
+                if (fileData.length == 0) {
+                    throw new IOException("❌ Tệp rỗng hoặc không đọc được.");
+                }
+
+                // Lưu tệp vào DB
+                Documents document = new Documents();
+                document.setDocumentTitle(file.getOriginalFilename());
+                document.setFileData(fileData);  // 🟢 Lưu byte[] vào DB
+                document.setFilePath(uploadDir + File.separator + file.getOriginalFilename());
+                document.setCreator(teacher);
+                document.setPost(newPost);
+
+                entityManager.persist(document);
+                log.info("✅ Document đã lưu với ID: {}", document.getDocumentId());
+            }
+
+            redirectAttributes.addFlashAttribute("message", "Bài đăng đã được tạo thành công!");
+
+        } catch (IOException e) {
+            log.error("❌ Lỗi khi xử lý tệp: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xử lý tệp: " + e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        } catch (Exception e) {
+            log.error("🚫 Lỗi không mong muốn: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Lỗi hệ thống: " + e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+
+        return "redirect:/ChiTietLopHocGiaoVien/" + roomId;
     }
 
 
