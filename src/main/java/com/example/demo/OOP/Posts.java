@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -35,9 +36,14 @@ public class Posts {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Documents> documents;
 
+    @Column(name = "CreatedAt", updatable = false, nullable = true)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
 
     public Posts(Person creator, String content) {
         this.creator = creator;
         this.content = content;
     }
+
 }

@@ -70,6 +70,10 @@
       <li th:each="post : ${posts}">
         <p><strong>👤 Người đăng:</strong> <span th:text="${post.creator?.firstName + ' ' + post.creator?.lastName}"></span></p>
         <p><strong>📝 Nội dung:</strong> <span th:text="${post.content}"></span></p>
+        <p><strong>Thời gian đăng tải:</strong>
+          <span th:text="${post.getCreatedAt()}"></span>
+        </p>
+
 
         <!-- 📂 Tài liệu đính kèm -->
         <div class="document-list" th:if="${post.documents != null and not #lists.isEmpty(post.documents)}">

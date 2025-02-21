@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Documents")
@@ -35,4 +38,5 @@ public class Documents {
     @ManyToOne
     @JoinColumn(name = "PostID", nullable = false, foreignKey = @ForeignKey(name = "FK_Documents_Posts"))
     private Posts post;
+
 }

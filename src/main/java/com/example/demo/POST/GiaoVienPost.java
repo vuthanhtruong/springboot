@@ -179,6 +179,7 @@ public class GiaoVienPost {
             Posts newPost = new Posts();
             newPost.setContent(postContent);
             newPost.setCreator(teacher);
+            newPost.setCreatedAt(LocalDateTime.now());
 
             // 🏫 Lấy phòng học
             Rooms room = entityManager.find(Rooms.class, roomId);
