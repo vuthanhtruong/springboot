@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi Tiết Tin Nhắn Của Giáo Viên</title>
     <link rel="stylesheet" href="/ChiTietTinNhanCuaGiaoVien.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Thêm jQuery -->
 </head>
 <body>
 
@@ -17,27 +18,25 @@
     </div>
 
     <!-- Hiển thị danh sách tin nhắn -->
-    <div th:each="message : ${messages}"
-         class="message-box"
-         th:classappend="${message.sender != null and message.sender.getId() == teacher.id} ? 'right' : 'left'">
-
-        <div class="message-header">
-            <!-- Hiển thị tên và ID người gửi (Kiểm tra null trước khi truy cập) -->
-            <span th:text="${message.sender != null and message.sender.getId() != null ?
-                (message.sender.getId() == teacher.id ? 'Giáo viên: ' + message.sender.getId()
-                : 'Học sinh: ' + message.sender.getId())
-                : 'Không xác định'}">
-            </span>
+    <div id="messagesContainer">
+        <div th:each="message : ${messages}"
+             class="message-box"
+             th:classappend="${message.sender != null and message.sender.getId() == teacher.id} ? 'right' : 'left'">
+            <div class="message-header">
+                <span th:text="${message.sender != null and message.sender.getId() != null ?
+                    (message.sender.getId() == teacher.id ? 'Giáo viên: ' + message.sender.getId()
+                    : 'Học sinh: ' + message.sender.getId()) : 'Không xác định'}">
+                </span>
+            </div>
+            <div class="message-time" th:text="${#temporals.format(message.datetime, 'dd/MM/yyyy HH:mm')}"></div>
+            <div class="message-text" th:text="${message.text}"></div>
         </div>
-
-        <div class="message-time" th:text="${#temporals.format(message.datetime, 'dd/MM/yyyy HH:mm')}"></div>
-        <div class="message-text" th:text="${message.text}"></div>
     </div>
 
     <!-- Form gửi tin nhắn -->
     <div class="message-form">
         <h3>Gửi tin nhắn mới</h3>
-        <form th:action="@{/ChiTietTinNhanCuaGiaoVien}" method="post">
+        <form id="messageForm" method="post">
             <input type="hidden" name="studentID" th:value="${student.id}" />
             <input type="hidden" name="teacherID" th:value="${teacher.id}" />
             <textarea name="messageText" placeholder="Nhập tin nhắn..." required></textarea>
@@ -46,6 +45,33 @@
     </div>
 
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('#messageForm').on('submit', function(event) {
+            event.preventDefault(); // Ngừng việc reload trang
+
+            // Thu thập dữ liệu form
+            var formData = $(this).serialize();
+
+            // Gửi tin nhắn qua AJAX
+            $.ajax({
+                url: '/ChiTietTinNhanCuaGiaoVien', // Địa chỉ gửi tin nhắn
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Cập nhật lại danh sách tin nhắn sau khi gửi
+                    $('#messagesContainer').load(location.href + " #messagesContainer > *");
+                    // Xóa nội dung textarea
+                    $("textarea[name='messageText']").val('');
+                },
+                error: function() {
+                    alert('Lỗi gửi tin nhắn!');
+                }
+            });
+        });
+    });
+</script>
 
 </body>
 </html>
