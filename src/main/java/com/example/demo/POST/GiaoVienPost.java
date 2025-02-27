@@ -3,7 +3,7 @@ import com.example.demo.OOP.*;
 import com.example.demo.Repository.DocumentsRepository;
 import com.example.demo.Repository.PersonRepository;
 import com.example.demo.Repository.PostsRepository;
-import com.mysql.cj.protocol.Message;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
@@ -108,47 +108,8 @@ public class GiaoVienPost {
             return "DangNhapGiaoVien";
         }
     }
-    @PostMapping("/ChiTietTinNhanCuaGiaoVien")
-    @Transactional
-    public String handleMessage(@RequestParam("studentID") String studentID,
-                                @RequestParam("teacherID") String teacherID,
-                                @RequestParam("messageText") String messageText,
-                                ModelMap model) {
-        // Kiểm tra dữ liệu đầu vào
-        if (messageText == null || messageText.trim().isEmpty()) {
-            model.addAttribute("error", "Nội dung tin nhắn không được để trống!");
-            return "redirect:/ChiTietTinNhanCuaGiaoVien/" + studentID;
-        }
 
-        // Tìm sender (giáo viên) và recipient (học sinh) trong database
-        Person sender = entityManager.find(Person.class, teacherID);
-        Person recipient = entityManager.find(Person.class, studentID);
-
-        // Kiểm tra xem cả hai người có tồn tại hay không
-        if (sender == null || recipient == null) {
-            model.addAttribute("error", "Không tìm thấy giáo viên hoặc học sinh.");
-            return "redirect:/ChiTietTinNhanCuaGiaoVien/" + studentID;
-        }
-
-        try {
-            // Tạo tin nhắn mới
-            Messages message = new Messages();
-            message.setSender(sender);
-            message.setRecipient(recipient);
-            message.setText(messageText.trim());
-            message.setDatetime(LocalDateTime.now());
-
-            // Lưu vào cơ sở dữ liệu
-            entityManager.persist(message);
-        } catch (Exception e) {
-            model.addAttribute("error", "Gửi tin nhắn thất bại, vui lòng thử lại.");
-        }
-
-        // Chuyển hướng đến trang chi tiết tin nhắn
-        return "redirect:/ChiTietTinNhanCuaGiaoVien/" + studentID;
-    }
     private static final Logger log = LoggerFactory.getLogger(GiaoVienPost.class);
-
     @Value("${file.upload-dir:C:/uploads}")
     private String uploadDir;
     @Transactional

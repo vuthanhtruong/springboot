@@ -8,6 +8,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,12 +25,11 @@ public class AdminGet {
     private EntityManager entityManager;
 
     @GetMapping("/TrangChuAdmin")
-    public String TrangChuAdmin(HttpSession session, ModelMap model) {
-        if(session.getAttribute("AdminID") == null) {
+    public String trangChuAdmin(ModelMap model,HttpSession session) {
+        if (session.getAttribute("AdminID") == null) {
             return "redirect:/DangNhapAdmin";
         }
-        Admin admin = entityManager.find(Admin.class, session.getAttribute("AdminID"));
-        model.addAttribute("admin",admin);
+        model.addAttribute("adminID", session.getAttribute("AdminID"));
         return "TrangChuAdmin";
     }
 

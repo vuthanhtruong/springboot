@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi Tiết Tin Nhắn Của Giáo Viên</title>
     <link rel="stylesheet" href="/ChiTietTinNhanCuaGiaoVien.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Thêm jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 
@@ -36,42 +38,75 @@
     <!-- Form gửi tin nhắn -->
     <div class="message-form">
         <h3>Gửi tin nhắn mới</h3>
-        <form id="messageForm" method="post">
-            <input type="hidden" name="studentID" th:value="${student.id}" />
-            <input type="hidden" name="teacherID" th:value="${teacher.id}" />
-            <textarea name="messageText" placeholder="Nhập tin nhắn..." required></textarea>
+        <form id="messageForm">
+            <input type="hidden" id="studentID" th:value="${student.id}" />
+            <input type="hidden" id="teacherID" th:value="${teacher.id}" />
+            <textarea id="messageText" placeholder="Nhập tin nhắn..." required></textarea>
             <button type="submit">Gửi</button>
         </form>
     </div>
-
 </div>
 
 <script>
-    $(document).ready(function() {
-        $('#messageForm').on('submit', function(event) {
-            event.preventDefault(); // Ngừng việc reload trang
+    var socket = new SockJS("/ws"); // Kết nối WebSocket
+    var stompClient = Stomp.over(socket);
 
-            // Thu thập dữ liệu form
-            var formData = $(this).serialize();
+    stompClient.connect({}, function (frame) {
+        console.log("✅ Kết nối WebSocket thành công:", frame);
 
-            // Gửi tin nhắn qua AJAX
-            $.ajax({
-                url: '/ChiTietTinNhanCuaGiaoVien', // Địa chỉ gửi tin nhắn
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    // Cập nhật lại danh sách tin nhắn sau khi gửi
-                    $('#messagesContainer').load(location.href + " #messagesContainer > *");
-                    // Xóa nội dung textarea
-                    $("textarea[name='messageText']").val('');
-                },
-                error: function() {
-                    alert('Lỗi gửi tin nhắn!');
-                }
-            });
+        // Lắng nghe tin nhắn từ người nhận
+        stompClient.subscribe("/user/queue/messages", function (message) {
+            var receivedMessage = JSON.parse(message.body);
+            console.log("📩 Nhận tin nhắn:", receivedMessage);
+
+            appendMessage(receivedMessage.senderId, receivedMessage.content);
         });
     });
+
+    $("#messageForm").on("submit", function (event) {
+        event.preventDefault(); // Ngăn chặn reload trang
+
+        var senderId = $("#teacherID").val();
+        var messageContent = $("#messageText").val();
+
+        var message = {
+            senderId: senderId,
+            recipientId: $("#studentID").val(),
+            content: messageContent
+        };
+
+        stompClient.send("/app/chat", {}, JSON.stringify(message)); // Gửi tin nhắn lên server
+
+        // 🚀 Hiển thị ngay tin nhắn trên giao diện mà không cần chờ phản hồi
+        appendMessage(senderId, messageContent);
+
+        $("#messageText").val(""); // Xóa nội dung input
+    });
+
+
+
+    // ✅ Hàm thêm tin nhắn vào giao diện và tự động cuộn xuống
+    function appendMessage(senderId, content) {
+        var sender = senderId === $("#teacherID").val() ? "Giáo viên" : "Học sinh";
+
+        var messageHTML = `
+            <div class="message-box ${sender === 'Giáo viên' ? 'right' : 'left'}">
+                <div class="message-header">${sender}: ${senderId}</div>
+                <div class="message-time">${new Date().toLocaleString()}</div>
+                <div class="message-text">${content}</div>
+            </div>
+        `;
+
+        $("#messagesContainer").append(messageHTML);
+        scrollToBottom();
+    }
+
+    // ✅ Cuộn xuống tin nhắn mới nhất
+    function scrollToBottom() {
+        $("#messagesContainer").scrollTop($("#messagesContainer")[0].scrollHeight);
+    }
 </script>
+
 
 </body>
 </html>

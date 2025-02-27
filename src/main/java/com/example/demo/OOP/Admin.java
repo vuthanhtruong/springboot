@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
+
 import java.util.Set;
 
 @Entity
@@ -22,7 +23,7 @@ public class Admin extends Person {
 
     // Constructor có tham số
     public Admin(String id, String password, String firstName, String lastName, String email, String phoneNumber) {
-        super(); // Gọi constructor của Person
+        super();
         this.setId(id);
         this.setFirstName(firstName);
         this.setLastName(lastName);
@@ -30,6 +31,7 @@ public class Admin extends Person {
         this.setPhoneNumber(phoneNumber);
         this.password = password;
     }
+
 
     // Constructor không tham số (cần thiết cho JPA)
     public Admin() {
