@@ -188,6 +188,20 @@ public class GiaoVienPost {
 
         return "redirect:/ChiTietLopHocGiaoVien/" + roomId;
     }
+    @PostMapping("/LuuThongTinGiaoVien")
+    public String LuuThongTinGiaoVien(@RequestParam("firstName") String firstName, @RequestParam("lastName") String lastName,
+                                      @RequestParam("email") String email,
+                                      @RequestParam("misID") String misID, @RequestParam("phoneNumber") String phoneNumber, HttpSession session) {
+
+        Teachers teacher = entityManager.find(Teachers.class, session.getAttribute("TeacherID"));
+        teacher.setFirstName(firstName);
+        teacher.setLastName(lastName);
+        teacher.setEmail(email);
+        teacher.setMisID(misID);
+        teacher.setPhoneNumber(phoneNumber);
+        entityManager.persist(teacher);
+        return "redirect:/TrangCaNhanGiaoVien";
+    }
 
 
 

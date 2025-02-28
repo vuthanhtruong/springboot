@@ -218,6 +218,16 @@ public class GiaoVienGet {
 
         return "ChiTietTinNhanCuaGiaoVien";
     }
+    @GetMapping("/TrangCaNhanGiaoVien")
+    public String TrangCaNhanGiaoVien(HttpSession session, ModelMap model) {
+        if(session.getAttribute("TeacherID") == null) {
+            return "redirect:/DangNhapGiaoVien?error=TeacherNotFound";
+        }
+        Teachers teacher =entityManager.find(Teachers.class, session.getAttribute("TeacherID"));
+        model.addAttribute("teacher", teacher);
+
+        return "TrangCaNhanGiaoVien";
+    }
 
 
 
