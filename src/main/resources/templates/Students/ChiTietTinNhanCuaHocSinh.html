@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Tin Nhắn Của Học Sinh</title>
+    <link rel="stylesheet" href="/ChiTietTinNhanCuaGiaoVien.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h2>Chi Tiết Tin Nhắn</h2>
+
+    <!-- Nút quay về trang chủ -->
+    <div class="back-button">
+        <a href="/TrangChuHocSinh" class="btn btn-primary">Quay về Trang Chủ</a>
+    </div>
+
+    <!-- Hiển thị danh sách tin nhắn -->
+    <div id="messagesContainer">
+        <div th:each="message : ${messages}"
+             class="message-box"
+             th:classappend="${message.sender != null and message.sender.getId() == student.id} ? 'right' : 'left'">
+            <div class="message-header">
+                <span th:text="${message.sender != null and message.sender.getId() != null ?
+                    (message.sender.getId() == student.id ? 'Học sinh: ' + message.sender.getId()
+                    : 'Giáo viên: ' + message.sender.getId()) : 'Không xác định'}">
+                </span>
+            </div>
+            <div class="message-time" th:text="${#temporals.format(message.datetime, 'dd/MM/yyyy HH:mm')}"></div>
+            <div class="message-text" th:text="${message.text}"></div>
+        </div>
+    </div>
+
+    <!-- Form gửi tin nhắn -->
+    <div class="message-form">
+        <h3>Gửi tin nhắn mới</h3>
+        <form id="messageForm">
+            <input type="hidden" id="studentID" th:value="${student.id}" />
+            <input type="hidden" id="teacherID" th:value="${teacher.id}" />
+            <textarea id="messageText" placeholder="Nhập tin nhắn..." required></textarea>
+            <button type="submit">Gửi</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var socket = new SockJS("/ws");
+        var stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log("✅ Kết nối WebSocket thành công:", frame);
+
+            var currentUserId = document.getElementById("studentID").value || document.getElementById("teacherID").value;
+            var subscriptionPath = "/user/" + currentUserId + "/queue/messages";
+
+            // Lắng nghe tin nhắn đến cho người dùng này
+            stompClient.subscribe(subscriptionPath, function (message) {
+                var receivedMessage = JSON.parse(message.body);
+                console.log("📩 Nhận tin nhắn:", receivedMessage);
+
+                if (receivedMessage.recipientId == currentUserId || receivedMessage.senderId == currentUserId) {
+                    appendMessage(receivedMessage.senderId, receivedMessage.content, receivedMessage.timestamp);
+                }
+            });
+        });
+
+        // Gửi tin nhắn
+        document.getElementById("messageForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            var senderId = document.getElementById("studentID").value || document.getElementById("teacherID").value;
+            var recipientId = document.getElementById("studentID").value
+                ? document.getElementById("teacherID").value
+                : document.getElementById("studentID").value;
+            var messageContent = document.getElementById("messageText").value.trim();
+
+            if (!messageContent) return;
+
+            var message = {
+                senderId: senderId,
+                recipientId: recipientId,
+                content: messageContent,
+                timestamp: new Date().toISOString()
+            };
+
+            stompClient.send("/app/chat", {}, JSON.stringify(message));
+            appendMessage(senderId, messageContent, message.timestamp);
+            document.getElementById("messageText").value = "";
+        });
+
+        function appendMessage(senderId, content, timestamp) {
+            var currentUserId = document.getElementById("studentID").value || document.getElementById("teacherID").value;
+            var sender = senderId == currentUserId ? "Bạn" : (senderId == document.getElementById("teacherID").value ? "Giáo viên" : "Học sinh");
+
+            var messageHTML = `
+            <div class="message-box ${senderId == currentUserId ? 'right' : 'left'}">
+                <div class="message-header">${sender}: ${senderId}</div>
+                <div class="message-time">${new Date(timestamp).toLocaleString()}</div>
+                <div class="message-text">${content}</div>
+            </div>
+        `;
+
+            document.getElementById("messagesContainer").insertAdjacentHTML('beforeend', messageHTML);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            var container = document.getElementById("messagesContainer");
+            container.scrollTop = container.scrollHeight;
+        }
+    });
+</script>
+
+</body>
+</html>

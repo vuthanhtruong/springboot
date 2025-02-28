@@ -69,7 +69,7 @@ public class StudentPost {
     }
 
     @PostMapping("/DangNhapHocSinh")
-    public String DangNhapHocSinh(@RequestParam("studentID") long studentID,
+    public String DangNhapHocSinh(@RequestParam("studentID") String studentID,
                                   @RequestParam("password") String password,
                                   ModelMap model,
                                   HttpSession session) {

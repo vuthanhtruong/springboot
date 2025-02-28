@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Lớp Học Học Sinh</title>
+    <link rel="stylesheet" href="/ChiTietLopHocGiaoVien.css">
+</head>
+
+<body>
+
+<header>
+    <h1>Chi Tiết Lớp Học</h1>
+</header>
+
+<div class="container">
+    <!-- 🏫 Thông Tin Lớp Học -->
+    <div class="class-detail">
+        <h2>Thông Tin Lớp Học</h2>
+        <div class="class-info">
+            <p><strong>Tên lớp học:</strong> <span th:text="${room?.roomName ?: 'Không xác định'}">Tên lớp học</span></p>
+
+            <p><strong>Địa chỉ/Link:</strong>
+                <span th:if="${room instanceof T(com.example.demo.OOP.Rooms)}" th:text="${room?.address ?: 'Không có địa chỉ'}"></span>
+                <span th:if="${room instanceof T(com.example.demo.OOP.OnlineRooms)}" th:text="${room?.link ?: 'Không có link'}"></span>
+            </p>
+
+            <p><strong>Thời gian bắt đầu:</strong>
+                <span th:text="${room?.startTime != null ? #temporals.format(room.startTime, 'yyyy-MM-dd HH:mm') : 'Chưa có'}"></span>
+            </p>
+
+            <p><strong>Thời gian kết thúc:</strong>
+                <span th:text="${room?.endTime != null ? #temporals.format(room.endTime, 'yyyy-MM-dd HH:mm') : 'Chưa có'}"></span>
+            </p>
+        </div>
+    </div>
+
+    <!-- 🌟 Nút điều hướng -->
+    <div class="buttons">
+        <a th:href="@{/TrangChuHocSinh}" class="btn btn-primary">🏠 Quay về Trang Chủ</a>
+        <a th:href="@{/DanhSachLopHocHocSinh}" class="btn btn-secondary">📚 Danh Sách Lớp Học</a>
+    </div>
+
+    <!-- 📄 Danh sách bài đăng -->
+    <div class="post-list">
+        <h2>Bài Đăng Trong Lớp</h2>
+        <ul>
+            <li th:each="post : ${posts}">
+                <p><strong>👤 Người đăng:</strong> <span th:text="${post.creator?.firstName + ' ' + post.creator?.lastName}"></span></p>
+                <p><strong>📝 Nội dung:</strong> <span th:text="${post.content}"></span></p>
+                <p><strong>Thời gian đăng tải:</strong>
+                    <span th:text="${post.getCreatedAt()}"></span>
+                </p>
+
+                <!-- 📂 Tài liệu đính kèm -->
+                <div class="document-list" th:if="${post.documents != null and not #lists.isEmpty(post.documents)}">
+                    <h4>📄 Tài liệu đính kèm:</h4>
+                    <ul>
+                        <th:block th:each="document : ${post.documents}">
+                            <li>
+                                <a th:href="@{'/api/files/download/' + ${document.documentId}}"
+                                   th:download="${document.documentTitle}"
+                                   class="btn btn-download">
+                                    📥 Tải xuống
+                                </a>
+                            </li>
+                        </th:block>
+                    </ul>
+                </div>
+
+                <hr>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+</body>
+</html>

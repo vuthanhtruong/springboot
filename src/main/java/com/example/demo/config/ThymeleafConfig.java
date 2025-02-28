@@ -49,4 +49,25 @@ public class ThymeleafConfig {
         resolver.setCheckExistence(true);
         return resolver;
     }
+
+    @Bean
+    public SpringResourceTemplateResolver templateResolver5() {
+        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+        resolver.setPrefix("classpath:/templates/Students/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode("HTML");
+        resolver.setOrder(3);
+        resolver.setCheckExistence(true);
+        return resolver;
+    }
+    @Bean
+    public SpringResourceTemplateResolver templateResolver6() {
+        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+        resolver.setPrefix("classpath:/templates/js/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode("HTML");
+        resolver.setOrder(3);
+        resolver.setCheckExistence(true);
+        return resolver;
+    }
 }

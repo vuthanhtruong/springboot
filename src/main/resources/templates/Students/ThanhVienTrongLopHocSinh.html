@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thành Viên Lớp Học</title>
+    <link rel="stylesheet" href="/ThanhVienTrongLopGiaoVien.css">
+</head>
+
+<body>
+
+<header>
+    <h1>Danh Sách Thành Viên Trong Lớp Học</h1>
+    <!-- Back Button Section -->
+    <div class="buttons">
+        <a href="/TrangChuHocSinh" class="btn btn-primary">Quay về Trang Chủ</a>
+        <a href="/DanhSachLopHocHocSinh" class="btn btn-secondary">Quay về Danh Sách Lớp Học</a>
+    </div>
+</header>
+
+<!-- Phân chia màn hình thành 2 phần -->
+<div class="container">
+    <!-- Section for Teachers -->
+    <div class="section left">
+        <h2>Danh Sách Giáo Viên</h2>
+        <ul>
+            <th:block th:each="teacher : ${teachers}">
+                <li>
+                    <div class="teacher-info">
+                        <div class="teacher-details">
+                            <strong th:text="${teacher.firstName} + ' ' + ${teacher.lastName}">Teacher Name</strong><br>
+                            <span th:text="${teacher.email}">Teacher Email</span><br>
+                            <span th:text="${teacher.phoneNumber}">Teacher Phone</span>
+                        </div>
+                        <!-- Message Button -->
+                        <button class="btn btn-message"
+                                th:data-teacherid="${teacher.id}"
+                                onclick="window.location.href='/ChiTietTinNhanCuaHocSinh/' + this.getAttribute('data-teacherid')">
+                            Gửi Tin Nhắn
+                        </button>
+                    </div>
+                </li>
+            </th:block>
+        </ul>
+    </div>
+
+    <!-- Section for Students -->
+    <div class="section right">
+        <h2>Danh Sách Học Sinh</h2>
+        <ul>
+            <th:block th:each="student : ${students}">
+                <li>
+                    <strong th:text="${student.firstName} + ' ' + ${student.lastName}">Student Name</strong><br>
+                    <span th:text="${student.email}">Student Email</span><br>
+                    <span th:text="${student.phoneNumber}">Student Phone</span>
+                </li>
+            </th:block>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

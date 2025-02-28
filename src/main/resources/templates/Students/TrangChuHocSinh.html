@@ -1,26 +1,53 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trang Chủ Học Sinh</title>
-  <link rel="stylesheet" href="/TrangChuHocSinh.css">
+  <!-- Thêm liên kết tới Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="/TrangChuHocSinh.css" rel="stylesheet">
 </head>
 <body>
 
-<div class="container">
-  <h1>🎓 Chào mừng, <span th:text="${student.firstName}"></span>!</h1>
+<!-- Container chính -->
+<div class="container mt-4">
+  <!-- Tiêu đề trang -->
+  <header class="text-center">
+    <h2>Trang Chủ Học Sinh</h2>
+    <hr>
+  </header>
 
-  <div class="info-box">
-    <p><strong>Mã học sinh:</strong> <span th:text="${student.id}"></span></p>
-    <p><strong>Họ và tên:</strong> <span th:text="${student.firstName} + ' ' + ${student.lastName}"></span></p>
-    <p><strong>Email:</strong> <span th:text="${student.email}"></span></p>
-    <p><strong>Số điện thoại:</strong> <span th:text="${student.phoneNumber}"></span></p>
-  </div>
-
-  <div class="actions">
-    <a href="/XemKhoaHoc" class="btn btn-primary">📚 Xem Khóa Học</a>
-    <a href="/SuaThongTinHocSinh" class="btn btn-warning">✏️ Cập Nhật Thông Tin</a>
-    <a href="/DangXuatHocSinh" class="btn btn-danger">🚪 Đăng Xuất</a>
+  <!-- Phân chia nội dung thành 2 cột -->
+  <div class="row">
+    <!-- Menu điều hướng bên trái -->
+    <nav class="col-md-3">
+      <div class="nav-item">
+        <a href="/TinNhanCuaHocSinh" class="text-dark">
+          <i class="fas fa-comments"></i> Đoạn Chat
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="/DanhSachBlog" class="text-dark">
+          <i class="fas fa-blog"></i> Mục Blog
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="/DanhSachLopHocHocSinh" class="text-dark">
+          <i class="fas fa-chalkboard"></i> Lớp Học Của Tôi
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="/TrangCaNhanHocSinh" class="text-dark">
+          <i class="fas fa-user"></i> Trang Cá Nhân
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="/DangXuatHocSinh" class="text-danger">
+          <i class="fas fa-sign-out-alt"></i> Đăng Xuất
+        </a>
+      </div>
+    </nav>
   </div>
 </div>
 

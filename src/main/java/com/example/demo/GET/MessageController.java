@@ -31,33 +31,51 @@ public class MessageController {
     }
 
     @MessageMapping("/chat")
-    @Transactional  // 🔹 Đảm bảo giao dịch không bị rollback
+    @Transactional
     public void sendMessage(ChatMessage chatMessage) {
         try {
             Optional<Person> sender = personRepository.findById(chatMessage.getSenderId());
             Optional<Person> recipient = personRepository.findById(chatMessage.getRecipientId());
 
             if (sender.isPresent() && recipient.isPresent()) {
+                // Tạo và lưu tin nhắn vào DB
                 Messages message = new Messages();
                 message.setSender(sender.get());
                 message.setRecipient(recipient.get());
                 message.setDatetime(LocalDateTime.now());
                 message.setText(chatMessage.getContent());
 
-                Messages savedMessage = messagesRepository.save(message);  // 🔹 Kiểm tra xem có lưu vào DB không
-                System.out.println("Tin nhắn đã lưu với ID: " + savedMessage.getMessagesID());
+                Messages savedMessage = messagesRepository.save(message);
+                System.out.println("✅ Tin nhắn đã lưu với ID: " + savedMessage.getMessagesID());
 
-                // Gửi tin nhắn tới người nhận qua WebSocket
+                // 🔹 Chuẩn bị dữ liệu để gửi
+                ChatMessage responseMessage = new ChatMessage();
+                responseMessage.setSenderId(chatMessage.getSenderId());
+                responseMessage.setRecipientId(chatMessage.getRecipientId());
+                responseMessage.setContent(chatMessage.getContent());
+                responseMessage.setTimestamp(LocalDateTime.now().toString()); // Thêm thời gian gửi
+
+                // ✅ Gửi tin nhắn đến người nhận (recipient)
+                String recipientUsername = "user-" + chatMessage.getRecipientId(); // Đảm bảo có username hợp lệ
                 messagingTemplate.convertAndSendToUser(
-                        chatMessage.getRecipientId(),
-                        "/queue/messages",
-                        chatMessage
+                        recipientUsername, "/queue/messages", responseMessage
                 );
+
+                // ✅ Gửi tin nhắn đến người gửi (sender) để cập nhật giao diện
+                String senderUsername = "user-" + chatMessage.getSenderId();
+                messagingTemplate.convertAndSendToUser(
+                        senderUsername, "/queue/messages", responseMessage
+                );
+
             } else {
-                System.out.println("Người gửi hoặc người nhận không tồn tại");
+                System.out.println("❌ Người gửi hoặc người nhận không tồn tại");
             }
         } catch (Exception e) {
-            System.out.println("Lỗi khi gửi tin nhắn: " + e.getMessage());
+            System.out.println("❌ Lỗi khi gửi tin nhắn: " + e.getMessage());
+            e.printStackTrace();  // Hiển thị lỗi đầy đủ để debug
         }
     }
+
+
+
 }
