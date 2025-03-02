@@ -58,7 +58,6 @@
         <input type="file" name="file" id="file" accept=".pdf, .doc, .docx, .png, .jpg, .jpeg, .zip, .mp4, .avi, .mov">
       </div>
 
-
       <button type="submit">🚀 Đăng Bài</button>
     </form>
   </div>
@@ -70,10 +69,7 @@
       <li th:each="post : ${posts}">
         <p><strong>👤 Người đăng:</strong> <span th:text="${post.creator?.firstName + ' ' + post.creator?.lastName}"></span></p>
         <p><strong>📝 Nội dung:</strong> <span th:text="${post.content}"></span></p>
-        <p><strong>Thời gian đăng tải:</strong>
-          <span th:text="${post.getCreatedAt()}"></span>
-        </p>
-
+        <p><strong>Thời gian đăng tải:</strong> <span th:text="${post.getCreatedAt()}"></span></p>
 
         <!-- 📂 Tài liệu đính kèm -->
         <div class="document-list" th:if="${post.documents != null and not #lists.isEmpty(post.documents)}">
@@ -91,6 +87,26 @@
           </ul>
         </div>
 
+        <!-- 💬 Mục nhập bình luận -->
+        <div class="comment-section">
+          <h3>💬 Bình luận</h3>
+
+          <!-- 📌 Hiển thị danh sách bình luận -->
+          <ul class="comment-list">
+            <li th:each="comment : ${post.comments}">
+              <p><strong>👤 Người bình luận:</strong> <span th:text="${comment.commenter?.firstName + ' ' + comment.commenter?.lastName}"></span></p>
+              <p><strong>💬 Nội dung:</strong> <span th:text="${comment.text}"></span></p>
+              <p><strong>⏳ Thời gian:</strong> <span th:text="${comment.createdAt}"></span></p>
+            </li>
+          </ul>
+
+          <!-- 📝 Form nhập bình luận -->
+          <form th:action="@{/BinhLuanGiaoVien}" method="POST">
+            <input type="hidden" name="postId" th:value="${post.postId}">
+            <textarea name="commentText" placeholder="Nhập bình luận..." required></textarea>
+            <button type="submit">💬 Gửi Bình Luận</button>
+          </form>
+        </div>
 
         <hr>
       </li>

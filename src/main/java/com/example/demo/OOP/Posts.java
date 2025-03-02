@@ -9,6 +9,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,6 +40,8 @@ public class Posts {
     @Column(name = "CreatedAt", updatable = false, nullable = true)
     @CreationTimestamp
     private LocalDateTime createdAt;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comments> comments = new ArrayList<>();
 
 
     public Posts(Person creator, String content) {

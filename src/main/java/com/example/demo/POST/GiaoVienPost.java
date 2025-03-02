@@ -17,11 +17,13 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.slf4j.Logger;
@@ -43,6 +45,7 @@ public class GiaoVienPost {
 
     @Autowired
     private DocumentsRepository documentsRepository;
+
     @Transactional
 
     @PostMapping("/DangKyGiaoVien")
@@ -112,6 +115,7 @@ public class GiaoVienPost {
     private static final Logger log = LoggerFactory.getLogger(GiaoVienPost.class);
     @Value("${file.upload-dir:C:/uploads}")
     private String uploadDir;
+
     @Transactional
     @PostMapping("/BaiPostGiaoVien")
     public String handlePost(@RequestParam("postContent") String postContent,
@@ -188,6 +192,7 @@ public class GiaoVienPost {
 
         return "redirect:/ChiTietLopHocGiaoVien/" + roomId;
     }
+
     @PostMapping("/LuuThongTinGiaoVien")
     public String LuuThongTinGiaoVien(@RequestParam("firstName") String firstName, @RequestParam("lastName") String lastName,
                                       @RequestParam("email") String email,
@@ -203,8 +208,26 @@ public class GiaoVienPost {
         return "redirect:/TrangCaNhanGiaoVien";
     }
 
+    @Transactional
+    @PostMapping("/BinhLuanGiaoVien")
+    public String themBinhLuan(@RequestParam("postId") Long postId,
+                               @RequestParam("commentText") String commentText, SessionStatus sessionStatus, HttpSession session) {
+        // Lấy thông tin người bình luận
+        Person commenter = entityManager.find(Person.class, session.getAttribute("TeacherID"));
 
+        // Lấy thông tin bài đăng
+        Posts post = entityManager.find(Posts.class, postId);
+        if (post == null) {
+            throw new IllegalArgumentException("Không tìm thấy bài đăng với ID: " + postId);
+        }
 
+        // Tạo mới bình luận
+        Comments comment = new Comments(commenter, post, commentText);
+
+        // Lưu vào database
+        entityManager.persist(comment);
+        return "redirect:/ChiTietLopHocGiaoVien/" + post.getRoom().getRoomId();
+    }
 
 }
 

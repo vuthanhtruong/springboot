@@ -34,6 +34,29 @@ public class StudentGet {
     public String TrangChuHocSinh(HttpSession session, ModelMap model) {
         Students student = entityManager.find(Students.class, session.getAttribute("StudentID"));
         model.addAttribute("student", student);
+        // Lấy danh sách lớp học của học sinh
+        List<ClassroomDetails> studentClasses = entityManager.createQuery(
+                        "SELECT cd FROM ClassroomDetails cd WHERE cd.member = :studentId", ClassroomDetails.class)
+                .setParameter("studentId", student)
+                .getResultList();
+
+// Tạo danh sách giáo viên
+        Set<Teachers> teachers = new HashSet<>();
+        for (ClassroomDetails cd : studentClasses) {
+            Room room = cd.getRoom();
+            List<ClassroomDetails> members = entityManager.createQuery(
+                            "SELECT cd FROM ClassroomDetails cd WHERE cd.room.roomId = :roomId", ClassroomDetails.class)
+                    .setParameter("roomId", room.getRoomId())
+                    .getResultList();
+
+            for (ClassroomDetails member : members) {
+                if (member.getMember() instanceof Teachers) {
+                    teachers.add((Teachers) member.getMember());
+                }
+            }
+        }
+        model.addAttribute("teachers", teachers);
+
         return "TrangChuHocSinh";
     }
     @GetMapping("/DangXuatHocSinh")
@@ -80,6 +103,7 @@ public class StudentGet {
 
         return "DanhSachLopHocHocSinh";
     }
+
     @GetMapping("ChiTietLopHocHocSinh/{id}")
     public String ChiTietLopHocHocSinh(@PathVariable String id, ModelMap model) {
         Object room = entityManager.find(Rooms.class, id);
@@ -90,26 +114,32 @@ public class StudentGet {
         if (room == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Lớp học không tồn tại!");
         }
-
         String roomId;
         if (room instanceof Rooms) {
             roomId = ((Rooms) room).getRoomId();
-            model.addAttribute("room", room);
         } else if (room instanceof OnlineRooms) {
             roomId = ((OnlineRooms) room).getRoomId();
-            model.addAttribute("room", room);
         } else {
             throw new IllegalArgumentException("Loại phòng không hợp lệ!");
         }
 
+        model.addAttribute("room", room);
         // Lấy danh sách bài đăng trong lớp
         List<Posts> posts = entityManager.createQuery("SELECT p FROM Posts p WHERE p.room.roomId = :roomId", Posts.class)
                 .setParameter("roomId", roomId)
                 .getResultList();
-        model.addAttribute("posts", posts);
 
+        // Lấy danh sách bình luận cho từng bài đăng
+        for (Posts post : posts) {
+            List<Comments> comments = entityManager.createQuery("SELECT c FROM Comments c WHERE c.post.postId = :postId", Comments.class)
+                    .setParameter("postId", post.getPostId())
+                    .getResultList();
+            post.setComments(comments);  // Đảm bảo Posts có phương thức setComments()
+        }
+        model.addAttribute("posts", posts);
         return "ChiTietLopHocHocSinh";
     }
+
     @GetMapping("/ThanhVienTrongLopHocSinh/{id}")
     public String ThanhVienTrongLopHocSinh(HttpSession session, @PathVariable String id, ModelMap model) {
         // Lấy đối tượng Room từ ID
@@ -125,15 +155,20 @@ public class StudentGet {
                 .getResultList();
 
         List<Students> students = new ArrayList<>();
+        List<Teachers>  teachers = new ArrayList<>();
         for (ClassroomDetails classroomDetail : classroomDetails) {
             Person member = classroomDetail.getMember(); // Lấy đối tượng Person thay vì String ID
 
             if (member instanceof Students) {
                 students.add((Students) member);
             }
+            else{
+                teachers.add((Teachers) member);
+            }
         }
 
         model.addAttribute("students", students);
+        model.addAttribute("teachers", teachers);
         return "ThanhVienTrongLopHocSinh";
     }
     @GetMapping("/TinNhanCuaHocSinh")

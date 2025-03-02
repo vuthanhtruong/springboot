@@ -4,9 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trang Chủ Học Sinh</title>
-  <!-- Thêm liên kết tới Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-  <link href="/TrangChuHocSinh.css" rel="stylesheet">
+  <link href="/TrangChuGiaoVien.css" rel="stylesheet">
 </head>
 <body>
 
@@ -48,6 +47,42 @@
         </a>
       </div>
     </nav>
+
+    <!-- Nội dung chính bên phải -->
+    <div class="col-md-9">
+      <!-- 📝 Mục Nhận Xét Giáo Viên -->
+      <div class="teacher-feedback mt-4">
+        <h3><i class="fas fa-star"></i> Nhận Xét Giáo Viên</h3>
+
+        <!-- Form Gửi Nhận Xét -->
+        <form action="/GuiNhanXetGiaoVien" method="POST">
+          <label for="teacher">Chọn Giáo Viên:</label>
+          <select name="teacherId" id="teacher" required>
+            <option value="">-- Chọn giáo viên --</option>
+            <option th:each="teacher : ${teachers}" th:value="${teacher.id}" th:text="${teacher.firstName + ' ' + teacher.lastName}"></option>
+          </select>
+
+          <label for="comment">Nhận xét:</label>
+          <textarea id="comment" name="text" rows="3" required placeholder="Viết nhận xét của bạn..."></textarea>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-paper-plane"></i> Gửi Nhận Xét
+          </button>
+        </form>
+
+        <!-- 📋 Danh Sách Nhận Xét -->
+        <div class="feedback-list mt-4">
+          <h4><i class="fas fa-comments"></i> Đánh Giá Từ Học Sinh</h4>
+          <ul>
+            <li th:each="feedback : ${feedbacks}">
+              <strong><i class="fas fa-user"></i> <span th:text="${feedback.reviewer.firstName + ' ' + feedback.reviewer.lastName}"></span></strong>
+              <p th:text="${feedback.text}"></p>
+              <small>📅 <span th:text="${#temporals.format(feedback.createdAt, 'yyyy-MM-dd HH:mm')}"></span></small>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

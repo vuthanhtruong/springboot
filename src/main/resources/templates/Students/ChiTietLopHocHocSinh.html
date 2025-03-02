@@ -4,12 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi Tiết Lớp Học Học Sinh</title>
+    <title>Chi Tiết Lớp Học</title>
     <link rel="stylesheet" href="/ChiTietLopHocGiaoVien.css">
 </head>
 
 <body>
-
 <header>
     <h1>Chi Tiết Lớp Học</h1>
 </header>
@@ -18,28 +17,41 @@
     <!-- 🏫 Thông Tin Lớp Học -->
     <div class="class-detail">
         <h2>Thông Tin Lớp Học</h2>
-        <div class="class-info">
-            <p><strong>Tên lớp học:</strong> <span th:text="${room?.roomName ?: 'Không xác định'}">Tên lớp học</span></p>
-
-            <p><strong>Địa chỉ/Link:</strong>
-                <span th:if="${room instanceof T(com.example.demo.OOP.Rooms)}" th:text="${room?.address ?: 'Không có địa chỉ'}"></span>
-                <span th:if="${room instanceof T(com.example.demo.OOP.OnlineRooms)}" th:text="${room?.link ?: 'Không có link'}"></span>
-            </p>
-
-            <p><strong>Thời gian bắt đầu:</strong>
-                <span th:text="${room?.startTime != null ? #temporals.format(room.startTime, 'yyyy-MM-dd HH:mm') : 'Chưa có'}"></span>
-            </p>
-
-            <p><strong>Thời gian kết thúc:</strong>
-                <span th:text="${room?.endTime != null ? #temporals.format(room.endTime, 'yyyy-MM-dd HH:mm') : 'Chưa có'}"></span>
-            </p>
-        </div>
+        <p><strong>Tên lớp học:</strong> <span th:text="${room?.roomName ?: 'Không xác định'}"></span></p>
+        <p><strong>Địa chỉ/Link:</strong>
+            <span th:if="${room instanceof T(com.example.demo.OOP.Rooms)}" th:text="${room?.address ?: 'Không có địa chỉ'}"></span>
+            <span th:if="${room instanceof T(com.example.demo.OOP.OnlineRooms)}" th:text="${room?.link ?: 'Không có link'}"></span>
+        </p>
+        <p><strong>Thời gian bắt đầu:</strong>
+            <span th:text="${room?.startTime != null ? #temporals.format(room.startTime, 'yyyy-MM-dd HH:mm') : 'Chưa có'}"></span>
+        </p>
+        <p><strong>Thời gian kết thúc:</strong>
+            <span th:text="${room?.endTime != null ? #temporals.format(room.endTime, 'yyyy-MM-dd HH:mm') : 'Chưa có'}"></span>
+        </p>
     </div>
-
     <!-- 🌟 Nút điều hướng -->
     <div class="buttons">
         <a th:href="@{/TrangChuHocSinh}" class="btn btn-primary">🏠 Quay về Trang Chủ</a>
         <a th:href="@{/DanhSachLopHocHocSinh}" class="btn btn-secondary">📚 Danh Sách Lớp Học</a>
+        <button class="btn btn-members" th:data-room-id="${room?.roomId}"
+                th:onclick="|window.location.href='/ThanhVienTrongLopHocSinh/' + this.getAttribute('data-room-id')|">
+            👥 Thành Viên Trong Lớp
+        </button>
+    </div>
+
+    <div class="post-section">
+        <h2>Đăng Bài Mới</h2>
+        <form action="/BaiPostHocSinh" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="roomId" th:value="${room?.roomId}">
+            <textarea name="postContent" placeholder="Nhập nội dung bài đăng..." required></textarea>
+
+            <div class="file-upload">
+                <label for="file">📎 Tải tệp lên:</label>
+                <input type="file" name="file" id="file" accept=".pdf, .doc, .docx, .png, .jpg, .jpeg, .zip, .mp4, .avi, .mov">
+            </div>
+
+            <button type="submit">🚀 Đăng Bài</button>
+        </form>
     </div>
 
     <!-- 📄 Danh sách bài đăng -->
@@ -69,12 +81,27 @@
                     </ul>
                 </div>
 
+                <!-- 💬 Mục bình luận -->
+                <div class="comment-section">
+                    <h3>💬 Bình luận</h3>
+                    <ul class="comment-list">
+                        <li th:each="comment : ${post.comments}">
+                            <p><strong>👤 Người bình luận:</strong> <span th:text="${comment.commenter?.firstName + ' ' + comment.commenter?.lastName}"></span></p>
+                            <p><strong>💬 Nội dung:</strong> <span th:text="${comment.text}"></span></p>
+                            <p><strong>⏳ Thời gian:</strong> <span th:text="${comment.createdAt}"></span></p>
+                        </li>
+                    </ul>
+                    <!-- 📝 Form nhập bình luận -->
+                    <form th:action="@{/BinhLuanHocSinh}" method="POST">
+                        <input type="hidden" name="postId" th:value="${post.postId}">
+                        <textarea name="commentText" placeholder="Nhập bình luận..." required></textarea>
+                        <button type="submit">💬 Gửi Bình Luận</button>
+                    </form>
+                </div>
                 <hr>
             </li>
         </ul>
     </div>
-
 </div>
-
 </body>
 </html>

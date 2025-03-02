@@ -89,6 +89,7 @@ public class GiaoVienGet {
 
     @GetMapping("ChiTietLopHocGiaoVien/{id}")
     public String ChiTietLopHocGiaoVien(@PathVariable String id, ModelMap model) {
+        // Tìm lớp học (có thể là Rooms hoặc OnlineRooms)
         Object room = entityManager.find(Rooms.class, id);
         if (room == null) {
             room = entityManager.find(OnlineRooms.class, id);
@@ -101,23 +102,31 @@ public class GiaoVienGet {
         String roomId;
         if (room instanceof Rooms) {
             roomId = ((Rooms) room).getRoomId();
-            model.addAttribute("room", room);
         } else if (room instanceof OnlineRooms) {
             roomId = ((OnlineRooms) room).getRoomId();
-            model.addAttribute("room", room);
         } else {
             throw new IllegalArgumentException("Loại phòng không hợp lệ!");
         }
 
-        // Lấy bài đăng
+        model.addAttribute("room", room);
+
+        // Lấy danh sách bài đăng trong lớp
         List<Posts> posts = entityManager.createQuery("SELECT p FROM Posts p WHERE p.room.roomId = :roomId", Posts.class)
                 .setParameter("roomId", roomId)
                 .getResultList();
-        model.addAttribute("posts", posts);
 
+
+        // Lấy danh sách bình luận cho từng bài đăng
+        for (Posts post : posts) {
+            List<Comments> comments = entityManager.createQuery("SELECT c FROM Comments c WHERE c.post.postId = :postId", Comments.class)
+                    .setParameter("postId", post.getPostId())
+                    .getResultList();
+            post.setComments(comments);
+        }
+
+        model.addAttribute("posts", posts);
         return "ChiTietLopHocGiaoVien";
     }
-
 
     @GetMapping("/ThanhVienTrongLopGiaoVien/{id}")
     public String ThanhVienTrongLopHoc(HttpSession session, @PathVariable String id, ModelMap model) {
