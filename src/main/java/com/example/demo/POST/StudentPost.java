@@ -111,6 +111,8 @@ public class StudentPost {
 
         // Tạo mới bình luận
         Comments comment = new Comments(commenter, post, commentText);
+        Events event = entityManager.find(Events.class, 5);
+        comment.setEvent(event);
 
         // Lưu vào database
         entityManager.persist(comment);
@@ -158,6 +160,8 @@ public class StudentPost {
             newPost.setRoom(room);
 
             // 💾 Lưu bài post vào DB
+            Events event1 = entityManager.find(Events.class, 3);
+            newPost.setEvent(event1);
             entityManager.persist(newPost);
             log.info("✅ Bài đăng đã được lưu với ID: {}", newPost.getPostId());
 
@@ -177,6 +181,8 @@ public class StudentPost {
                 document.setFilePath(uploadDir + File.separator + file.getOriginalFilename());
                 document.setCreator(student);
                 document.setPost(newPost);
+                Events event = entityManager.find(Events.class, 4);
+                document.setEvent(event);
 
                 entityManager.persist(document);
                 log.info("✅ Document đã lưu với ID: {}", document.getDocumentId());

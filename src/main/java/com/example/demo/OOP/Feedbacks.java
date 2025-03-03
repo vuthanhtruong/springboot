@@ -14,18 +14,23 @@ public class Feedbacks {
 
     // Người đánh giá là Student (Khóa ngoại)
     @ManyToOne
-    @JoinColumn(name = "ReviewerID", nullable = false)
+    @JoinColumn(name = "ReviewerID", nullable = false, foreignKey = @ForeignKey(name = "FK_Feedbacks_Reviewer"))
     private Students reviewer;
 
     // Giáo viên được chọn để đánh giá (Khóa ngoại)
     @ManyToOne
-    @JoinColumn(name = "TeacherID", nullable = false)
+    @JoinColumn(name = "TeacherID", nullable = false, foreignKey = @ForeignKey(name = "FK_Feedbacks_Teacher"))
     private Teachers teacher;
 
     // Người nhận đánh giá là Employee (Khóa ngoại)
     @ManyToOne
-    @JoinColumn(name = "ReceiverID", nullable = false)
+    @JoinColumn(name = "ReceiverID", nullable = false, foreignKey = @ForeignKey(name = "FK_Feedbacks_Receiver"))
     private Employees receiver;
+
+    // Liên kết với bảng Events
+    @ManyToOne
+    @JoinColumn(name = "EventID", nullable = false, foreignKey = @ForeignKey(name = "FK_Feedbacks_Event"))
+    private Events event;
 
     @Column(name = "Text", nullable = false, columnDefinition = "TEXT")
     private String text;
@@ -38,10 +43,11 @@ public class Feedbacks {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Feedbacks(Students reviewer, Teachers teacher, Employees receiver, String text) {
+    public Feedbacks(Students reviewer, Teachers teacher, Employees receiver, Events event, String text) {
         this.reviewer = reviewer;
         this.teacher = teacher;
         this.receiver = receiver;
+        this.event = event;
         this.text = text;
         this.createdAt = LocalDateTime.now();
     }
@@ -79,6 +85,14 @@ public class Feedbacks {
         this.receiver = receiver;
     }
 
+    public Events getEvent() {
+        return event;
+    }
+
+    public void setEvent(Events event) {
+        this.event = event;
+    }
+
     public String getText() {
         return text;
     }
@@ -95,4 +109,3 @@ public class Feedbacks {
         this.createdAt = createdAt;
     }
 }
-

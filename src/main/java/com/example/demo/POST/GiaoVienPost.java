@@ -152,6 +152,8 @@ public class GiaoVienPost {
                 throw new IllegalArgumentException("Không tìm thấy phòng học với ID: " + roomId);
             }
             newPost.setRoom(room);
+            Events event = entityManager.find(Events.class, 3);
+            newPost.setEvent(event);
 
             // 💾 Lưu bài post
             entityManager.persist(newPost);
@@ -173,6 +175,8 @@ public class GiaoVienPost {
                 document.setFilePath(uploadDir + File.separator + file.getOriginalFilename());
                 document.setCreator(teacher);
                 document.setPost(newPost);
+                Events eventq = entityManager.find(Events.class, 4);
+                document.setEvent(eventq);
 
                 entityManager.persist(document);
                 log.info("✅ Document đã lưu với ID: {}", document.getDocumentId());
@@ -223,7 +227,8 @@ public class GiaoVienPost {
 
         // Tạo mới bình luận
         Comments comment = new Comments(commenter, post, commentText);
-
+        Events event = entityManager.find(Events.class, 5);
+        comment.setEvent(event);
         // Lưu vào database
         entityManager.persist(comment);
         return "redirect:/ChiTietLopHocGiaoVien/" + post.getRoom().getRoomId();

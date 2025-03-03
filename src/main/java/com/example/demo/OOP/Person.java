@@ -30,4 +30,9 @@ public abstract class Person {
     @Column(name = "PhoneNumber", nullable = false, unique = true, length = 20)
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Số điện thoại không hợp lệ")
     private String phoneNumber;
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
 }

@@ -2,9 +2,12 @@ package com.example.demo.GET;
 
 import com.example.demo.OOP.*;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
+import jdk.jfr.Event;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -13,10 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 @RequestMapping("/")
@@ -55,6 +55,51 @@ public class StudentGet {
                 }
             }
         }
+        // Lấy thông tin sinh viên từ session
+        String studentId = (String) session.getAttribute("StudentID");
+        if (student == null) {
+            throw new EntityNotFoundException("Không tìm thấy học sinh với ID: " + studentId);
+        }
+
+
+
+// Lấy danh sách tài liệu từ cơ sở dữ liệu
+        List<Documents> documents = entityManager.createQuery(
+                        "SELECT d FROM Documents d " +
+                                "JOIN d.post p " +
+                                "JOIN ClassroomDetails cdUploader ON cdUploader.member = d.creator " +
+                                "JOIN ClassroomDetails cdStudent ON cdStudent.member = :student " +
+                                "WHERE d.creator != :student AND cdUploader.room = cdStudent.room", Documents.class)
+                .setParameter("student", student)
+                .getResultList();
+        Collections.reverse(documents); // Đảo ngược danh sách
+
+// Lấy danh sách bài đăng từ cơ sở dữ liệu
+        List<Posts> posts = entityManager.createQuery(
+                        "SELECT p FROM Posts p " +
+                                "JOIN ClassroomDetails cdCreator ON cdCreator.member = p.creator " +
+                                "JOIN ClassroomDetails cdStudent ON cdStudent.member = :student " +
+                                "WHERE p.creator != :student AND cdCreator.room = cdStudent.room", Posts.class)
+                .setParameter("student", student)
+                .getResultList();
+        Collections.reverse(posts); // Đảo ngược danh sách
+
+// Lấy danh sách tin nhắn từ cơ sở dữ liệu
+        List<Messages> messagesList = entityManager.createQuery(
+                        "SELECT m FROM Messages m " +
+                                "JOIN ClassroomDetails cdSender ON cdSender.member = m.sender " +
+                                "JOIN ClassroomDetails cdStudent ON cdStudent.member = :student " +
+                                "WHERE m.sender != :student AND m.recipient = :student AND cdSender.room = cdStudent.room", Messages.class)
+                .setParameter("student", student)
+                .getResultList();
+        Collections.reverse(messagesList); // Đảo ngược danh sách
+
+
+        model.addAttribute("documents", documents);
+        model.addAttribute("posts", posts);
+        model.addAttribute("messages", messagesList);
+
+
         model.addAttribute("teachers", teachers);
 
         return "TrangChuHocSinh";

@@ -369,6 +369,8 @@ public class NhanVienPost {
 
             if (count == 0) {
                 ClassroomDetails classroomDetail = new ClassroomDetails(room, teacher);
+                Events event = entityManager.find(Events.class, 9);
+                classroomDetail.setEvent(event);
                 entityManager.persist(classroomDetail);
             }
         }
@@ -402,6 +404,8 @@ public class NhanVienPost {
 
             if (count == 0) {
                 ClassroomDetails classroomDetail = new ClassroomDetails(room, student);
+                Events event = entityManager.find(Events.class, 10);
+                classroomDetail.setEvent(event);
                 entityManager.persist(classroomDetail);
             }
         }

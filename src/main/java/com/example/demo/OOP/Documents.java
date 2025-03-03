@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -39,4 +41,18 @@ public class Documents {
     @JoinColumn(name = "PostID", nullable = false, foreignKey = @ForeignKey(name = "FK_Documents_Posts"))
     private Posts post;
 
+    @ManyToOne
+    @JoinColumn(name = "EventID", nullable = false, foreignKey = @ForeignKey(name = "FK_Documents_Events"))
+    @OnDelete(action = OnDeleteAction.CASCADE) // Nếu sự kiện bị xóa, tài liệu cũng bị xóa
+    private Events event;
+
+    // Constructor có tham số
+    public Documents(String documentTitle, byte[] fileData, String filePath, Person creator, Posts post, Events event) {
+        this.documentTitle = documentTitle;
+        this.fileData = fileData;
+        this.filePath = filePath;
+        this.creator = creator;
+        this.post = post;
+        this.event = event;
+    }
 }

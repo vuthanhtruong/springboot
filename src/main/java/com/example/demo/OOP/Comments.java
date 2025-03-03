@@ -32,6 +32,11 @@ public class Comments {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Posts post;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "EventID", nullable = false, foreignKey = @ForeignKey(name = "FK_Comments_Events"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Events event;
+
     @Column(name = "Text", nullable = false, columnDefinition = "TEXT")
     private String text;
 
@@ -42,6 +47,7 @@ public class Comments {
     public Comments(Person commenter, Posts post, String text) {
         this.commenter = commenter;
         this.post = post;
+
         this.text = text;
     }
 }
