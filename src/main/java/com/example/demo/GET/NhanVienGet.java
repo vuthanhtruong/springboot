@@ -48,14 +48,71 @@ public class NhanVienGet {
         return "redirect:/DangNhapNhanVien";
     }
     @GetMapping("/DanhSachGiaoVienCuaBan")
-    public String DanhSachGiaoVienCuaBan(ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
+    public String DanhSachGiaoVienCuaBan(
+            ModelMap model,
+            HttpSession session,
+            @RequestParam(defaultValue = "1") int page // Trang mặc định là 1
+    ) {
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
-        List<Teachers> teachers = entityManager.createQuery("from Teachers").getResultList();
+
+        // Lấy pageSize từ session, nếu chưa có thì mặc định là 5
+        Integer pageSize = (Integer) session.getAttribute("pageSize");
+        if (pageSize == null || pageSize < 1) {
+            pageSize = 5;
+        }
+
+        // Đếm tổng số giáo viên
+        Long totalTeachers = (Long) entityManager.createQuery("SELECT COUNT(t) FROM Teachers t")
+                .getSingleResult();
+
+        // Tính số trang mà KHÔNG dùng Math.ceil
+        int totalPages = 1;
+        if (totalTeachers != null && totalTeachers > 0) {
+            totalPages = (int) (totalTeachers / pageSize);
+            if (totalTeachers % pageSize != 0) { // Nếu còn dư thì cần thêm một trang nữa
+                totalPages++;
+            }
+        }
+
+        // Đảm bảo `page` nằm trong phạm vi hợp lệ mà không dùng `Math`
+        int pageCount = 1;
+        for (int i = 1; i <= totalPages; i++) {
+            if (page == i) {
+                pageCount = i;
+            }
+        }
+
+        // Xác định vị trí bắt đầu của dữ liệu (không dùng công thức `Math`)
+        int firstResult = 0;
+        int count = 1;
+        for (int i = pageSize; i <= totalTeachers; i += pageSize) {
+            if (count == (pageCount - 1)) {
+                firstResult = i;
+                break;
+            }
+            count++;
+        }
+
+        // Lấy danh sách giáo viên theo phân trang
+        List<Teachers> teachers = entityManager.createQuery("FROM Teachers", Teachers.class)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+
+        // Gửi dữ liệu qua model
         model.addAttribute("teachers", teachers);
+        model.addAttribute("currentPage", pageCount);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("pageSize", pageSize);
+
         return "DanhSachGiaoVienCuaBan";
     }
+
+
+
+
     @GetMapping("/ThemGiaoVienCuaBan")
     public String ThemGiaoVienCuaBan(HttpSession session, ModelMap model) {
         if(session.getAttribute("EmployeeID") == null) {
@@ -64,14 +121,69 @@ public class NhanVienGet {
         return "ThemGiaoVienCuaBan";
     }
     @GetMapping("/DanhSachHocSinhCuaBan")
-    public String DanhSachHocSinhCuaBan(ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
+    public String DanhSachHocSinhCuaBan(
+            ModelMap model,
+            HttpSession session,
+            @RequestParam(defaultValue = "1") int page
+    ) {
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
-        List<Students> students = entityManager.createQuery("from Students ").getResultList();
+
+        // Lấy pageSize từ session, nếu không có thì dùng giá trị mặc định là 5
+        Integer sessionPageSize = (Integer) session.getAttribute("pageSize");
+        int pageSize = (sessionPageSize != null) ? sessionPageSize : 5;
+
+        // Đếm tổng số học sinh
+        Long totalStudents = (Long) entityManager.createQuery("SELECT COUNT(s) FROM Students s")
+                .getSingleResult();
+
+        if (totalStudents == null || totalStudents == 0) {
+            model.addAttribute("students", List.of());
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("totalPages", 1);
+            model.addAttribute("pageSize", pageSize);
+            return "DanhSachHocSinhCuaBan";
+        }
+
+        int totalPages = totalStudents.intValue() / pageSize;
+        if (totalStudents % pageSize != 0) {
+            totalPages++;
+        }
+        int startIndex = 0, endIndex = 0;
+        if (page > totalPages) {
+            startIndex = (page - 1) * pageSize + 1;
+            endIndex = totalStudents.intValue();
+        } else {
+            int count = 0;
+            for (int i = pageSize; i < totalStudents; i += pageSize) {
+                if (count == page - 1) {
+                    startIndex = i - pageSize + 1;
+                    endIndex = i;
+                    break;
+                } else {
+                    count++;
+                }
+            }
+        }
+        if (startIndex <= 0) startIndex = 1;
+        if (endIndex > totalStudents.intValue()) endIndex = totalStudents.intValue();
+
+        List<Students> students = entityManager.createQuery("FROM Students", Students.class)
+                .setFirstResult(startIndex - 1)  // Vì database index bắt đầu từ 0
+                .setMaxResults(pageSize)
+                .getResultList();
+
+        // Gửi dữ liệu qua model
         model.addAttribute("students", students);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("pageSize", pageSize);
+
         return "DanhSachHocSinhCuaBan";
     }
+
+
     @GetMapping("/ThemHocSinhCuaBan")
     public String ThemHocSinhCuaBan(ModelMap model, HttpSession session) {
         if(session.getAttribute("EmployeeID") == null) {
@@ -523,5 +635,162 @@ public class NhanVienGet {
         message.setText(body);
         mailSender.send(message);
     }
+
+    @GetMapping("/BangDieuKhienNhanVien/{id}")
+    public String BangDieuKhienNhanVien(@PathVariable("id") String id, ModelMap model) {
+        Employees employee = entityManager.find(Employees.class, id);
+
+        List<Room> room= entityManager.createQuery("from Room r where r.employee=:employee", Room.class).
+                setParameter("employee", employee).getResultList();
+
+        List<Teachers> teachers=entityManager.createQuery("from Teachers t where t.employee=:employee", Teachers.class).
+                setParameter("employee", employee).getResultList();
+
+        List<Students> students=entityManager.createQuery("from Students s where s.employee=:employee", Students.class).
+                setParameter("employee", employee).getResultList();
+        model.addAttribute("room", room);
+        model.addAttribute("teachers", teachers);
+        model.addAttribute("students", students);
+        model.addAttribute("employee", employee);
+        return "BangDieuKhienNhanVien";
+    }
+    @GetMapping("/BangDieuKhienHocSinh/{id}")
+    public String BangDieuKhienHocSinh(@PathVariable("id") String id, ModelMap model) {
+        // Find the student using the provided ID
+        Students student = entityManager.find(Students.class, id);
+        if (student == null) {
+            model.addAttribute("errorMessage", "Student not found");
+            return "errorPage"; // Return a custom error page
+        }
+
+        // Ensure the employee is fetched correctly using the student's employee ID
+        Employees employee = student.getEmployee();  // This should already be an Employees object
+        if (employee == null) {
+            model.addAttribute("errorMessage", "No employee associated with the student.");
+            return "errorPage";  // Return an error page view
+        }
+
+        // Retrieve classroom details for the student
+        List<ClassroomDetails> classroomDetails = entityManager.createQuery(
+                        "from ClassroomDetails cd where cd.member = :student", ClassroomDetails.class)
+                .setParameter("student", student)
+                .getResultList();
+
+        Set<Room> roomSet = new HashSet<>();
+        Set<Teachers> teachers = new HashSet<>();
+        Set<Rooms> rooms = new HashSet<>();
+        Set<OnlineRooms> onlineRooms = new HashSet<>();
+
+        // Process each classroom detail to group rooms and teachers
+        for (ClassroomDetails classroomDetail : classroomDetails) {
+            roomSet.add(classroomDetail.getRoom());
+        }
+
+        // Process the rooms and classify them as either physical rooms or online rooms
+        // Process the rooms and classify them as either physical rooms or online rooms
+        for (Room room1 : roomSet) {
+            List<ClassroomDetails> classroomDetailsForRoom = entityManager.createQuery(
+                            "from ClassroomDetails cd where cd.room = :room1", ClassroomDetails.class)
+                    .setParameter("room1", room1)
+                    .getResultList();
+
+            for (ClassroomDetails classroomDetail : classroomDetailsForRoom) {
+                Object member = classroomDetail.getMember();
+
+                // Check if the member is a teacher and cast accordingly
+                if (member instanceof Teachers) {
+                    teachers.add((Teachers) member);
+                }
+            }
+
+            if (room1 instanceof Rooms) {
+                rooms.add((Rooms) room1);
+            } else if (room1 instanceof OnlineRooms) {
+                onlineRooms.add((OnlineRooms) room1);
+            }
+        }
+
+
+        // Add necessary attributes to the model for the view
+        model.addAttribute("employee", employee);
+        model.addAttribute("rooms", rooms);
+        model.addAttribute("onlineRooms", onlineRooms);
+        model.addAttribute("teachers", teachers);
+        model.addAttribute("student", student);
+
+        return "BangDieuKhienHocSinh"; // Ensure this matches the actual view file name
+    }
+    @GetMapping("/BangDieuKhienGiaoVien/{id}")
+    public String BangDieuKhienGiaoVien(@PathVariable("id") String id, ModelMap model) {
+        // Find the teacher using the provided ID
+        Teachers teacher = entityManager.find(Teachers.class, id);
+        if (teacher == null) {
+            model.addAttribute("errorMessage", "Teacher not found");
+            return "errorPage"; // Return a custom error page if teacher is not found
+        }
+
+        // Ensure the employee is fetched correctly using the teacher's employee ID
+        Employees employee = teacher.getEmployee();  // This should already be an Employees object
+        if (employee == null) {
+            model.addAttribute("errorMessage", "No employee associated with the teacher.");
+            return "errorPage";  // Return an error page if employee is not associated
+        }
+
+        // Retrieve classroom details for the teacher
+        List<ClassroomDetails> classroomDetails = entityManager.createQuery(
+                        "from ClassroomDetails cd where cd.member = :teacher", ClassroomDetails.class)
+                .setParameter("teacher", teacher)
+                .getResultList();
+
+        Set<Room> roomSet = new HashSet<>();
+        Set<Students> students = new HashSet<>();
+        Set<Rooms> rooms = new HashSet<>();
+        Set<OnlineRooms> onlineRooms = new HashSet<>();
+
+        // Process each classroom detail to group rooms and students
+        for (ClassroomDetails classroomDetail : classroomDetails) {
+            roomSet.add(classroomDetail.getRoom());
+
+            // Check if the member is a Student before adding to the students set
+            Object member = classroomDetail.getMember();
+            if (member instanceof Students) {
+                students.add((Students) member);  // Add the student to the set if the member is a student
+            }
+        }
+
+        // Process the rooms and classify them as either physical rooms or online rooms
+        for (Room room1 : roomSet) {
+            List<ClassroomDetails> classroomDetailsForRoom = entityManager.createQuery(
+                            "from ClassroomDetails cd where cd.room = :room1", ClassroomDetails.class)
+                    .setParameter("room1", room1)
+                    .getResultList();
+
+            for (ClassroomDetails classroomDetail : classroomDetailsForRoom) {
+                Object member = classroomDetail.getMember();
+
+                // Check if the member is a student and add them to the students list
+                if (member instanceof Students) {
+                    students.add((Students) member);
+                }
+            }
+
+            // Classify rooms as either physical rooms or online rooms
+            if (room1 instanceof Rooms) {
+                rooms.add((Rooms) room1);
+            } else if (room1 instanceof OnlineRooms) {
+                onlineRooms.add((OnlineRooms) room1);
+            }
+        }
+
+        // Add necessary attributes to the model for the view
+        model.addAttribute("employee", employee);
+        model.addAttribute("rooms", rooms);
+        model.addAttribute("onlineRooms", onlineRooms);
+        model.addAttribute("students", students); // Include the list of students for the teacher
+        model.addAttribute("teacher", teacher); // Include teacher details
+
+        return "BangDieuKhienGiaoVien"; // Ensure this matches the actual view file name
+    }
+
 
 }

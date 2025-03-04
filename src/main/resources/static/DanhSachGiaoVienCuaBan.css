@@ -37,25 +37,6 @@ h1 {
     margin: auto;
 }
 
-p {
-    font-size: 18px;
-}
-
-input, select {
-    background: var(--glass-bg);
-    color: white;
-    border: 1px solid var(--border-glass);
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 0 8px var(--neon-blue);
-    transition: 0.3s;
-}
-
-input:focus, select:focus {
-    outline: none;
-    box-shadow: 0 0 12px var(--neon-pink);
-}
-
 .table {
     width: 100%;
     border-collapse: collapse;
@@ -86,58 +67,45 @@ tr:hover {
     transition: 0.3s;
 }
 
-.btn {
-    display: inline-block;
-    padding: 8px 12px;
-    border-radius: 8px;
-    text-transform: uppercase;
-    font-weight: bold;
-    cursor: pointer;
+/* Pagination Styles */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination .page-item {
+    list-style: none;
+    margin: 0 5px;
+}
+
+.pagination .page-link {
+    display: block;
+    padding: 10px 15px;
+    background: var(--glass-bg);
+    color: white;
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    text-decoration: none;
+    box-shadow: 0 0 8px var(--neon-blue);
     transition: 0.3s;
 }
 
-.btn-secondary {
-    background: var(--neon-blue);
-    color: black;
-    box-shadow: 0 0 10px var(--neon-blue);
-}
-
-.btn-secondary:hover {
-    background: var(--neon-green);
-    box-shadow: 0 0 15px var(--neon-green);
-}
-
-.btn-success {
-    background: var(--neon-purple);
-    color: white;
-    box-shadow: 0 0 10px var(--neon-purple);
-}
-
-.btn-success:hover {
+.pagination .page-link:hover {
     background: var(--neon-pink);
-    box-shadow: 0 0 15px var(--neon-pink);
+    box-shadow: 0 0 12px var(--neon-pink);
 }
 
-.btn-warning {
+.pagination .active .page-link {
     background: var(--neon-green);
-    color: black;
-    box-shadow: 0 0 10px var(--neon-green);
+    box-shadow: 0 0 12px var(--neon-green);
+    font-weight: bold;
 }
 
-.btn-warning:hover {
-    background: var(--neon-blue);
-    box-shadow: 0 0 15px var(--neon-blue);
-}
-
-.btn-danger {
-    background: var(--neon-pink);
-    color: white;
-    box-shadow: 0 0 10px var(--neon-pink);
-}
-
-.btn-danger:hover {
-    background: var(--neon-purple);
-    box-shadow: 0 0 15px var(--neon-purple);
+.pagination .disabled .page-link {
+    background: gray;
+    box-shadow: none;
+    cursor: not-allowed;
 }
 
 @keyframes fadeIn {

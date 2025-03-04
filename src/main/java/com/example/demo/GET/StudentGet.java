@@ -60,9 +60,6 @@ public class StudentGet {
         if (student == null) {
             throw new EntityNotFoundException("Không tìm thấy học sinh với ID: " + studentId);
         }
-
-
-
 // Lấy danh sách tài liệu từ cơ sở dữ liệu
         List<Documents> documents = entityManager.createQuery(
                         "SELECT d FROM Documents d " +
@@ -87,9 +84,7 @@ public class StudentGet {
 // Lấy danh sách tin nhắn từ cơ sở dữ liệu
         List<Messages> messagesList = entityManager.createQuery(
                         "SELECT m FROM Messages m " +
-                                "JOIN ClassroomDetails cdSender ON cdSender.member = m.sender " +
-                                "JOIN ClassroomDetails cdStudent ON cdStudent.member = :student " +
-                                "WHERE m.sender != :student AND m.recipient = :student AND cdSender.room = cdStudent.room", Messages.class)
+                                "WHERE m.sender != :student AND m.recipient = :student", Messages.class)
                 .setParameter("student", student)
                 .getResultList();
         Collections.reverse(messagesList); // Đảo ngược danh sách
@@ -98,8 +93,6 @@ public class StudentGet {
         model.addAttribute("documents", documents);
         model.addAttribute("posts", posts);
         model.addAttribute("messages", messagesList);
-
-
         model.addAttribute("teachers", teachers);
 
         return "TrangChuHocSinh";

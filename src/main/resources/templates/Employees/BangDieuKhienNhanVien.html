@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>📋 Trang Cá Nhân Nhân Viên</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="container mt-5">
+    <!-- Display Employee's Name and ID -->
+    <div class="text-center mt-4">
+        <h1 class="text-primary"><i class="fas fa-user-tie"></i> Trang Cá Nhân Của Nhân Viên Này</h1>
+        <h3 class="mt-3">👤 Nhân Viên: <span th:text="${employee.firstName} + ' ' + ${employee.lastName}"></span></h3>
+        <p class="lead">🆔 ID Nhân Viên: <span th:text="${employee.id}"></span></p>
+    </div>
+
+    <div class="text-center mt-4">
+        <a th:href="@{/DanhSachNguoiDungHeThong}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <!-- Phòng -->
+    <div class="user-section mt-5">
+        <h2 class="text-secondary"><i class="fas fa-door-closed"></i> Phòng Của Nhân Viên Này</h2>
+        <table class="table table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>🆔 ID</th>
+                <th>🏷 Tên Phòng</th>
+                <th>📅 Thời Gian Bắt Đầu</th>
+                <th>📅 Thời Gian Kết Thúc</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${room}">
+                <td th:text="${r.roomId}"></td>
+                <td th:text="${r.roomName}"></td>
+                <td th:text="${r.startTime}"></td>
+                <td th:text="${r.endTime}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Giáo Viên -->
+    <div class="user-section mt-5">
+        <h2 class="text-success"><i class="fas fa-chalkboard-teacher"></i> Giáo Viên Của Nhân Viên Này</h2>
+        <table class="table table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>🆔 ID</th>
+                <th>👤 Họ và Tên</th>
+                <th>📧 Email</th>
+                <th>📞 Số Điện Thoại</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="teacher : ${teachers}">
+                <td th:text="${teacher.id}"></td>
+                <td th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"></td>
+                <td th:text="${teacher.email}"></td>
+                <td th:text="${teacher.phoneNumber}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Học Sinh -->
+    <div class="user-section mt-5">
+        <h2 class="text-primary"><i class="fas fa-user-graduate"></i> Học Sinh Của Nhân Viên Này</h2>
+        <table class="table table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>🆔 ID</th>
+                <th>👤 Họ và Tên</th>
+                <th>📧 Email</th>
+                <th>📞 Số Điện Thoại</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="student : ${students}">
+                <td th:text="${student.id}"></td>
+                <td th:text="${student.firstName} + ' ' + ${student.lastName}"></td>
+                <td th:text="${student.email}"></td>
+                <td th:text="${student.phoneNumber}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

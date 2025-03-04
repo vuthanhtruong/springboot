@@ -27,6 +27,7 @@
           <th>👤 Họ và Tên</th>
           <th>📧 Email</th>
           <th>📞 Số Điện Thoại</th>
+          <th>🔗 Trang Cá Nhân</th> <!-- Cột mới -->
         </tr>
         </thead>
         <tbody>
@@ -35,6 +36,12 @@
           <td><i class="fas fa-user"></i> <span th:text="${emp.firstName} + ' ' + ${emp.lastName}"></span></td>
           <td><i class="fas fa-envelope"></i> <span th:text="${emp.email}"></span></td>
           <td><i class="fas fa-phone-alt"></i> <span th:text="${emp.phoneNumber}"></span></td>
+          <td>
+            <!-- Link đến Trang Cá Nhân Nhân Viên -->
+            <a th:href="@{/BangDieuKhienNhanVien/{id}(id=${emp.id})}" class="btn btn-info btn-sm">
+              <i class="fas fa-user-circle"></i> Xem Trang
+            </a>
+          </td>
         </tr>
         </tbody>
       </table>
@@ -51,6 +58,7 @@
           <th>📧 Email</th>
           <th>📞 Số Điện Thoại</th>
           <th>👑 Người Quản Lý</th>
+          <th>🔗 Trang Cá Nhân</th> <!-- Cột mới -->
         </tr>
         </thead>
         <tbody>
@@ -62,6 +70,12 @@
           <td>
             <span th:if="${teacher.employee}"><i class="fas fa-user-tie"></i> <span th:text="${teacher.employee.firstName} + ' ' + ${teacher.employee.lastName}"></span></span>
             <span th:unless="${teacher.employee}"><i class="fas fa-times-circle text-danger"></i> Không có</span>
+          </td>
+          <td>
+            <!-- Link đến Trang Cá Nhân Giáo Viên -->
+            <a th:href="@{/BangDieuKhienGiaoVien/{id}(id=${teacher.id})}" class="btn btn-info btn-sm">
+              <i class="fas fa-user-circle"></i> Xem Trang
+            </a>
           </td>
         </tr>
         </tbody>
@@ -79,6 +93,7 @@
           <th>📧 Email</th>
           <th>📞 Số Điện Thoại</th>
           <th>👑 Người Quản Lý</th>
+          <th>🔗 Trang Cá Nhân</th> <!-- Cột mới -->
         </tr>
         </thead>
         <tbody>
@@ -90,6 +105,12 @@
           <td>
             <span th:if="${student.employee}"><i class="fas fa-user-tie"></i> <span th:text="${student.employee.firstName} + ' ' + ${student.employee.lastName}"></span></span>
             <span th:unless="${student.employee}"><i class="fas fa-times-circle text-danger"></i> Không có</span>
+          </td>
+          <td>
+            <!-- Link đến Trang Cá Nhân Học Sinh -->
+            <a th:href="@{/BangDieuKhienHocSinh/{id}(id=${student.id})}" class="btn btn-info btn-sm">
+              <i class="fas fa-user-circle"></i> Xem Trang
+            </a>
           </td>
         </tr>
         </tbody>

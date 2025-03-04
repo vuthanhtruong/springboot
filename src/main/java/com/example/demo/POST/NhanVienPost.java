@@ -475,6 +475,11 @@ public class NhanVienPost {
             return "redirect:/BoTriLopHoc?error=notfound";
         }
     }
+    @PostMapping("/DanhSachHocSinhCuaBan")
+    public String DanhSachHocSinhCuaBan(@RequestParam("pageSize") int pageSize, HttpSession session) {
+        session.setAttribute("pageSize", pageSize);
+        return "redirect:/DanhSachHocSinhCuaBan";
+    }
 
 
 }
