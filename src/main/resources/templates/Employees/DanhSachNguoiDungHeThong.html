@@ -17,6 +17,17 @@
   </div>
 
   <div class="wrapper">
+    <!-- Chọn số lượng bản ghi trên mỗi trang -->
+    <form th:action="@{/DanhSachNguoiDungHeThong}" method="post" class="d-flex justify-content-center my-3">
+      <label for="pageSize" class="me-2">Số bản ghi mỗi trang:</label>
+      <select name="pageSize" id="pageSize" class="form-select w-auto me-2">
+        <option value="5" th:selected="${pageSize == 5}">5</option>
+        <option value="10" th:selected="${pageSize == 10}">10</option>
+        <option value="15" th:selected="${pageSize == 15}">15</option>
+      </select>
+      <button type="submit" class="btn btn-primary">Áp dụng</button>
+    </form>
+
     <!-- Nhân Viên -->
     <div class="user-section">
       <h2 class="text-secondary"><i class="fas fa-briefcase"></i> Nhân Viên</h2>
@@ -27,17 +38,16 @@
           <th>👤 Họ và Tên</th>
           <th>📧 Email</th>
           <th>📞 Số Điện Thoại</th>
-          <th>🔗 Trang Cá Nhân</th> <!-- Cột mới -->
+          <th>🔗 Trang Cá Nhân</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="emp : ${employee}">
+        <tr th:each="emp : ${employees}">
           <td th:text="${emp.id}"></td>
           <td><i class="fas fa-user"></i> <span th:text="${emp.firstName} + ' ' + ${emp.lastName}"></span></td>
           <td><i class="fas fa-envelope"></i> <span th:text="${emp.email}"></span></td>
           <td><i class="fas fa-phone-alt"></i> <span th:text="${emp.phoneNumber}"></span></td>
           <td>
-            <!-- Link đến Trang Cá Nhân Nhân Viên -->
             <a th:href="@{/BangDieuKhienNhanVien/{id}(id=${emp.id})}" class="btn btn-info btn-sm">
               <i class="fas fa-user-circle"></i> Xem Trang
             </a>
@@ -45,6 +55,15 @@
         </tr>
         </tbody>
       </table>
+
+      <!-- Phân trang cho Nhân Viên -->
+      <div class="pagination">
+        <a th:href="@{/DanhSachNguoiDungHeThong(pageEmployees=${currentPageEmployees - 1}, pageSize=${pageSize})}"
+           th:if="${currentPageEmployees > 1}" class="btn btn-sm btn-outline-primary">« Trước</a>
+        <span>Trang <span th:text="${currentPageEmployees}"></span> / <span th:text="${totalPagesEmployees}"></span></span>
+        <a th:href="@{/DanhSachNguoiDungHeThong(pageEmployees=${currentPageEmployees + 1}, pageSize=${pageSize})}"
+           th:if="${currentPageEmployees < totalPagesEmployees}" class="btn btn-sm btn-outline-primary">Sau »</a>
+      </div>
     </div>
 
     <!-- Giáo Viên -->
@@ -58,21 +77,17 @@
           <th>📧 Email</th>
           <th>📞 Số Điện Thoại</th>
           <th>👑 Người Quản Lý</th>
-          <th>🔗 Trang Cá Nhân</th> <!-- Cột mới -->
+          <th>🔗 Trang Cá Nhân</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="teacher : ${teachers}">
           <td th:text="${teacher.id}"></td>
-          <td><i class="fas fa-user"></i> <span th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"></span></td>
-          <td><i class="fas fa-envelope"></i> <span th:text="${teacher.email}"></span></td>
-          <td><i class="fas fa-phone-alt"></i> <span th:text="${teacher.phoneNumber}"></span></td>
+          <td th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"></td>
+          <td th:text="${teacher.email}"></td>
+          <td th:text="${teacher.phoneNumber}"></td>
+          <td th:if="${teacher.employee}" th:text="${teacher.employee.firstName} + ' ' + ${teacher.employee.lastName}"></td>
           <td>
-            <span th:if="${teacher.employee}"><i class="fas fa-user-tie"></i> <span th:text="${teacher.employee.firstName} + ' ' + ${teacher.employee.lastName}"></span></span>
-            <span th:unless="${teacher.employee}"><i class="fas fa-times-circle text-danger"></i> Không có</span>
-          </td>
-          <td>
-            <!-- Link đến Trang Cá Nhân Giáo Viên -->
             <a th:href="@{/BangDieuKhienGiaoVien/{id}(id=${teacher.id})}" class="btn btn-info btn-sm">
               <i class="fas fa-user-circle"></i> Xem Trang
             </a>
@@ -80,6 +95,15 @@
         </tr>
         </tbody>
       </table>
+
+      <!-- Phân trang cho Giáo Viên -->
+      <div class="pagination">
+        <a th:href="@{/DanhSachNguoiDungHeThong(pageTeachers=${currentPageTeachers - 1}, pageSize=${pageSize})}"
+           th:if="${currentPageTeachers > 1}" class="btn btn-sm btn-outline-primary">« Trước</a>
+        <span>Trang <span th:text="${currentPageTeachers}"></span> / <span th:text="${totalPagesTeachers}"></span></span>
+        <a th:href="@{/DanhSachNguoiDungHeThong(pageTeachers=${currentPageTeachers + 1}, pageSize=${pageSize})}"
+           th:if="${currentPageTeachers < totalPagesTeachers}" class="btn btn-sm btn-outline-primary">Sau »</a>
+      </div>
     </div>
 
     <!-- Học Sinh -->
@@ -93,21 +117,17 @@
           <th>📧 Email</th>
           <th>📞 Số Điện Thoại</th>
           <th>👑 Người Quản Lý</th>
-          <th>🔗 Trang Cá Nhân</th> <!-- Cột mới -->
+          <th>🔗 Trang Cá Nhân</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="student : ${students}">
           <td th:text="${student.id}"></td>
-          <td><i class="fas fa-user"></i> <span th:text="${student.firstName} + ' ' + ${student.lastName}"></span></td>
-          <td><i class="fas fa-envelope"></i> <span th:text="${student.email}"></span></td>
-          <td><i class="fas fa-phone-alt"></i> <span th:text="${student.phoneNumber}"></span></td>
+          <td th:text="${student.firstName} + ' ' + ${student.lastName}"></td>
+          <td th:text="${student.email}"></td>
+          <td th:text="${student.phoneNumber}"></td>
+          <td th:if="${student.employee}" th:text="${student.employee.firstName} + ' ' + ${student.employee.lastName}"></td>
           <td>
-            <span th:if="${student.employee}"><i class="fas fa-user-tie"></i> <span th:text="${student.employee.firstName} + ' ' + ${student.employee.lastName}"></span></span>
-            <span th:unless="${student.employee}"><i class="fas fa-times-circle text-danger"></i> Không có</span>
-          </td>
-          <td>
-            <!-- Link đến Trang Cá Nhân Học Sinh -->
             <a th:href="@{/BangDieuKhienHocSinh/{id}(id=${student.id})}" class="btn btn-info btn-sm">
               <i class="fas fa-user-circle"></i> Xem Trang
             </a>

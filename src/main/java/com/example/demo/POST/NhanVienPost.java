@@ -90,12 +90,14 @@ public class NhanVienPost {
             model.addAttribute("error", "Nhân viên không hợp lệ.");
             return "ThemGiaoVienCuaBan";
         }
+
         List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
-        Admin admin = entityManager.find(Admin.class, admins.get(0));
-        if (admin == null) {
+        if (admins.isEmpty()) {
             model.addAttribute("error", "Không thể xác định Admin.");
             return "ThemGiaoVienCuaBan";
         }
+
+        Admin admin = admins.get(0); // Lấy Admin từ danh sách
 
         // Kiểm tra trùng lặp email
         Long emailCount = entityManager.createQuery("SELECT COUNT(t) FROM Teachers t WHERE t.email = :email", Long.class)
@@ -135,6 +137,7 @@ public class NhanVienPost {
         }
     }
 
+
     @PostMapping("/ThemHocSinhCuaBan")
     public String ThemHocSinhCuaBan(
             @RequestParam("studentID") String studentID,
@@ -148,27 +151,31 @@ public class NhanVienPost {
             ModelMap model) {
 
         // Kiểm tra Employee từ session
-        Object employeeID = session.getAttribute("EmployeeID");
+        Employees employeeID = entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
         if (employeeID == null) {
             model.addAttribute("error", "Bạn chưa đăng nhập!");
             return "ThemHocSinhCuaBan"; // Quay lại form với thông báo lỗi
         }
 
-        Employees employee = entityManager.find(Employees.class, employeeID);
-        if (employee == null) {
-            model.addAttribute("error", "Không tìm thấy nhân viên với ID: " + employeeID);
-            return "ThemHocSinhCuaBan";
-        }
+        // Lấy danh sách Admin
         List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
-        Admin admin = entityManager.find(Admin.class, admins.get(0));
 
+        Admin admin = null;
+        if (!admins.isEmpty()) {
+            admin = admins.get(0); // Lấy admin đầu tiên thay vì admin thứ 2
+        } else {
+            model.addAttribute("error", "Không tìm thấy Admin!");
+            return "ThemHocSinhCuaBan"; // Quay lại trang với thông báo lỗi
+        }
 
+        // Kiểm tra xem studentID đã tồn tại chưa
         Students existingStudent = entityManager.find(Students.class, studentID);
         if (existingStudent != null) {
             model.addAttribute("error", "Mã học sinh đã tồn tại!");
             return "ThemHocSinhCuaBan";
         }
 
+        // Kiểm tra xem email đã tồn tại chưa
         List<Students> studentsWithEmail = entityManager.createQuery(
                         "SELECT s FROM Students s WHERE s.email = :email", Students.class)
                 .setParameter("email", email)
@@ -177,6 +184,8 @@ public class NhanVienPost {
             model.addAttribute("error", "Email này đã được sử dụng!");
             return "ThemHocSinhCuaBan";
         }
+
+        // Tạo mới student
         Students student = new Students();
         student.setId(studentID);
         student.setFirstName(firstName);
@@ -185,7 +194,7 @@ public class NhanVienPost {
         student.setPhoneNumber(phoneNumber);
         student.setPassword(password); // Lưu mật khẩu đã mã hóa
         student.setMisId(misId);
-        student.setEmployee(employee);
+        student.setEmployee(employeeID);
         student.setAdmin(admin);
 
         // Lưu vào database
@@ -193,6 +202,7 @@ public class NhanVienPost {
 
         return "redirect:/DanhSachHocSinhCuaBan";
     }
+
     @PostMapping("/SuaGiaoVienCuaBan")
     public String SuaGiaoVienCuaBan(@RequestParam("teacherID") String id,
                                     @RequestParam("email") String email,
@@ -477,9 +487,26 @@ public class NhanVienPost {
     }
     @PostMapping("/DanhSachHocSinhCuaBan")
     public String DanhSachHocSinhCuaBan(@RequestParam("pageSize") int pageSize, HttpSession session) {
-        session.setAttribute("pageSize", pageSize);
+        session.setAttribute("pageSize", pageSize); // Đặt session với đúng key
         return "redirect:/DanhSachHocSinhCuaBan";
     }
 
+    @PostMapping("/DanhSachGiaoVienCuaBan")
+    public String DanhSachGiaoVienCuaBan(@RequestParam("pageSize") int pageSize, HttpSession session) {
+        session.setAttribute("pageSize2", pageSize);
+        return "redirect:/DanhSachGiaoVienCuaBan"; // Đúng trang cần quay lại
+    }
+
+    @PostMapping("/DanhSachPhongHoc")
+    public String setPageSize(@RequestParam("pageSize") int pageSize, HttpSession session) {
+        session.setAttribute("pageSize3", pageSize); // Thống nhất key với GET request
+        return "redirect:/DanhSachPhongHoc";
+    }
+
+    @PostMapping("/DanhSachNguoiDungHeThong")
+    public String DanhSachNguoiDungHeThong1(@RequestParam("pageSize") int pageSize, HttpSession session) {
+        session.setAttribute("pageSize4", pageSize); // Thống nhất key với GET request
+        return "redirect:/DanhSachNguoiDungHeThong";
+    }
 
 }

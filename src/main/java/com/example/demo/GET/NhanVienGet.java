@@ -51,65 +51,59 @@ public class NhanVienGet {
     public String DanhSachGiaoVienCuaBan(
             ModelMap model,
             HttpSession session,
-            @RequestParam(defaultValue = "1") int page // Trang mặc định là 1
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(required = false) Integer pageSizeParam
     ) {
         if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
 
-        // Lấy pageSize từ session, nếu chưa có thì mặc định là 5
-        Integer pageSize = (Integer) session.getAttribute("pageSize");
-        if (pageSize == null || pageSize < 1) {
-            pageSize = 5;
+        // Lấy pageSize từ session nếu chưa có thì mặc định 5
+        Integer pageSize = (Integer) session.getAttribute("pageSize2");
+        if (pageSizeParam != null) {
+            pageSize = pageSizeParam;
+            session.setAttribute("pageSize2", pageSize);
         }
+        if (pageSize == null || pageSize < 1) pageSize = 5;
 
         // Đếm tổng số giáo viên
-        Long totalTeachers = (Long) entityManager.createQuery("SELECT COUNT(t) FROM Teachers t")
+        Long totalTeachers = (Long) entityManager.createQuery(
+                        "SELECT COUNT(t) FROM Teachers t WHERE t.employee.id = :employeeId")
+                .setParameter("employeeId", session.getAttribute("EmployeeID"))
                 .getSingleResult();
 
-        // Tính số trang mà KHÔNG dùng Math.ceil
-        int totalPages = 1;
-        if (totalTeachers != null && totalTeachers > 0) {
-            totalPages = (int) (totalTeachers / pageSize);
-            if (totalTeachers % pageSize != 0) { // Nếu còn dư thì cần thêm một trang nữa
-                totalPages++;
-            }
+        // Tránh lỗi chia cho 0
+        if (totalTeachers == 0) {
+            model.addAttribute("teachers", new ArrayList<>());
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("totalPages", 1);
+            model.addAttribute("pageSize", pageSize);
+            return "DanhSachGiaoVienCuaBan";
         }
 
-        // Đảm bảo `page` nằm trong phạm vi hợp lệ mà không dùng `Math`
-        int pageCount = 1;
-        for (int i = 1; i <= totalPages; i++) {
-            if (page == i) {
-                pageCount = i;
-            }
-        }
+        // Tính số trang hợp lệ
+        int totalPages = (int) Math.ceil((double) totalTeachers / pageSize);
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
 
-        // Xác định vị trí bắt đầu của dữ liệu (không dùng công thức `Math`)
-        int firstResult = 0;
-        int count = 1;
-        for (int i = pageSize; i <= totalTeachers; i += pageSize) {
-            if (count == (pageCount - 1)) {
-                firstResult = i;
-                break;
-            }
-            count++;
-        }
+        // Vị trí bắt đầu
+        int firstResult = (page - 1) * pageSize;
 
-        // Lấy danh sách giáo viên theo phân trang
-        List<Teachers> teachers = entityManager.createQuery("FROM Teachers", Teachers.class)
+        // Lấy danh sách giáo viên có sắp xếp theo ID
+        List<Teachers> teachers = entityManager.createQuery(
+                        "FROM Teachers t WHERE t.employee.id = :employeeId ORDER BY t.id ASC", Teachers.class)
+                .setParameter("employeeId", session.getAttribute("EmployeeID"))
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();
-
-        // Gửi dữ liệu qua model
+        // Gửi dữ liệu sang view
         model.addAttribute("teachers", teachers);
-        model.addAttribute("currentPage", pageCount);
+        model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("pageSize", pageSize);
 
         return "DanhSachGiaoVienCuaBan";
     }
-
 
 
 
@@ -124,57 +118,55 @@ public class NhanVienGet {
     public String DanhSachHocSinhCuaBan(
             ModelMap model,
             HttpSession session,
-            @RequestParam(defaultValue = "1") int page
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(required = false) Integer pageSize // Cho phép null
     ) {
         if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
 
-        // Lấy pageSize từ session, nếu không có thì dùng giá trị mặc định là 5
-        Integer sessionPageSize = (Integer) session.getAttribute("pageSize");
-        int pageSize = (sessionPageSize != null) ? sessionPageSize : 5;
+        // Nếu pageSize là null, lấy từ session hoặc đặt mặc định là 5
+        if (pageSize == null) {
+            pageSize = (Integer) session.getAttribute("pageSize");
+            if (pageSize == null) {
+                pageSize = 5; // Mặc định 5 nếu chưa có
+            }
+        }
 
-        // Đếm tổng số học sinh
-        Long totalStudents = (Long) entityManager.createQuery("SELECT COUNT(s) FROM Students s")
+        // Lưu pageSize vào session để dùng trong lần sau
+        session.setAttribute("pageSize", pageSize);
+
+        // Đếm tổng số học sinh thuộc nhân viên hiện tại
+        Long totalStudents = (Long) entityManager.createQuery(
+                        "SELECT COUNT(s) FROM Students s WHERE s.employee.id = :employeeId")
+                .setParameter("employeeId", session.getAttribute("EmployeeID"))
                 .getSingleResult();
 
-        if (totalStudents == null || totalStudents == 0) {
-            model.addAttribute("students", List.of());
+        if (totalStudents == 0) {
+            model.addAttribute("students", new ArrayList<>());
             model.addAttribute("currentPage", 1);
             model.addAttribute("totalPages", 1);
             model.addAttribute("pageSize", pageSize);
             return "DanhSachHocSinhCuaBan";
         }
 
-        int totalPages = totalStudents.intValue() / pageSize;
-        if (totalStudents % pageSize != 0) {
-            totalPages++;
-        }
-        int startIndex = 0, endIndex = 0;
-        if (page > totalPages) {
-            startIndex = (page - 1) * pageSize + 1;
-            endIndex = totalStudents.intValue();
-        } else {
-            int count = 0;
-            for (int i = pageSize; i < totalStudents; i += pageSize) {
-                if (count == page - 1) {
-                    startIndex = i - pageSize + 1;
-                    endIndex = i;
-                    break;
-                } else {
-                    count++;
-                }
-            }
-        }
-        if (startIndex <= 0) startIndex = 1;
-        if (endIndex > totalStudents.intValue()) endIndex = totalStudents.intValue();
+        // Tính tổng số trang
+        int totalPages = (int) Math.ceil((double) totalStudents / pageSize);
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
 
-        List<Students> students = entityManager.createQuery("FROM Students", Students.class)
-                .setFirstResult(startIndex - 1)  // Vì database index bắt đầu từ 0
+        // Tính vị trí bắt đầu lấy dữ liệu
+        int firstResult = (page - 1) * pageSize;
+
+        // Truy vấn danh sách học sinh có phân trang
+        List<Students> students = entityManager.createQuery(
+                        "FROM Students s WHERE s.employee.id = :employeeId ORDER BY s.id ASC", Students.class)
+                .setParameter("employeeId", session.getAttribute("EmployeeID"))
+                .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();
 
-        // Gửi dữ liệu qua model
+        // Đưa dữ liệu lên giao diện
         model.addAttribute("students", students);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
@@ -182,7 +174,6 @@ public class NhanVienGet {
 
         return "DanhSachHocSinhCuaBan";
     }
-
 
     @GetMapping("/ThemHocSinhCuaBan")
     public String ThemHocSinhCuaBan(ModelMap model, HttpSession session) {
@@ -192,25 +183,91 @@ public class NhanVienGet {
         return "ThemHocSinhCuaBan";
     }
     @GetMapping("/DanhSachNguoiDungHeThong")
-    public String DanhSachNguoiDungHeThong(HttpSession session, ModelMap model) {
-        if(session.getAttribute("EmployeeID") == null) {
+    public String DanhSachNguoiDungHeThong(
+            HttpSession session,
+            ModelMap model,
+            @RequestParam(defaultValue = "1") int pageEmployees,
+            @RequestParam(defaultValue = "1") int pageTeachers,
+            @RequestParam(defaultValue = "1") int pageStudents,
+            @RequestParam(required = false) Integer pageSize // Cho phép null
+    ) {
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
-        if(session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
+
+        // Nếu pageSize là null, lấy từ session hoặc mặc định là 5
+        if (pageSize == null) {
+            pageSize = (Integer) session.getAttribute("pageSize4");
+            if (pageSize == null) {
+                pageSize = 5; // Mặc định là 5 nếu chưa có
+            }
         }
-        List<Employees> employee = entityManager.createQuery("from Employees ").getResultList();
-        List<Teachers> teachers = entityManager.createQuery("from Teachers ").getResultList();
-        List<Students> students = entityManager.createQuery("from Students ").getResultList();
+        session.setAttribute("pageSize4", pageSize); // Lưu pageSize vào session
+
+        // ========== PHÂN TRANG CHO EMPLOYEES ==========
+        Long totalEmployees = (Long) entityManager.createQuery("SELECT COUNT(e) FROM Employees e")
+                .getSingleResult();
+        int totalPagesEmployees = (int) Math.ceil((double) totalEmployees / pageSize);
+        totalPagesEmployees = Math.max(totalPagesEmployees, 1);
+        pageEmployees = Math.max(1, Math.min(pageEmployees, totalPagesEmployees));
+
+        int firstEmployeeResult = (pageEmployees - 1) * pageSize;
+        List<Employees> employeeList = entityManager.createQuery("FROM Employees", Employees.class)
+                .setFirstResult(firstEmployeeResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+
+        // ========== PHÂN TRANG CHO TEACHERS ==========
+        Long totalTeachers = (Long) entityManager.createQuery("SELECT COUNT(t) FROM Teachers t")
+                .getSingleResult();
+        int totalPagesTeachers = (int) Math.ceil((double) totalTeachers / pageSize);
+        totalPagesTeachers = Math.max(totalPagesTeachers, 1);
+        pageTeachers = Math.max(1, Math.min(pageTeachers, totalPagesTeachers));
+
+        int firstTeacherResult = (pageTeachers - 1) * pageSize;
+        List<Teachers> teacherList = entityManager.createQuery("FROM Teachers", Teachers.class)
+                .setFirstResult(firstTeacherResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+
+        // ========== PHÂN TRANG CHO STUDENTS ==========
+        Long totalStudents = (Long) entityManager.createQuery("SELECT COUNT(s) FROM Students s")
+                .getSingleResult();
+        int totalPagesStudents = (int) Math.ceil((double) totalStudents / pageSize);
+        totalPagesStudents = Math.max(totalPagesStudents, 1);
+        pageStudents = Math.max(1, Math.min(pageStudents, totalPagesStudents));
+
+        int firstStudentResult = (pageStudents - 1) * pageSize;
+        List<Students> studentList = entityManager.createQuery("FROM Students", Students.class)
+                .setFirstResult(firstStudentResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+
+        // Lấy thông tin admin từ EmployeeID
         Employees employee1 = entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
         Admin admin = employee1.getAdmin();
-        model.addAttribute("employee", employee);
-        model.addAttribute("teachers", teachers);
-        model.addAttribute("students", students);
-        model.addAttribute("employee", employee);
+
+        // ========== ĐƯA DỮ LIỆU LÊN GIAO DIỆN ==========
+        model.addAttribute("employees", employeeList);
+        model.addAttribute("teachers", teacherList);
+        model.addAttribute("students", studentList);
         model.addAttribute("admin", admin);
+
+        // Thông tin phân trang
+        model.addAttribute("currentPageEmployees", pageEmployees);
+        model.addAttribute("totalPagesEmployees", totalPagesEmployees);
+
+        model.addAttribute("currentPageTeachers", pageTeachers);
+        model.addAttribute("totalPagesTeachers", totalPagesTeachers);
+
+        model.addAttribute("currentPageStudents", pageStudents);
+        model.addAttribute("totalPagesStudents", totalPagesStudents);
+
+        model.addAttribute("pageSize", pageSize);
+
         return "DanhSachNguoiDungHeThong";
     }
+
     @GetMapping("/XoaGiaoVienCuaBan/{id}")
     @Transactional
     public String XoaGiaoVienCuaBan(@PathVariable String id, ModelMap model, HttpSession session) {
@@ -274,22 +331,66 @@ public class NhanVienGet {
         return "SuaHocSinhCuaBan";
     }
     @GetMapping("/DanhSachPhongHoc")
-    public String DanhSachPhongHoc(ModelMap model, HttpSession session) {
+    public String DanhSachPhongHoc(
+            ModelMap model,
+            HttpSession session,
+            @RequestParam(defaultValue = "1") int pageOffline,
+            @RequestParam(defaultValue = "1") int pageOnline,
+            @RequestParam(required = false) Integer pageSize // Cho phép null
+    ) {
         if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
 
-        // Lấy danh sách phòng học offline
-        List<Rooms> offlineRooms = entityManager.createQuery("from Rooms", Rooms.class).getResultList();
+        // Nếu pageSize là null, lấy từ session hoặc mặc định là 5
+        if (pageSize == null) {
+            pageSize = (Integer) session.getAttribute("pageSize3");
+            if (pageSize == null) {
+                pageSize = 5; // Mặc định 5 nếu chưa có
+            }
+        }
+        session.setAttribute("pageSize3", pageSize); // Lưu pageSize vào session để dùng sau
 
-        // Lấy danh sách phòng học online
-        List<OnlineRooms> onlineRooms = entityManager.createQuery("from OnlineRooms", OnlineRooms.class).getResultList();
+        // ====== XỬ LÝ PHÂN TRANG CHO PHÒNG HỌC OFFLINE ======
+        Long totalOfflineRooms = (Long) entityManager.createQuery("SELECT COUNT(r) FROM Rooms r")
+                .getSingleResult();
+        int totalOfflinePages = (int) Math.ceil((double) totalOfflineRooms / pageSize);
+        totalOfflinePages = Math.max(totalOfflinePages, 1); // Đảm bảo totalOfflinePages ≥ 1
+        pageOffline = Math.max(1, Math.min(pageOffline, totalOfflinePages)); // Giới hạn trang từ 1 → totalPages
 
+        int firstOfflineResult = (pageOffline - 1) * pageSize;
+        List<Rooms> offlineRooms = entityManager.createQuery("FROM Rooms", Rooms.class)
+                .setFirstResult(firstOfflineResult)
+                .setMaxResults(pageSize)
+                .getResultList();
 
+        // ====== XỬ LÝ PHÂN TRANG CHO PHÒNG HỌC ONLINE ======
+        Long totalOnlineRooms = (Long) entityManager.createQuery("SELECT COUNT(r) FROM OnlineRooms r")
+                .getSingleResult();
+        int totalOnlinePages = (int) Math.ceil((double) totalOnlineRooms / pageSize);
+        totalOnlinePages = Math.max(totalOnlinePages, 1); // Đảm bảo totalOnlinePages ≥ 1
+        pageOnline = Math.max(1, Math.min(pageOnline, totalOnlinePages)); // Giới hạn trang từ 1 → totalPages
+
+        int firstOnlineResult = (pageOnline - 1) * pageSize;
+        List<OnlineRooms> onlineRooms = entityManager.createQuery("FROM OnlineRooms", OnlineRooms.class)
+                .setFirstResult(firstOnlineResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+
+        // ====== ĐƯA DỮ LIỆU LÊN GIAO DIỆN ======
         model.addAttribute("rooms", offlineRooms);
         model.addAttribute("roomsonline", onlineRooms);
+
+        // Thông tin phân trang
+        model.addAttribute("currentPageOffline", pageOffline);
+        model.addAttribute("totalPagesOffline", totalOfflinePages);
+        model.addAttribute("currentPageOnline", pageOnline);
+        model.addAttribute("totalPagesOnline", totalOnlinePages);
+        model.addAttribute("pageSize", pageSize);
+
         return "DanhSachPhongHoc";
     }
+
 
     @GetMapping("/ThemPhongHoc")
     public String ThemPhongHoc(ModelMap model, HttpSession session) {

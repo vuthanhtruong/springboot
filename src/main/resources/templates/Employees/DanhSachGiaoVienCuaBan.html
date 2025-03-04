@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Danh Sách Giáo Viên Của Bạn</title>
-
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" th:href="@{/DanhSachGiaoVienCuaBan.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <script>
         function searchTeachers() {
             let input = document.getElementById("searchInput").value.toLowerCase();
@@ -18,11 +15,8 @@
                 let id = row.querySelector("td:nth-child(1)").textContent.toLowerCase();
                 let fullName = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
 
-                if ((filterType === "id" && id.includes(input)) || (filterType === "name" && fullName.includes(input))) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
+                row.style.display = (filterType === "id" && id.includes(input)) ||
+                (filterType === "name" && fullName.includes(input)) ? "" : "none";
             });
         }
     </script>
@@ -34,13 +28,11 @@
         <i class="fas fa-chalkboard-teacher"></i> Danh Sách Giáo Viên Của Bạn
     </h1>
 
-    <!-- Kiểm tra session EmployeeID -->
     <div th:if="${session.EmployeeID}">
         <p class="text-success text-center">
             👤 <strong>Mã nhân viên:</strong> <span th:text="${session.EmployeeID}"></span>
         </p>
 
-        <!-- Thanh tìm kiếm -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="input-group w-50">
                 <select id="searchFilter" class="form-select">
@@ -58,8 +50,8 @@
                 </a>
             </div>
         </div>
-        <!-- Form chọn số học sinh hiển thị trên mỗi trang -->
-        <form th:action="@{/DanhSachHocSinhCuaBan}" method="post" class="d-flex align-items-center">
+
+        <form th:action="@{/DanhSachGiaoVienCuaBan}" method="post" class="d-flex align-items-center">
             <label for="pageSizeInput" class="me-2">📌 Hiển thị:</label>
             <input type="number" id="pageSizeInput" name="pageSize" class="form-control form-control-sm w-25"
                    th:value="${pageSize}" min="1" max="100">
@@ -68,21 +60,19 @@
             </button>
         </form>
 
-        <!-- Bảng danh sách giáo viên -->
         <div class="table-responsive">
             <table id="teacherTable" class="table table-bordered table-hover">
                 <thead class="table-dark">
                 <tr class="text-center">
-                    <th><i class="fas fa-id-badge"></i> ID</th>
-                    <th><i class="fas fa-user"></i> Họ và Tên</th>
-                    <th><i class="fas fa-envelope"></i> Email</th>
-                    <th><i class="fas fa-phone"></i> Số Điện Thoại</th>
-                    <th><i class="fas fa-cogs"></i> Hành Động</th>
+                    <th>ID</th>
+                    <th>Họ và Tên</th>
+                    <th>Email</th>
+                    <th>Số Điện Thoại</th>
+                    <th>Hành Động</th>
                 </tr>
                 </thead>
                 <tbody>
-                <!-- Duyệt danh sách giáo viên và lọc theo EmployeeID -->
-                <tr th:each="teacher : ${teachers}" th:if="${teacher.employee != null and teacher.employee.id == session.EmployeeID}">
+                <tr th:each="teacher : ${teachers}">
                     <td class="text-center" th:text="${teacher.id}"></td>
                     <td th:text="${teacher.firstName + ' ' + teacher.lastName}"></td>
                     <td th:text="${teacher.email}"></td>
@@ -101,45 +91,42 @@
             </table>
         </div>
 
-        <!-- Phân trang -->
-        <div class="d-flex justify-content-between align-items-center mt-4">
-            <!-- Hiển thị tổng số trang -->
-            <p class="text-muted">Trang <span th:text="${currentPage}"></span> / <span th:text="${totalPages}"></span></p>
+        <ul class="pagination justify-content-center">
+            <!-- Nút "Đầu" -->
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/DanhSachGiaoVienCuaBan(page=1, pageSize=${pageSize})}">Đầu</a>
+            </li>
 
-            <!-- Điều hướng trang -->
-            <nav>
-                <ul class="pagination">
-                    <!-- Nút Trang Trước -->
-                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                        <a class="page-link" th:href="@{/DanhSachGiaoVienCuaBan(page=${currentPage - 1}, pageSize=${pageSize})}">
-                            <i class="fas fa-chevron-left"></i> Trước
-                        </a>
-                    </li>
+            <!-- Nút "Trước" -->
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/DanhSachGiaoVienCuaBan(page=${currentPage - 1}, pageSize=${pageSize})}">&laquo;</a>
+            </li>
 
-                    <!-- Số Trang -->
-                    <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}" th:classappend="${i == currentPage} ? 'active'">
-                        <a class="page-link" th:href="@{/DanhSachGiaoVienCuaBan(page=${i}, pageSize=${pageSize})}" th:text="${i}"></a>
-                    </li>
+            <!-- Duyệt số trang bằng vòng lặp -->
+            <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
+                <li class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/DanhSachGiaoVienCuaBan(page=${i}, pageSize=${pageSize})}" th:text="${i}"></a>
+                </li>
+            </th:block>
 
-                    <!-- Nút Trang Tiếp -->
-                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
-                        <a class="page-link" th:href="@{/DanhSachGiaoVienCuaBan(page=${currentPage + 1}, pageSize=${pageSize})}">
-                            Tiếp <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+            <!-- Nút "Sau" -->
+            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a class="page-link" th:href="@{/DanhSachGiaoVienCuaBan(page=${currentPage + 1}, pageSize=${pageSize})}">&raquo;</a>
+            </li>
+
+            <!-- Nút "Cuối" -->
+            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a class="page-link" th:href="@{/DanhSachGiaoVienCuaBan(page=${totalPages}, pageSize=${pageSize})}">Cuối</a>
+            </li>
+        </ul>
+
 
     </div>
-
-    <!-- Nếu không có EmployeeID -->
     <div th:unless="${session.EmployeeID}">
         <p class="text-danger text-center">
             <i class="fas fa-exclamation-triangle"></i> Bạn chưa đăng nhập hoặc không có quyền truy cập.
         </p>
     </div>
-
 </div>
 
 </body>

@@ -39,7 +39,15 @@
   </a>
 </div>
 
-<!-- Bố cục hai cột -->
+<form th:action="@{/DanhSachPhongHoc}" method="post" class="d-flex align-items-center">
+  <label for="pageSizeInput" class="me-2">📌 Hiển thị:</label>
+  <input type="number" id="pageSizeInput" name="pageSize" class="form-control form-control-sm w-25"
+         th:value="${pageSize}" min="1" max="100">
+  <button type="submit" class="btn btn-primary btn-sm ms-2">
+    <i class="fas fa-check"></i> Áp dụng
+  </button>
+</form>
+
 <div class="row">
   <!-- Cột Phòng Học Offline -->
   <div class="col-md-6">
@@ -53,8 +61,8 @@
         <th>Thao Tác</th>
       </tr>
       </thead>
-      <tbody id="offlineRooms">
-      <tr th:each="room : ${rooms}" th:attr="data-id=${room.roomId}, data-name=${room.roomName}">
+      <tbody>
+      <tr th:each="room : ${rooms}">
         <td th:text="${room.roomId}"></td>
         <td th:text="${room.roomName}"></td>
         <td th:text="${room.employee.firstName + ' ' + room.employee.lastName}"></td>
@@ -70,6 +78,19 @@
       </tr>
       </tbody>
     </table>
+
+    <!-- Phân trang Offline -->
+    <div class="d-flex justify-content-center">
+      <a th:href="@{/DanhSachPhongHoc(pageOffline=${currentPageOffline - 1}, pageSize=${pageSize})}"
+         class="btn btn-secondary me-2" th:if="${currentPageOffline > 1}">
+        <i class="fas fa-arrow-left"></i> Trước
+      </a>
+      <span class="align-self-center">Trang <span th:text="${currentPageOffline}"></span> / <span th:text="${totalPagesOffline}"></span></span>
+      <a th:href="@{/DanhSachPhongHoc(pageOffline=${currentPageOffline + 1}, pageSize=${pageSize})}"
+         class="btn btn-secondary ms-2" th:if="${currentPageOffline < totalPagesOffline}">
+        Tiếp <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
   </div>
 
   <!-- Cột Phòng Học Online -->
@@ -84,8 +105,8 @@
         <th>Thao Tác</th>
       </tr>
       </thead>
-      <tbody id="onlineRooms">
-      <tr th:each="room : ${roomsonline}" th:attr="data-id=${room.roomId}, data-name=${room.roomName}">
+      <tbody>
+      <tr th:each="room : ${roomsonline}">
         <td th:text="${room.roomId}"></td>
         <td th:text="${room.roomName}"></td>
         <td th:text="${room.employee.firstName + ' ' + room.employee.lastName}"></td>
@@ -101,29 +122,33 @@
       </tr>
       </tbody>
     </table>
+
+    <!-- Phân trang Online -->
+    <div class="d-flex justify-content-center">
+      <a th:href="@{/DanhSachPhongHoc(pageOnline=${currentPageOnline - 1}, pageSize=${pageSize})}"
+         class="btn btn-secondary me-2" th:if="${currentPageOnline > 1}">
+        <i class="fas fa-arrow-left"></i> Trước
+      </a>
+      <span class="align-self-center">Trang <span th:text="${currentPageOnline}"></span> / <span th:text="${totalPagesOnline}"></span></span>
+      <a th:href="@{/DanhSachPhongHoc(pageOnline=${currentPageOnline + 1}, pageSize=${pageSize})}"
+         class="btn btn-secondary ms-2" th:if="${currentPageOnline < totalPagesOnline}">
+        Tiếp <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
   </div>
 </div>
 
 <!-- JavaScript -->
 <script>
+  function updatePageSize() {
+    let selectedPageSize = document.getElementById("pageSize").value;
+    window.location.href = "/DanhSachPhongHoc?pageSize=" + selectedPageSize;
+  }
+
   function filterRooms() {
-    let searchType = document.getElementById("searchType").value; // "id" hoặc "name"
     let searchValue = document.getElementById("searchInput").value.toLowerCase();
-    let offlineRows = document.querySelectorAll("#offlineRooms tr");
-    let onlineRows = document.querySelectorAll("#onlineRooms tr");
-
-    offlineRows.forEach(row => {
-      let roomId = row.getAttribute("data-id").toLowerCase();
-      let roomName = row.getAttribute("data-name").toLowerCase();
-      let match = searchType === "id" ? roomId.includes(searchValue) : roomName.includes(searchValue);
-      row.style.display = match ? "" : "none";
-    });
-
-    onlineRows.forEach(row => {
-      let roomId = row.getAttribute("data-id").toLowerCase();
-      let roomName = row.getAttribute("data-name").toLowerCase();
-      let match = searchType === "id" ? roomId.includes(searchValue) : roomName.includes(searchValue);
-      row.style.display = match ? "" : "none";
+    document.querySelectorAll("tbody tr").forEach(row => {
+      row.style.display = row.innerText.toLowerCase().includes(searchValue) ? "" : "none";
     });
   }
 
@@ -132,13 +157,6 @@
     filterRooms();
   }
 </script>
-
-<!-- CSS -->
-<style>
-  #searchType, #searchInput {
-    max-width: 200px;
-  }
-</style>
 
 </body>
 </html>
