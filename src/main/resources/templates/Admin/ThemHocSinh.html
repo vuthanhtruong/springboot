@@ -10,19 +10,15 @@
 <div class="container">
   <h2>Thêm Học Sinh</h2>
 
-  <!-- Hiển thị lỗi -->
-  <div th:if="${param.error}" class="alert alert-danger">
-    <p th:if="${param.error[0] == 'studentIDExists'}">❌ Mã học sinh đã tồn tại!</p>
-    <p th:if="${param.error[0] == 'emailExists'}">❌ Email này đã được sử dụng!</p>
-    <p th:if="${param.error[0] == 'phoneExists'}">❌ Số điện thoại này đã được sử dụng!</p>
-    <p th:if="${param.error[0] == 'misIDExists'}">❌ MIS ID đã tồn tại!</p>
-    <p th:if="${param.error[0] == 'notLoggedIn'}">❌ Bạn chưa đăng nhập!</p>
+  <!-- Hiển thị lỗi từ backend -->
+  <div th:if="${error}" class="alert alert-danger">
+    <p th:text="${error}"></p>
   </div>
 
   <form th:action="@{/ThemHocSinh}" method="post">
     <div class="input-group">
       <label for="studentID"><i class="fas fa-id-card"></i> ID Học Sinh</label>
-      <input type="text" id="studentID" name="StudentID" required min="1">
+      <input type="text" id="studentID" name="StudentID" required>
     </div>
 
     <div class="input-group">

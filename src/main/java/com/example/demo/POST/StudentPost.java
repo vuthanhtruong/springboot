@@ -4,6 +4,7 @@ import com.example.demo.OOP.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -31,50 +32,85 @@ public class StudentPost {
     @PersistenceContext
     private EntityManager entityManager;
     @PostMapping("/DangKyHocSinh")
-    public String DangKyHocSinh(@RequestParam("EmployeeID") String employeeID,
-                                @RequestParam("StudentID") String studentID,
-                                @RequestParam("FirstName") String firstName,
-                                @RequestParam("LastName") String lastName,
-                                @RequestParam("Email") String email,
-                                @RequestParam("PhoneNumber") String phoneNumber,
-                                @RequestParam(value = "MisID", required = false) String misID,
-                                @RequestParam("Password") String password,
-                                @RequestParam("ConfirmPassword") String confirmPassword) {
+    public String DangKyHocSinh(
+            @RequestParam("EmployeeID") String employeeID,
+            @RequestParam("StudentID") String studentID,
+            @RequestParam("FirstName") String firstName,
+            @RequestParam("LastName") String lastName,
+            @RequestParam("Email") String email,
+            @RequestParam("PhoneNumber") String phoneNumber,
+            @RequestParam(value = "MisId", required = false) String misId, // Fix tên biến
+            @RequestParam("Password") String password,
+            @RequestParam("ConfirmPassword") String confirmPassword,
+            RedirectAttributes redirectAttributes) {
 
-        // Kiểm tra mật khẩu có khớp không
+        // Kiểm tra StudentID
+        if (!studentID.startsWith("STU")) {
+            redirectAttributes.addFlashAttribute("errorStudentID", "Mã học sinh phải bắt đầu bằng 'STU'.");
+            return "redirect:/DangKyHocSinh";
+        }
+
+        // Kiểm tra mật khẩu
         if (!password.equals(confirmPassword)) {
-            return "redirect:/DangKyHocSinh?error=password_mismatch";
+            redirectAttributes.addFlashAttribute("errorPassword", "Mật khẩu nhập lại không khớp!");
+            return "redirect:/DangKyHocSinh";
         }
 
-
-        List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
-        Admin admin = admins.get(0);  // Lấy trực tiếp đối tượng Admin từ danh sách
+        // Kiểm tra nhân viên
         Employees employee = entityManager.find(Employees.class, employeeID);
-
         if (employee == null) {
-            return "redirect:/DangKyHocSinh?error=invalid_employee";
+            redirectAttributes.addFlashAttribute("errorEmployee", "Mã nhân viên không hợp lệ!");
+            return "redirect:/DangKyHocSinh";
         }
 
-        // Kiểm tra xem StudentID đã tồn tại chưa
+        // Kiểm tra StudentID đã tồn tại chưa
         if (entityManager.find(Students.class, studentID) != null) {
-            return "redirect:/DangKyHocSinh?error=student_exists";
+            redirectAttributes.addFlashAttribute("errorStudentID", "Mã học sinh đã tồn tại!");
+            return "redirect:/DangKyHocSinh";
         }
 
+        // Kiểm tra Email
+        TypedQuery<Students> emailQuery = entityManager.createQuery(
+                "SELECT s FROM Students s WHERE s.email = :email", Students.class);
+        emailQuery.setParameter("email", email);
+        List<Students> existingStudents = emailQuery.getResultList();
+
+        if (!existingStudents.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorEmail", "Email đã tồn tại!");
+            return "redirect:/DangKyHocSinh";
+        }
+
+        // Kiểm tra độ mạnh của mật khẩu
+        if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$")) {
+            redirectAttributes.addFlashAttribute("errorPassword", "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
+            return "redirect:/DangKyHocSinh";
+        }
+
+        // Lấy admin
+        List<Admin> admins = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
+        Admin admin = admins.get(0);
+
+        // Tạo học sinh mới
         Students student = new Students();
+        student.setId(studentID);
         student.setFirstName(firstName);
         student.setLastName(lastName);
         student.setEmail(email);
         student.setPhoneNumber(phoneNumber);
         student.setPassword(password);
-        student.setId(studentID); // Không cần thêm "STU", vì đã kiểm tra trước đó
-        student.setAdmin(admin);
+        student.setMisId(misId);
         student.setEmployee(employee);
-        student.setMisId(misID);
+        student.setAdmin(admin);
 
+        // Lưu vào database
         entityManager.persist(student);
 
+        // Chuyển hướng đến trang đăng nhập với thông báo thành công
+        redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công! Vui lòng đăng nhập.");
         return "redirect:/DangNhapHocSinh";
     }
+
+
 
     @PostMapping("/DangNhapHocSinh")
     public String DangNhapHocSinh(@RequestParam("studentID") String studentID,

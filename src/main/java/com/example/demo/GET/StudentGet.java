@@ -63,32 +63,33 @@ public class StudentGet {
 // Lấy danh sách tài liệu từ cơ sở dữ liệu
         List<Documents> documents = entityManager.createQuery(
                         "SELECT d FROM Documents d " +
-                                "JOIN d.post p " +
-                                "JOIN ClassroomDetails cdUploader ON cdUploader.member = d.creator " +
-                                "JOIN ClassroomDetails cdStudent ON cdStudent.member = :student " +
-                                "WHERE d.creator != :student AND cdUploader.room = cdStudent.room", Documents.class)
+                                "WHERE d.creator != :student AND EXISTS ( " +
+                                "   SELECT 1 FROM ClassroomDetails cd " +
+                                "   WHERE cd.member = d.creator AND cd.room IN ( " +
+                                "       SELECT cd2.room FROM ClassroomDetails cd2 WHERE cd2.member = :student " +
+                                "   ) " +
+                                ")", Documents.class)
                 .setParameter("student", student)
                 .getResultList();
-        Collections.reverse(documents); // Đảo ngược danh sách
-
-// Lấy danh sách bài đăng từ cơ sở dữ liệu
+        Collections.reverse(documents);
         List<Posts> posts = entityManager.createQuery(
                         "SELECT p FROM Posts p " +
-                                "JOIN ClassroomDetails cdCreator ON cdCreator.member = p.creator " +
-                                "JOIN ClassroomDetails cdStudent ON cdStudent.member = :student " +
-                                "WHERE p.creator != :student AND cdCreator.room = cdStudent.room", Posts.class)
+                                "WHERE p.creator != :student AND EXISTS ( " +
+                                "   SELECT 1 FROM ClassroomDetails cd " +
+                                "   WHERE cd.member = p.creator AND cd.room IN ( " +
+                                "       SELECT cd2.room FROM ClassroomDetails cd2 WHERE cd2.member = :student " +
+                                "   ) " +
+                                ")", Posts.class)
                 .setParameter("student", student)
                 .getResultList();
-        Collections.reverse(posts); // Đảo ngược danh sách
+        Collections.reverse(posts);
 
-// Lấy danh sách tin nhắn từ cơ sở dữ liệu
         List<Messages> messagesList = entityManager.createQuery(
                         "SELECT m FROM Messages m " +
                                 "WHERE m.sender != :student AND m.recipient = :student", Messages.class)
                 .setParameter("student", student)
                 .getResultList();
-        Collections.reverse(messagesList); // Đảo ngược danh sách
-
+        Collections.reverse(messagesList);
 
         model.addAttribute("documents", documents);
         model.addAttribute("posts", posts);

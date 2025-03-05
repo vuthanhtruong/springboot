@@ -10,10 +10,20 @@
 
 <h2 class="text-center"><i class="fas fa-laptop"></i> Thêm Phòng Học Online</h2>
 
+<!-- Hiển thị thông báo lỗi -->
+<div th:if="${error}" class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i> <span th:text="${error}"></span>
+</div>
+
+<!-- Hiển thị thông báo thành công -->
+<div th:if="${success}" class="alert alert-success">
+    <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+</div>
+
 <!-- Form nhập thông tin -->
 <form th:action="@{/ThemPhongHocOnline}" method="post" class="form-container">
     <div class="mb-3">
-        <label for="roomId" class="form-label"><i class="fas fa-door-open"></i>ID Phòng</label>
+        <label for="roomId" class="form-label"><i class="fas fa-hashtag"></i> ID Phòng</label>
         <input type="text" id="roomId" name="roomId" class="form-control" required>
     </div>
 

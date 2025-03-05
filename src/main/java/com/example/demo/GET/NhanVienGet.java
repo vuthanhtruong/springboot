@@ -757,21 +757,19 @@ public class NhanVienGet {
     }
     @GetMapping("/BangDieuKhienHocSinh/{id}")
     public String BangDieuKhienHocSinh(@PathVariable("id") String id, ModelMap model) {
-        // Find the student using the provided ID
+
         Students student = entityManager.find(Students.class, id);
         if (student == null) {
             model.addAttribute("errorMessage", "Student not found");
-            return "errorPage"; // Return a custom error page
+            return "errorPage";
         }
 
-        // Ensure the employee is fetched correctly using the student's employee ID
-        Employees employee = student.getEmployee();  // This should already be an Employees object
+        Employees employee = student.getEmployee();
         if (employee == null) {
             model.addAttribute("errorMessage", "No employee associated with the student.");
-            return "errorPage";  // Return an error page view
+            return "errorPage";
         }
 
-        // Retrieve classroom details for the student
         List<ClassroomDetails> classroomDetails = entityManager.createQuery(
                         "from ClassroomDetails cd where cd.member = :student", ClassroomDetails.class)
                 .setParameter("student", student)
@@ -782,13 +780,10 @@ public class NhanVienGet {
         Set<Rooms> rooms = new HashSet<>();
         Set<OnlineRooms> onlineRooms = new HashSet<>();
 
-        // Process each classroom detail to group rooms and teachers
+
         for (ClassroomDetails classroomDetail : classroomDetails) {
             roomSet.add(classroomDetail.getRoom());
         }
-
-        // Process the rooms and classify them as either physical rooms or online rooms
-        // Process the rooms and classify them as either physical rooms or online rooms
         for (Room room1 : roomSet) {
             List<ClassroomDetails> classroomDetailsForRoom = entityManager.createQuery(
                             "from ClassroomDetails cd where cd.room = :room1", ClassroomDetails.class)
@@ -798,7 +793,7 @@ public class NhanVienGet {
             for (ClassroomDetails classroomDetail : classroomDetailsForRoom) {
                 Object member = classroomDetail.getMember();
 
-                // Check if the member is a teacher and cast accordingly
+
                 if (member instanceof Teachers) {
                     teachers.add((Teachers) member);
                 }
@@ -811,15 +806,13 @@ public class NhanVienGet {
             }
         }
 
-
-        // Add necessary attributes to the model for the view
         model.addAttribute("employee", employee);
         model.addAttribute("rooms", rooms);
         model.addAttribute("onlineRooms", onlineRooms);
         model.addAttribute("teachers", teachers);
         model.addAttribute("student", student);
 
-        return "BangDieuKhienHocSinh"; // Ensure this matches the actual view file name
+        return "BangDieuKhienHocSinh";
     }
     @GetMapping("/BangDieuKhienGiaoVien/{id}")
     public String BangDieuKhienGiaoVien(@PathVariable("id") String id, ModelMap model) {
@@ -827,17 +820,16 @@ public class NhanVienGet {
         Teachers teacher = entityManager.find(Teachers.class, id);
         if (teacher == null) {
             model.addAttribute("errorMessage", "Teacher not found");
-            return "errorPage"; // Return a custom error page if teacher is not found
+            return "errorPage";
         }
 
-        // Ensure the employee is fetched correctly using the teacher's employee ID
-        Employees employee = teacher.getEmployee();  // This should already be an Employees object
+        Employees employee = teacher.getEmployee();
         if (employee == null) {
             model.addAttribute("errorMessage", "No employee associated with the teacher.");
-            return "errorPage";  // Return an error page if employee is not associated
+            return "errorPage";
         }
 
-        // Retrieve classroom details for the teacher
+
         List<ClassroomDetails> classroomDetails = entityManager.createQuery(
                         "from ClassroomDetails cd where cd.member = :teacher", ClassroomDetails.class)
                 .setParameter("teacher", teacher)
@@ -848,18 +840,10 @@ public class NhanVienGet {
         Set<Rooms> rooms = new HashSet<>();
         Set<OnlineRooms> onlineRooms = new HashSet<>();
 
-        // Process each classroom detail to group rooms and students
         for (ClassroomDetails classroomDetail : classroomDetails) {
             roomSet.add(classroomDetail.getRoom());
-
-            // Check if the member is a Student before adding to the students set
-            Object member = classroomDetail.getMember();
-            if (member instanceof Students) {
-                students.add((Students) member);  // Add the student to the set if the member is a student
-            }
         }
 
-        // Process the rooms and classify them as either physical rooms or online rooms
         for (Room room1 : roomSet) {
             List<ClassroomDetails> classroomDetailsForRoom = entityManager.createQuery(
                             "from ClassroomDetails cd where cd.room = :room1", ClassroomDetails.class)
@@ -891,6 +875,20 @@ public class NhanVienGet {
         model.addAttribute("teacher", teacher); // Include teacher details
 
         return "BangDieuKhienGiaoVien"; // Ensure this matches the actual view file name
+    }
+    @GetMapping("/FeedbackHocSinh")
+    public String FeedbackHocSinh(ModelMap model, HttpSession session) {
+        if(session.getAttribute("EmployeeID") != null){
+            return "redirect:/DangNhapNhanVien";
+        }
+        Employees employees=entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
+
+        List<Feedbacks> feedbacks=entityManager.createQuery("from Feedbacks f where f.receiver=:receiver", Feedbacks.class).
+                setParameter("receiver", employees).getResultList();
+
+        model.addAttribute("feedbacks", feedbacks);
+
+        return "FeedbackHocSinh";
     }
 
 

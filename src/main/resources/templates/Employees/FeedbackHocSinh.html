@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Feedback từ Học Sinh</title>
+    <link rel="stylesheet" th:href="@{/FeedbackHocSinh.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="text-primary"><i class="fas fa-comments"></i> Feedback từ Học Sinh</h1>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Người Đánh Giá</th>
+            <th>Giáo Viên</th>
+            <th>Nội Dung</th>
+            <th>Thời Gian</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="feedback, stat : ${feedbacks}">
+            <td th:text="${stat.count}"></td>
+            <td th:text="${feedback.reviewer.firstName} + ' ' + ${feedback.reviewer.lastName}"></td>
+            <td th:text="${feedback.teacher.firstName} + ' ' + ${feedback.teacher.lastName}"></td>
+            <td th:text="${feedback.text}"></td>
+            <td th:text="${#temporals.format(feedback.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="text-center mt-4">
+        <a th:href="@{/TrangChuNhanVien}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

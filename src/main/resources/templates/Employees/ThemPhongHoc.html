@@ -1,25 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta charset="UTF-8">
   <title>Thêm Phòng Học</title>
   <link rel="stylesheet" type="text/css" href="/ThemPhongHoc.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-<h2><i class="fas fa-school"></i> Thêm Phòng Học</h2>
 
-<form action="/ThemPhongHoc" method="post">
-  <label for="roomId"><i class="fas fa-hashtag"></i> ID Phòng:</label>
-  <input type="text" id="roomId" name="roomId" required><br>
+<div class="container">
+  <h2 class="text-primary"><i class="fas fa-school"></i> Thêm Phòng Học</h2>
 
-  <label for="roomName"><i class="fas fa-door-open"></i> Tên Phòng:</label>
-  <input type="text" id="roomName" name="roomName" required><br>
+  <!-- Hiển thị thông báo lỗi -->
+  <div th:if="${error}" class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i> <span th:text="${error}"></span>
+  </div>
 
+  <!-- Hiển thị thông báo thành công -->
+  <div th:if="${success}" class="alert alert-success">
+    <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+  </div>
 
-  <button type="submit"><i class="fas fa-plus-circle"></i> Thêm Phòng Học</button>
-  <a href="/DanhSachPhongHoc"><i class="fas fa-arrow-left"></i> Quay Lại</a>
-</form>
+  <form th:action="@{/ThemPhongHoc}" method="post">
+    <div class="mb-3">
+      <label for="roomId" class="form-label"><i class="fas fa-hashtag"></i> ID Phòng:</label>
+      <input type="text" id="roomId" name="roomId" class="form-control" required>
+    </div>
 
-<p th:if="${param.error}" style="color:red;"><i class="fas fa-exclamation-triangle"></i> Loại phòng không hợp lệ.</p>
+    <div class="mb-3">
+      <label for="roomName" class="form-label"><i class="fas fa-door-open"></i> Tên Phòng:</label>
+      <input type="text" id="roomName" name="roomName" class="form-control" required>
+    </div>
+
+    <div class="text-center">
+      <button type="submit" class="btn btn-success">
+        <i class="fas fa-plus-circle"></i> Thêm Phòng Học
+      </button>
+      <a href="/DanhSachPhongHoc" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay Lại
+      </a>
+    </div>
+  </form>
+</div>
+
 </body>
 </html>

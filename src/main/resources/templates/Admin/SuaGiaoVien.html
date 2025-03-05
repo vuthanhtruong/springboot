@@ -7,6 +7,15 @@
 </head>
 <body>
 <h2>Sửa Giáo Viên</h2>
+
+<!-- Hiển thị thông báo lỗi hoặc thành công -->
+<div th:if="${error}" class="alert alert-danger">
+  <p th:text="${error}"></p>
+</div>
+<div th:if="${success}" class="alert alert-success">
+  <p th:text="${success}"></p>
+</div>
+
 <form th:action="@{/SuaGiaoVien/{id}(id=${teachers.id})}" method="post">
   <input type="hidden" name="teacherID" th:value="${teachers.id}" />
 
@@ -26,8 +35,8 @@
   <input type="text" id="phoneNumber" name="phoneNumber" th:value="${teachers.phoneNumber}" required />
   <br/>
 
-  <label>MIS ID:</label>
-  <input type="text" name="misID" th:value="${teachers.misID}" />
+  <label for="misID">MIS ID:</label>
+  <input type="text" id="misID" name="misID" th:value="${teachers.misID}" />
   <br/>
 
   <label for="employee">Nhân viên phụ trách:</label>
@@ -39,6 +48,7 @@
     </option>
   </select>
   <br/>
+
   <button type="submit">Cập nhật</button>
   <div class="text-center mt-3">
     <a href="/DanhSachGiaoVien" class="btn btn-secondary">Quay Lại Danh Sách Giáo viên</a>

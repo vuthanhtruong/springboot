@@ -10,25 +10,40 @@
 
 <h2 class="text-center"><i class="fas fa-edit"></i> Chỉnh Sửa Phòng Học Online</h2>
 
+<!-- Hiển thị thông báo lỗi -->
+<div th:if="${param.error == 'RoomNameExists'}" class="alert alert-danger">
+  <i class="fas fa-exclamation-triangle"></i> Tên phòng đã tồn tại. Vui lòng nhập tên khác.
+</div>
+
 <!-- Form cập nhật phòng học online -->
 <form th:action="@{/SuaPhongHocOnline}" method="post" class="form-container">
+  <!-- ID Phòng (Ẩn) -->
   <input type="hidden" name="roomId" th:value="${room.roomId}" />
 
+  <!-- Nhập Tên Phòng -->
   <div class="mb-3">
     <label for="roomName" class="form-label"><i class="fas fa-door-open"></i> Tên Phòng</label>
-    <input type="text" id="roomName" name="roomName" class="form-control" th:value="${room.roomName}" required>
+    <input type="text" id="roomName" name="roomName" class="form-control"
+           th:value="${param.roomName != null ? param.roomName : room.roomName}" required>
   </div>
 
+  <!-- Nhập Link Phòng -->
   <div class="mb-3">
     <label for="link" class="form-label"><i class="fas fa-link"></i> Link Phòng Học</label>
-    <input type="url" id="link" name="link" class="form-control" th:value="${room.link}" required>
+    <input type="url" id="link" name="link" class="form-control"
+           th:value="${param.link != null ? param.link : room.link}" required>
   </div>
 
+  <!-- Trạng Thái -->
   <div class="mb-3">
     <label for="status" class="form-label"><i class="fas fa-toggle-on"></i> Trạng Thái</label>
     <select id="status" name="status" class="form-select">
-      <option value="true" th:selected="${room.status == true}">Hoạt Động</option>
-      <option value="false" th:selected="${room.status == false}">Không Hoạt Động</option>
+      <option value="true" th:selected="${param.status != null ? param.status == 'true' : room.status == true}">
+        Hoạt Động
+      </option>
+      <option value="false" th:selected="${param.status != null ? param.status == 'false' : room.status == false}">
+        Không Hoạt Động
+      </option>
     </select>
   </div>
 

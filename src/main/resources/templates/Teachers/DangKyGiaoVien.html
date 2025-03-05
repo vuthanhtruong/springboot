@@ -3,11 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Đăng Ký Giáo Viên</title>
-
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Link to the external CSS file -->
   <link rel="stylesheet" href="DangKyGiaoVien.css">
 </head>
 <body>
@@ -15,58 +11,64 @@
 <div class="container mt-5">
   <h1 class="text-center">Đăng Ký Giáo Viên</h1>
 
+  <!-- Hiển thị lỗi chung từ server -->
+  <div th:if="${errorMessage}" class="alert alert-danger text-center" role="alert">
+    <span th:text="${errorMessage}"></span>
+  </div>
+
   <!-- Form đăng ký giáo viên -->
-  <form th:action="@{/DangKyGiaoVien}" method="POST" onsubmit="return validateForm()">
+  <form th:action="@{/DangKyGiaoVien}" method="POST">
     <div class="mb-3">
       <label for="employeeID" class="form-label">Chọn Nhân Viên:</label>
       <select id="employeeID" name="EmployeeID" class="form-select" required>
         <option value="" disabled selected>Chọn Nhân Viên</option>
         <th:block th:each="employee : ${employees}">
-          <option th:value="${employee.id}" th:text="${employee.FirstName} + ' ' + ${employee.LastName}"></option>
+          <option th:value="${employee.id}" th:text="${employee.firstName + ' ' + employee.lastName}"></option>
         </th:block>
       </select>
     </div>
 
     <div class="mb-3">
-      <label for="TeacherID" class="form-label">ID Giáo Viên (bắt đầu bằng "TEA"):</label>
-      <input type="text" id="TeacherID" name="TeacherID" class="form-control" required placeholder="VD: TEA12345" oninput="validateTeacherID()">
-      <small id="teacherIDError" class="text-danger" style="display: none;">TeacherID phải bắt đầu bằng 'TEA'</small>
+      <label for="TeacherID" class="form-label">ID Giáo Viên</label>
+      <input type="text" id="TeacherID" name="TeacherID" class="form-control" required>
+      <div th:if="${teacherIDError}" class="text-danger" th:text="${teacherIDError}"></div>
     </div>
 
     <div class="mb-3">
       <label for="FirstName" class="form-label">Họ:</label>
-      <input type="text" id="FirstName" name="FirstName" class="form-control" required placeholder="Nguyễn">
+      <input type="text" id="FirstName" name="FirstName" class="form-control" required>
     </div>
 
     <div class="mb-3">
       <label for="LastName" class="form-label">Tên:</label>
-      <input type="text" id="LastName" name="LastName" class="form-control" required placeholder="Văn A">
+      <input type="text" id="LastName" name="LastName" class="form-control" required>
     </div>
 
     <div class="mb-3">
       <label for="Email" class="form-label">Email:</label>
-      <input type="email" id="Email" name="Email" class="form-control" required placeholder="example@email.com">
+      <input type="email" id="Email" name="Email" class="form-control" required>
+      <div th:if="${emailError}" class="text-danger" th:text="${emailError}"></div>
     </div>
 
     <div class="mb-3">
       <label for="PhoneNumber" class="form-label">Số Điện Thoại:</label>
-      <input type="text" id="PhoneNumber" name="PhoneNumber" class="form-control" required placeholder="0987654321">
+      <input type="text" id="PhoneNumber" name="PhoneNumber" class="form-control" required>
     </div>
 
     <div class="mb-3">
       <label for="MisID" class="form-label">Mã Giảng Viên (MIS ID - nếu có):</label>
-      <input type="text" id="MisID" name="MisID" class="form-control" placeholder="MIS12345">
+      <input type="text" id="MisID" name="MisID" class="form-control">
     </div>
 
     <div class="mb-3">
       <label for="Password" class="form-label">Mật Khẩu:</label>
-      <input type="password" id="Password" name="Password" class="form-control" required placeholder="******">
+      <input type="password" id="Password" name="Password" class="form-control" required>
     </div>
 
     <div class="mb-3">
       <label for="ConfirmPassword" class="form-label">Xác Nhận Mật Khẩu:</label>
-      <input type="password" id="ConfirmPassword" name="ConfirmPassword" class="form-control" required placeholder="******" oninput="validatePassword()">
-      <small id="passwordError" class="text-danger" style="display: none;">Mật khẩu không khớp</small>
+      <input type="password" id="ConfirmPassword" name="ConfirmPassword" class="form-control" required>
+      <div th:if="${passwordError}" class="text-danger" th:text="${passwordError}"></div>
     </div>
 
     <div class="d-flex justify-content-between">
@@ -75,40 +77,6 @@
     </div>
   </form>
 </div>
-
-<!-- JavaScript kiểm tra lỗi -->
-<script>
-  function validateTeacherID() {
-    let teacherID = document.getElementById("TeacherID").value;
-    let errorMsg = document.getElementById("teacherIDError");
-
-    if (!teacherID.startsWith("TEA")) {
-      errorMsg.style.display = "block";
-      return false;
-    } else {
-      errorMsg.style.display = "none";
-      return true;
-    }
-  }
-
-  function validatePassword() {
-    let password = document.getElementById("Password").value;
-    let confirmPassword = document.getElementById("ConfirmPassword").value;
-    let errorMsg = document.getElementById("passwordError");
-
-    if (password !== confirmPassword) {
-      errorMsg.style.display = "block";
-      return false;
-    } else {
-      errorMsg.style.display = "none";
-      return true;
-    }
-  }
-
-  function validateForm() {
-    return validateTeacherID() && validatePassword();
-  }
-</script>
 
 </body>
 </html>

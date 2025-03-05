@@ -4,50 +4,54 @@
     <meta charset="UTF-8">
     <title>Thêm Nhân Viên</title>
     <link rel="stylesheet" href="/ThemNhanVien.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
-<div class="container mt-5">
-    <h2 class="mb-4">Thêm Nhân Viên</h2>
+<div class="container">
+    <h2>Thêm Nhân Viên</h2>
 
-    <!-- Hiển thị thông báo lỗi nếu có -->
-    <div th:if="${param.error}" class="alert alert-danger">
-        <p th:if="${param.error[0] == 'employeeIDExists'}">❌ Mã nhân viên đã tồn tại!</p>
-        <p th:if="${param.error[0] == 'emailExists'}">❌ Email này đã được sử dụng!</p>
-        <p th:if="${param.error[0] == 'phoneExists'}">❌ Số điện thoại này đã được sử dụng!</p>
-        <p th:if="${param.error[0] == 'notLoggedIn'}">❌ Bạn chưa đăng nhập!</p>
+    <!-- Hiển thị lỗi từ backend -->
+    <div th:if="${error}" class="alert alert-danger">
+        <p th:text="${error}"></p>
     </div>
 
-    <form action="/ThemNhanVien" method="post">
-        <div class="form-group">
-            <label for="idemployee">ID Nhân viên:</label>
-            <input type="text" id="idemployee" name="EmployeeID" class="form-control" required>
+    <form th:action="@{/ThemNhanVien}" method="post">
+        <div class="input-group">
+            <label for="employeeID"><i class="fas fa-id-card"></i> Mã Nhân Viên</label>
+            <input type="text" id="employeeID" name="EmployeeID" required>
         </div>
-        <div class="form-group">
-            <label for="firstName">Họ:</label>
-            <input type="text" id="firstName" name="FirstName" class="form-control" required>
+
+        <div class="input-group">
+            <label for="firstName"><i class="fas fa-user"></i> Tên</label>
+            <input type="text" id="firstName" name="FirstName" required>
         </div>
-        <div class="form-group">
-            <label for="lastName">Tên:</label>
-            <input type="text" id="lastName" name="LastName" class="form-control" required>
+
+        <div class="input-group">
+            <label for="lastName"><i class="fas fa-user"></i> Họ</label>
+            <input type="text" id="lastName" name="LastName" required>
         </div>
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="Email" class="form-control" required>
+
+        <div class="input-group">
+            <label for="email"><i class="fas fa-envelope"></i> Email</label>
+            <input type="email" id="email" name="Email" required>
         </div>
-        <div class="form-group">
-            <label for="phoneNumber">Số điện thoại:</label>
-            <input type="text" id="phoneNumber" name="PhoneNumber" class="form-control" required>
+
+        <div class="input-group">
+            <label for="phoneNumber"><i class="fas fa-phone"></i> Số Điện Thoại</label>
+            <input type="text" id="phoneNumber" name="PhoneNumber" required>
         </div>
-        <div class="form-group">
-            <label for="password">Mật khẩu:</label>
-            <input type="password" id="password" name="Password" class="form-control" required>
+
+        <div class="input-group">
+            <label for="password"><i class="fas fa-lock"></i> Mật Khẩu</label>
+            <input type="password" id="password" name="Password" required>
         </div>
-        <button type="submit" class="btn btn-success">Thêm Nhân Viên</button>
+
+        <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Thêm Nhân Viên</button>
+
+        <div class="btn-container">
+            <a href="/DanhSachNhanVien" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay Lại</a>
+        </div>
     </form>
-
-    <div class="text-center mt-3">
-        <a href="/DanhSachNhanVien" class="btn btn-secondary">Quay Lại Danh Sách Nhân Viên</a>
-    </div>
 </div>
 </body>
 </html>

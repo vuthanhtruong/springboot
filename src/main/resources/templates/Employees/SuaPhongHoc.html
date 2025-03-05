@@ -10,18 +10,33 @@
 
 <h2 class="text-center mb-4"><i class="fas fa-school"></i> Chỉnh Sửa Phòng Học</h2>
 
+<!-- Hiển thị lỗi nếu trùng tên phòng -->
+<div th:if="${param.error == 'RoomNameExists'}" class="alert alert-danger">
+  <i class="fas fa-exclamation-triangle"></i> Tên phòng đã tồn tại. Vui lòng nhập tên khác.
+</div>
+
+<div th:if="${param.error == 'RoomNotFound'}" class="alert alert-warning">
+  <i class="fas fa-exclamation-circle"></i> Phòng học không tồn tại.
+</div>
+
 <form th:action="@{/SuaPhongHocOffline}" method="post" class="border p-4">
+  <!-- ID Phòng (Chỉ hiển thị, không chỉnh sửa) -->
   <div class="mb-3">
     <label for="roomId" class="form-label"><i class="fas fa-hashtag"></i> ID Phòng</label>
     <input type="text" id="roomId" name="roomId" class="form-control" th:value="${room.roomId}" readonly>
   </div>
 
+  <!-- Nhập Tên Phòng -->
   <div class="mb-3">
     <label for="roomName" class="form-label"><i class="fas fa-door-open"></i> Tên Phòng</label>
-    <input type="text" id="roomName" name="roomName" class="form-control" th:value="${room.roomName}" required>
+    <input type="text" id="roomName" name="roomName" class="form-control"
+           th:value="${param.roomName != null ? param.roomName : room.roomName}" required>
   </div>
 
+  <!-- Nút Cập Nhật -->
   <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Cập Nhật</button>
+
+  <!-- Nút Hủy -->
   <a th:href="@{/DanhSachPhongHoc}" class="btn btn-secondary"><i class="fas fa-times"></i> Hủy</a>
 </form>
 

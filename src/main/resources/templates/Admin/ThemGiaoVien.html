@@ -6,20 +6,19 @@
     <link rel="stylesheet" href="/ThemGiaoVien.css">
 </head>
 <body>
+
 <div class="container mt-5">
     <h2 class="mb-4">Thêm Giáo Viên</h2>
+
+    <!-- Hiển thị thông báo lỗi -->
+    <div th:if="${error}" class="alert alert-danger">
+        <p th:text="${error}"></p>
+    </div>
+
     <form th:action="@{/ThemGiaoVien}" method="post">
-        <div th:if="${param.error}" class="alert alert-danger">
-            <p th:if="${param.error[0] == 'teacherIDExists'}">❌ Mã giáo viên đã tồn tại!</p>
-            <p th:if="${param.error[0] == 'emailExists'}">❌ Email này đã được sử dụng!</p>
-            <p th:if="${param.error[0] == 'phoneExists'}">❌ Số điện thoại này đã được sử dụng!</p>
-            <p th:if="${param.error[0] == 'misIDExists'}">❌ MIS ID đã tồn tại!</p>
-            <p th:if="${param.error[0] == 'employeeNotFound'}">❌ Nhân viên không tồn tại!</p>
-            <p th:if="${param.error[0] == 'notLoggedIn'}">❌ Bạn chưa đăng nhập!</p>
-        </div>
         <div class="mb-3">
-            <label for="firstName" class="form-label">ID Giáo Viên</label>
-            <input type="text" class="form-control" id="idTeacher" name="TeacherID" required>
+            <label for="teacherID" class="form-label">ID Giáo Viên</label>
+            <input type="text" class="form-control" id="teacherID" name="TeacherID" required>
         </div>
         <div class="mb-3">
             <label for="firstName" class="form-label">Tên</label>
@@ -31,9 +30,8 @@
         </div>
         <div class="mb-3">
             <label for="password" class="form-label">Mật khẩu</label>
-            <input type="password" class="form-control" id="password" name="Password" required>
+            <input type="text" class="form-control" id="password" name="Password" required>
         </div>
-
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
             <input type="email" class="form-control" id="email" name="Email" required>
@@ -49,7 +47,7 @@
         <div class="mb-3">
             <label for="employee" class="form-label">Chọn Nhân Viên</label>
             <select class="form-select" id="employee" name="EmployeeID">
-            <option value="">-- Chọn nhân viên (không bắt buộc) --</option>
+                <option value="">-- Chọn nhân viên (không bắt buộc) --</option>
                 <option th:each="employee : ${employees}"
                         th:value="${employee.id}"
                         th:text="${employee.firstName + ' ' + employee.lastName}">
@@ -62,5 +60,6 @@
         </div>
     </form>
 </div>
+
 </body>
 </html>

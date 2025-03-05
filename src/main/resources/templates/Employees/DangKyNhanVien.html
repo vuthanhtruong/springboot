@@ -5,58 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Đăng ký Nhân viên</title>
   <link rel="stylesheet"
-        href="/DangKyNhanVien.css">
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
 </head>
 <body>
+
 <div class="container mt-5">
   <h2 class="text-center mb-4">Đăng ký dành cho Nhân viên</h2>
 
-  <form action="/DangKyNhanVien" method="post" class="card p-4 shadow needs-validation" novalidate>
+  <!-- Hiển thị lỗi chung từ backend -->
+  <div th:if="${errorMessage}" class="alert alert-danger text-center">
+    <span th:text="${errorMessage}"></span>
+  </div>
+
+  <!-- Form đăng ký -->
+  <form th:action="@{/DangKyNhanVien}" method="post" class="card p-4 shadow">
+
+    <!-- ID Nhân viên -->
     <div class="mb-3">
-      <label for="firstName" class="form-label">ID</label>
+      <label for="EmployeeID" class="form-label">Mã Nhân viên</label>
       <input type="text" class="form-control" id="EmployeeID" name="EmployeeID" required>
-      <div class="invalid-feedback">Vui lòng nhập ID.</div>
+      <div th:if="${employeeIDError}" class="text-danger" th:text="${employeeIDError}"></div>
     </div>
 
     <!-- Họ -->
     <div class="mb-3">
-      <label for="firstName" class="form-label">Họ</label>
+      <label for="FirstName" class="form-label">Họ</label>
       <input type="text" class="form-control" id="FirstName" name="FirstName" required>
-      <div class="invalid-feedback">Vui lòng nhập họ.</div>
     </div>
 
     <!-- Tên -->
     <div class="mb-3">
-      <label for="lastName" class="form-label">Tên</label>
+      <label for="LastName" class="form-label">Tên</label>
       <input type="text" class="form-control" id="LastName" name="LastName" required>
-      <div class="invalid-feedback">Vui lòng nhập tên.</div>
     </div>
 
     <!-- Email -->
     <div class="mb-3">
-      <label for="email" class="form-label">Email</label>
+      <label for="Email" class="form-label">Email</label>
       <input type="email" class="form-control" id="Email" name="Email" required>
-      <div class="invalid-feedback">Vui lòng nhập email hợp lệ.</div>
+      <div th:if="${emailError}" class="text-danger" th:text="${emailError}"></div>
     </div>
 
     <!-- Số điện thoại -->
     <div class="mb-3">
-      <label for="phoneNumber" class="form-label">Số điện thoại</label>
-      <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber"
-             pattern="^\+?[0-9]{10,15}$" required>
-      <div class="invalid-feedback">Số điện thoại không hợp lệ (10-15 số).</div>
+      <label for="PhoneNumber" class="form-label">Số điện thoại</label>
+      <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" required>
+      <div th:if="${phoneError}" class="text-danger" th:text="${phoneError}"></div>
     </div>
 
     <!-- Mật khẩu -->
     <div class="mb-3">
-      <label for="password" class="form-label">Mật khẩu</label>
+      <label for="Password" class="form-label">Mật khẩu</label>
       <input type="password" class="form-control" id="Password" name="Password" required>
-      <div class="invalid-feedback">Vui lòng nhập mật khẩu.</div>
+      <div th:if="${passwordStrengthError}" class="text-danger" th:text="${passwordStrengthError}"></div>
     </div>
 
-    <!-- Nút đăng ký -->
-    <button type="submit" class="btn btn-primary">Đăng ký</button>
-    <a href="/DangNhapNhanVien" class="btn btn-outline-secondary">Quay Lại Đăng Nhập</a>
+    <!-- Xác nhận mật khẩu -->
+    <div class="mb-3">
+      <label for="ConfirmPassword" class="form-label">Xác nhận Mật khẩu</label>
+      <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" required>
+      <div th:if="${passwordError}" class="text-danger" th:text="${passwordError}"></div>
+    </div>
+
+    <!-- Nút Đăng ký & Quay lại -->
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary">Đăng ký</button>
+      <a href="/DangNhapNhanVien" class="btn btn-outline-secondary">Quay Lại Đăng Nhập</a>
+    </div>
 
   </form>
 </div>

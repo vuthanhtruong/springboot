@@ -11,8 +11,10 @@ import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -41,58 +43,69 @@ public class AdminPost {
         return "redirect:/TrangChuAdmin";
     }
     @PostMapping("/ThemGiaoVien")
-    public String ThemGiaoVien(@RequestParam("EmployeeID") String employeeID,
-                               @RequestParam("TeacherID") String teacherID,
-                               @RequestParam("FirstName") String firstName,
-                               @RequestParam("LastName") String lastName,
-                               @RequestParam("Email") String email,
-                               @RequestParam("PhoneNumber") String phoneNumber,
-                               @RequestParam(value = "MisID", required = false) String misID,
-                               @RequestParam("Password") String password, HttpSession session) {
+    public String ThemGiaoVien(
+            @RequestParam("EmployeeID") String employeeID,
+            @RequestParam("TeacherID") String teacherID,
+            @RequestParam("FirstName") String firstName,
+            @RequestParam("LastName") String lastName,
+            @RequestParam("Email") String email,
+            @RequestParam("PhoneNumber") String phoneNumber,
+            @RequestParam(value = "MisID", required = false) String misID,
+            @RequestParam("Password") String password,
+            Model model,
+            HttpSession session) {
 
-        // Lấy thông tin Admin từ session
+        // Kiểm tra đăng nhập Admin
         Object adminIDObj = session.getAttribute("AdminID");
         if (adminIDObj == null) {
-            return "redirect:/DangNhapAdmin?error=notLoggedIn";
+            model.addAttribute("error", "Bạn cần đăng nhập để thực hiện thao tác này.");
+            return "DangNhapAdmin";
         }
+
         List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
-        Admin admin = admins.get(0);  // Lấy trực tiếp đối tượng Admin từ danh sách
+        Admin admin = admins.get(0);
 
-
-        // Lấy thông tin Employee
+        // Kiểm tra Employee có tồn tại không
         Employees employee = entityManager.find(Employees.class, employeeID);
         if (employee == null) {
-            return "redirect:/DangKyGiaoVien?error=employeeNotFound";
+            model.addAttribute("error", "Nhân viên không tồn tại.");
+            return "ThemGiaoVien";
         }
 
         // Kiểm tra trùng lặp
-        boolean teacherExists = entityManager.find(Teachers.class, teacherID) != null;
+        Teachers existingTeacher = entityManager.find(Teachers.class, teacherID);
+        if (existingTeacher != null) {
+            model.addAttribute("error", "Mã giáo viên đã tồn tại.");
+            return "ThemGiaoVien";
+        }
+
         boolean emailExists = !entityManager.createQuery("SELECT t FROM Teachers t WHERE t.email = :email", Teachers.class)
                 .setParameter("email", email)
                 .getResultList().isEmpty();
+
         boolean phoneExists = !entityManager.createQuery("SELECT t FROM Teachers t WHERE t.phoneNumber = :phoneNumber", Teachers.class)
                 .setParameter("phoneNumber", phoneNumber)
                 .getResultList().isEmpty();
+
         boolean misIDExists = misID != null && !misID.isEmpty() &&
                 !entityManager.createQuery("SELECT t FROM Teachers t WHERE t.misID = :misID", Teachers.class)
                         .setParameter("misID", misID)
                         .getResultList().isEmpty();
 
-        // Nếu có trùng lặp, trả về lỗi tương ứng
-        if (teacherExists) {
-            return "redirect:/ThemGiaoVien?error=teacherIDExists";
-        }
         if (emailExists) {
-            return "redirect:/ThemGiaoVien?error=emailExists";
+            model.addAttribute("error", "Email này đã được sử dụng.");
+            return "ThemGiaoVien";
         }
         if (phoneExists) {
-            return "redirect:/ThemGiaoVien?error=phoneExists";
+            model.addAttribute("error", "Số điện thoại này đã được sử dụng.");
+            return "ThemGiaoVien";
         }
         if (misIDExists) {
-            return "redirect:/DangKyGiaoVien?error=misIDExists";
+            model.addAttribute("error", "MIS ID đã tồn tại.");
+            return "ThemGiaoVien";
         }
 
-        // Tạo đối tượng giáo viên mới
+        // Tạo giáo viên mới
         Teachers giaoVien = new Teachers();
         giaoVien.setEmployee(employee);
         giaoVien.setAdmin(admin);
@@ -102,12 +115,11 @@ public class AdminPost {
         giaoVien.setEmail(email);
         giaoVien.setPhoneNumber(phoneNumber);
         giaoVien.setMisID(misID);
-        giaoVien.setPassword(password);
+        giaoVien.setPassword(password); // Không mã hóa mật khẩu
 
-        // Lưu vào database
         entityManager.persist(giaoVien);
 
-        return "redirect:/DanhSachGiaoVien";
+        return "redirect:/DanhSachGiaoVien?success=added";
     }
 
     @PostMapping("/ThemHocSinh")
@@ -118,50 +130,53 @@ public class AdminPost {
                               @RequestParam("Email") String email,
                               @RequestParam("PhoneNumber") String phoneNumber,
                               @RequestParam(value = "MisID", required = false) String misID,
-                              @RequestParam("Password") String password, HttpSession session) {
+                              @RequestParam("Password") String password,
+                              HttpSession session,
+                              Model model) {
 
-        // Lấy thông tin Admin từ session
+        // Kiểm tra đăng nhập Admin
         Object adminIDObj = session.getAttribute("AdminID");
         if (adminIDObj == null) {
-            return "redirect:/DangNhapAdmin?error=notLoggedIn";
+            model.addAttribute("error", "Bạn chưa đăng nhập!");
+            return "ThemHocSinh";
         }
-        List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
-        Admin admin = admins.get(0);  // Lấy trực tiếp đối tượng Admin từ danh sách
 
+        Admin admin = entityManager.createQuery("from Admin", Admin.class).getResultList().get(0);
 
-
-        // Lấy thông tin Employee
+        // Kiểm tra Employee
         Employees employee = entityManager.find(Employees.class, employeeID);
+        if (employee == null) {
+            model.addAttribute("error", "Nhân viên không tồn tại!");
+            return "ThemHocSinh";
+        }
 
         // Kiểm tra trùng lặp
-        boolean studentExists = entityManager.find(Students.class, studentID) != null;
-        boolean emailExists = !entityManager.createQuery("SELECT s FROM Students s WHERE s.email = :email", Students.class)
+        if (entityManager.find(Students.class, studentID) != null) {
+            model.addAttribute("error", "ID học sinh đã tồn tại!");
+            return "ThemHocSinh";
+        }
+        if (!entityManager.createQuery("SELECT s FROM Students s WHERE s.email = :email", Students.class)
                 .setParameter("email", email)
-                .getResultList().isEmpty();
-        boolean phoneExists = !entityManager.createQuery("SELECT s FROM Students s WHERE s.phoneNumber = :phoneNumber", Students.class)
+                .getResultList().isEmpty()) {
+            model.addAttribute("error", "Email này đã được sử dụng!");
+            return "ThemHocSinh";
+        }
+        if (!entityManager.createQuery("SELECT s FROM Students s WHERE s.phoneNumber = :phoneNumber", Students.class)
                 .setParameter("phoneNumber", phoneNumber)
-                .getResultList().isEmpty();
-        boolean misIDExists = misID != null && !misID.isEmpty() &&
+                .getResultList().isEmpty()) {
+            model.addAttribute("error", "Số điện thoại này đã được sử dụng!");
+            return "ThemHocSinh";
+        }
+        if (misID != null && !misID.isEmpty() &&
                 !entityManager.createQuery("SELECT s FROM Students s WHERE s.misId = :misID", Students.class)
                         .setParameter("misID", misID)
-                        .getResultList().isEmpty();
-
-        // Nếu có trùng lặp, trả về lỗi tương ứng
-        if (studentExists) {
-            return "redirect:/ThemHocSinh?error=studentIDExists";
-        }
-        if (emailExists) {
-            return "redirect:/ThemHocSinh?error=emailExists";
-        }
-        if (phoneExists) {
-            return "redirect:/ThemHocSinh?error=phoneExists";
-        }
-        if (misIDExists) {
-            return "redirect:/ThemHocSinh?error=misIDExists";
+                        .getResultList().isEmpty()) {
+            model.addAttribute("error", "MIS ID đã tồn tại!");
+            return "ThemHocSinh";
         }
 
         // Tạo đối tượng học sinh mới
-        Students student=new Students();
+        Students student = new Students();
         student.setFirstName(firstName);
         student.setLastName(lastName);
         student.setEmail(email);
@@ -177,6 +192,7 @@ public class AdminPost {
 
         return "redirect:/DanhSachHocSinh";
     }
+
     @PostMapping("/ThemNhanVien")
     public String ThemNhanVien(@RequestParam String EmployeeID,
                                @RequestParam String FirstName,
@@ -237,12 +253,52 @@ public class AdminPost {
                              @RequestParam("email") String email,
                              @RequestParam("phoneNumber") String phoneNumber,
                              @RequestParam("misId") String misId,
-                             @RequestParam(value = "employeeID", required = false) String employeeID) {
+                             @RequestParam(value = "employeeID", required = false) String employeeID,
+                             RedirectAttributes redirectAttributes) {
 
         // Tìm học sinh theo ID
         Students student = entityManager.find(Students.class, id);
         if (student == null) {
-            throw new EntityNotFoundException("Không tìm thấy học sinh với ID: " + id);
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy học sinh với ID: " + id);
+            return "redirect:/DanhSachHocSinh";
+        }
+
+        // Kiểm tra email trùng lặp với học sinh khác
+        boolean emailExists = !entityManager.createQuery(
+                        "SELECT s FROM Students s WHERE s.email = :email AND s.id <> :id", Students.class)
+                .setParameter("email", email)
+                .setParameter("id", id)
+                .getResultList().isEmpty();
+
+        if (emailExists) {
+            redirectAttributes.addFlashAttribute("error", "Email này đã được sử dụng!");
+            return "redirect:/SuaHocSinh/" + id;
+        }
+
+        // Kiểm tra số điện thoại trùng lặp với học sinh khác
+        boolean phoneExists = !entityManager.createQuery(
+                        "SELECT s FROM Students s WHERE s.phoneNumber = :phoneNumber AND s.id <> :id", Students.class)
+                .setParameter("phoneNumber", phoneNumber)
+                .setParameter("id", id)
+                .getResultList().isEmpty();
+
+        if (phoneExists) {
+            redirectAttributes.addFlashAttribute("error", "Số điện thoại này đã được sử dụng!");
+            return "redirect:/SuaHocSinh/" + id;
+        }
+
+        // Kiểm tra MIS ID trùng lặp (chỉ kiểm tra nếu MIS ID không rỗng)
+        if (misId != null && !misId.isEmpty()) {
+            boolean misIDExists = !entityManager.createQuery(
+                            "SELECT s FROM Students s WHERE s.misId = :misId AND s.id <> :id", Students.class)
+                    .setParameter("misId", misId)
+                    .setParameter("id", id)
+                    .getResultList().isEmpty();
+
+            if (misIDExists) {
+                redirectAttributes.addFlashAttribute("error", "MIS ID đã tồn tại!");
+                return "redirect:/SuaHocSinh/" + id;
+            }
         }
 
         // Cập nhật thông tin học sinh
@@ -253,18 +309,19 @@ public class AdminPost {
         student.setMisId(misId);
 
         // Cập nhật nhân viên phụ trách nếu có
-        if (employeeID != null) {
+        if (employeeID != null && !employeeID.isEmpty()) {
             Employees employee = entityManager.find(Employees.class, employeeID);
             student.setEmployee(employee);
         } else {
             student.setEmployee(null); // Cho phép bỏ chọn nhân viên
         }
 
-        // Lưu thay đổi
+        // Lưu thay đổi vào database
         entityManager.merge(student);
 
         return "redirect:/DanhSachHocSinh";
     }
+
     @PostMapping("/SuaGiaoVien/{id}")
     public String SuaGiaoVien(@PathVariable("id") String id,
                               @RequestParam("firstName") String firstName,
@@ -272,11 +329,47 @@ public class AdminPost {
                               @RequestParam("email") String email,
                               @RequestParam("phoneNumber") String phoneNumber,
                               @RequestParam(value = "misID", required = false) String misID,
-                              @RequestParam(value = "employeeID", required = false) String employeeID) {
+                              @RequestParam(value = "employeeID", required = false) String employeeID,
+                              RedirectAttributes redirectAttributes) {
+
         // Tìm giáo viên theo ID
         Teachers teacher = entityManager.find(Teachers.class, id);
         if (teacher == null) {
-            return "redirect:/DanhSachGiaoVien"; // Nếu không tìm thấy thì quay về danh sách
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy giáo viên với ID: " + id);
+            return "redirect:/DanhSachGiaoVien";
+        }
+
+        // Kiểm tra trùng email (trừ giáo viên hiện tại)
+        TypedQuery<Teachers> emailQuery = entityManager.createQuery(
+                "SELECT t FROM Teachers t WHERE t.email = :email AND t.id <> :id", Teachers.class);
+        emailQuery.setParameter("email", email);
+        emailQuery.setParameter("id", id);
+        if (!emailQuery.getResultList().isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Email đã tồn tại!");
+            return "redirect:/SuaGiaoVien/" + id;
+        }
+
+        // Kiểm tra trùng số điện thoại (trừ giáo viên hiện tại)
+        TypedQuery<Teachers> phoneQuery = entityManager.createQuery(
+                "SELECT t FROM Teachers t WHERE t.phoneNumber = :phoneNumber AND t.id <> :id", Teachers.class);
+        phoneQuery.setParameter("phoneNumber", phoneNumber);
+        phoneQuery.setParameter("id", id);
+        if (!phoneQuery.getResultList().isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Số điện thoại đã tồn tại!");
+            return "redirect:/SuaGiaoVien/" + id;
+        }
+
+        // Kiểm tra trùng MIS ID nếu có nhập
+        if (misID != null && !misID.isEmpty()) {
+            TypedQuery<Teachers> misQuery = entityManager.createQuery(
+                    "SELECT t FROM Teachers t WHERE t.misID = :misID AND t.id <> :id", Teachers.class);
+            misQuery.setParameter("misID", misID);
+            misQuery.setParameter("id", id);
+            if (!misQuery.getResultList().isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "MIS ID đã tồn tại!");
+                return "redirect:/SuaGiaoVien/" + id;
+            }
+            teacher.setMisID(misID);
         }
 
         // Cập nhật thông tin giáo viên
@@ -285,37 +378,71 @@ public class AdminPost {
         teacher.setEmail(email);
         teacher.setPhoneNumber(phoneNumber);
 
-        if (misID != null) {
-            teacher.setMisID(misID);
-        }
-
-        // Nếu có chọn nhân viên phụ trách, cập nhật thông tin nhân viên
-        if (employeeID != null) {
+        // Cập nhật nhân viên phụ trách nếu có
+        if (employeeID != null && !employeeID.isEmpty()) {
             Employees employee = entityManager.find(Employees.class, employeeID);
-            teacher.setEmployee(employee);
+            if (employee != null) {
+                teacher.setEmployee(employee);
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Nhân viên không tồn tại!");
+                return "redirect:/SuaGiaoVien/" + id;
+            }
         } else {
             teacher.setEmployee(null);
         }
 
-        // Lưu thay đổi vào database
+        // Lưu thay đổi
         entityManager.merge(teacher);
+        redirectAttributes.addFlashAttribute("success", "Cập nhật thành công!");
 
         return "redirect:/DanhSachGiaoVien";
     }
+
     @PostMapping("/SuaNhanVien/{id}")
     public String CapNhatNhanVien(@PathVariable("id") String id,
-                                  @ModelAttribute Employees updatedEmployee) {
-        Employees existingEmployee = entityManager.find(Employees.class, id);
-        if (existingEmployee != null) {
-            existingEmployee.setFirstName(updatedEmployee.getFirstName());
-            existingEmployee.setLastName(updatedEmployee.getLastName());
-            existingEmployee.setEmail(updatedEmployee.getEmail());
-            existingEmployee.setPhoneNumber(updatedEmployee.getPhoneNumber());
+                                  @ModelAttribute Employees updatedEmployee,
+                                  RedirectAttributes redirectAttributes) {
 
-            entityManager.merge(existingEmployee);
+        Employees existingEmployee = entityManager.find(Employees.class, id);
+        if (existingEmployee == null) {
+            redirectAttributes.addFlashAttribute("error", "Nhân viên không tồn tại!");
+            return "redirect:/DanhSachNhanVien";
         }
+
+        // Kiểm tra trùng Email
+        TypedQuery<Employees> emailQuery = entityManager.createQuery(
+                "SELECT e FROM Employees e WHERE e.email = :email AND e.id <> :id", Employees.class);
+        emailQuery.setParameter("email", updatedEmployee.getEmail());
+        emailQuery.setParameter("id", id);
+        List<Employees> emailList = emailQuery.getResultList();
+        if (!emailList.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Email đã tồn tại!");
+            return "redirect:/SuaNhanVien/" + id;
+        }
+
+        // Kiểm tra trùng số điện thoại
+        TypedQuery<Employees> phoneQuery = entityManager.createQuery(
+                "SELECT e FROM Employees e WHERE e.phoneNumber = :phone AND e.id <> :id", Employees.class);
+        phoneQuery.setParameter("phone", updatedEmployee.getPhoneNumber());
+        phoneQuery.setParameter("id", id);
+        List<Employees> phoneList = phoneQuery.getResultList();
+        if (!phoneList.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Số điện thoại đã tồn tại!");
+            return "redirect:/SuaNhanVien/" + id;
+        }
+
+        // Cập nhật thông tin nhân viên
+        existingEmployee.setFirstName(updatedEmployee.getFirstName());
+        existingEmployee.setLastName(updatedEmployee.getLastName());
+        existingEmployee.setEmail(updatedEmployee.getEmail());
+        existingEmployee.setPhoneNumber(updatedEmployee.getPhoneNumber());
+
+        entityManager.merge(existingEmployee);
+
+        redirectAttributes.addFlashAttribute("success", "Cập nhật nhân viên thành công!");
         return "redirect:/DanhSachNhanVien";
     }
+
     @PostMapping("/TimKiemHocSinh")
     public String TimKiemHocSinh(@RequestParam("searchType") String searchType, @RequestParam("keyword") String keyword
     ,ModelMap ModelMap) {

@@ -10,9 +10,14 @@
 <div class="container mt-4">
     <h1 class="text-center text-primary"><i class="fas fa-user-plus"></i> Thêm Giáo Viên</h1>
 
-    <!-- Hiển thị thông báo lỗi nếu có -->
+    <!-- Hiển thị thông báo lỗi -->
     <div th:if="${error}" class="alert alert-danger text-center" role="alert">
         <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+    </div>
+
+    <!-- Hiển thị thông báo thành công -->
+    <div th:if="${successMessage}" class="alert alert-success text-center" role="alert">
+        <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
     </div>
 
     <form th:action="@{/ThemGiaoVienCuaBan}" method="post" class="mt-4">

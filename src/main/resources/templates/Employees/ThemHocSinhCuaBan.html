@@ -10,6 +10,16 @@
 <div class="container mt-5">
   <h1 class="text-center text-primary"><i class="fas fa-user-plus"></i> Thêm Học Sinh Mới</h1>
 
+  <!-- Hiển thị thông báo lỗi -->
+  <div th:if="${error}" class="alert alert-danger text-center">
+    <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+  </div>
+
+  <!-- Hiển thị thông báo thành công -->
+  <div th:if="${successMessage}" class="alert alert-success text-center">
+    <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+  </div>
+
   <form th:action="@{/ThemHocSinhCuaBan}" method="post" class="mt-4">
     <div class="mb-3">
       <label class="form-label">Mã Học Sinh (ID):</label>

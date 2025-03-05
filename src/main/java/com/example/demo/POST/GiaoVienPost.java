@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,36 +58,47 @@ public class GiaoVienPost {
                                  @RequestParam("PhoneNumber") String phoneNumber,
                                  @RequestParam(value = "MisID", required = false) String misID,
                                  @RequestParam("Password") String password,
-                                 @RequestParam("ConfirmPassword") String confirmPassword) {
+                                 @RequestParam("ConfirmPassword") String confirmPassword,
+                                 Model model) {
 
         // Kiểm tra mật khẩu có khớp không
         if (!password.equals(confirmPassword)) {
-            return "redirect:/DangKyGiaoVien?error=passwordsNotMatch";
+            model.addAttribute("passwordError", "Mật khẩu không khớp.");
+            return "DangKyGiaoVien";
         }
-        List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
-        Admin admin = admins.get(0);  // Lấy trực tiếp đối tượng Admin từ danh sách
+
+        // Kiểm tra nếu Email đã tồn tại
+        List<Teachers> existingTeachers = entityManager.createQuery("SELECT t FROM Teachers t WHERE t.email = :email", Teachers.class)
+                .setParameter("email", email)
+                .getResultList();
+        if (!existingTeachers.isEmpty()) {
+            model.addAttribute("emailError", "Email này đã được sử dụng.");
+            return "DangKyGiaoVien";
+        }
+
+        // Kiểm tra TeacherID đã tồn tại
+        if (entityManager.find(Teachers.class, teacherID) != null) {
+            model.addAttribute("teacherIDError", "TeacherID đã tồn tại.");
+            return "DangKyGiaoVien";
+        }
+
+        // Lấy Admin & Employee
+        Admin admin = entityManager.createQuery("from Admin", Admin.class).getResultList().get(0);
         Employees employee = entityManager.find(Employees.class, employeeID);
 
-        // Kiểm tra nếu TeacherID đã tồn tại
-        if (entityManager.find(Teachers.class, teacherID) != null) {
-            return "redirect:/DangKyGiaoVien?error=teacherIDExists";
-        }
-
         // Tạo giáo viên mới
-        Teachers giaoVien = new Teachers();
-        giaoVien.setEmployee(employee);
-        giaoVien.setAdmin(admin);
-        giaoVien.setId(teacherID);
-        giaoVien.setFirstName(firstName);
-        giaoVien.setLastName(lastName);
-        giaoVien.setEmail(email);
-        giaoVien.setPhoneNumber(phoneNumber);
-        giaoVien.setMisID(misID);
-        giaoVien.setPassword(password);
+        Teachers giaoVien = new Teachers(teacherID, password, firstName, lastName, email, phoneNumber, misID, employee, admin);
         entityManager.persist(giaoVien);
 
         return "redirect:/DangNhapGiaoVien";
     }
+    private boolean isValidPassword(String password) {
+        // Mật khẩu phải có ít nhất 8 ký tự, chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt
+        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+        return password.matches(passwordRegex);
+    }
+
+
 
     @PostMapping("/DangNhapGiaoVien")
     public String DangNhapGiaoVien(@RequestParam("TeacherID") String teacherID,

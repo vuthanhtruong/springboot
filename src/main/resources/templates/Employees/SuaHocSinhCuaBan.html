@@ -14,43 +14,46 @@
         <i class="fas fa-arrow-left"></i> Quay lại
     </a>
 
-    <!-- Hiển thị cảnh báo nếu không có quyền chỉnh sửa -->
-    <div th:if="${session.id != students.employee.id}" class="alert alert-danger mt-3">
+    <!-- Hiển thị thông báo lỗi -->
+    <div th:if="${error}" class="alert alert-danger mt-3 text-center">
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+    </div>
+
+    <!-- Hiển thị thông báo thành công -->
+    <div th:if="${successMessage}" class="alert alert-success mt-3 text-center">
+        <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+    </div>
+
+    <!-- Kiểm tra quyền chỉnh sửa -->
+    <div th:if="${session.EmployeeID != students.employee.id}" class="alert alert-danger mt-3">
         <i class="fas fa-exclamation-triangle"></i> Bạn không có quyền chỉnh sửa học sinh này.
     </div>
 
-    <!-- Chỉ hiển thị form nếu có quyền chỉnh sửa -->
+    <!-- Chỉ hiển thị form nếu có quyền sửa -->
     <form th:if="${session.EmployeeID == students.employee.id}"
           th:action="@{/SuaHocSinhCuaBan}" method="post" class="mt-4">
-
-        <!-- ID Học Sinh (ẩn) -->
         <input type="hidden" name="studentID" th:value="${students.id}">
 
-        <!-- Họ -->
         <div class="mb-3">
             <label class="form-label">Họ</label>
             <input type="text" class="form-control" name="firstName" th:value="${students.firstName}" required>
         </div>
 
-        <!-- Tên -->
         <div class="mb-3">
             <label class="form-label">Tên</label>
             <input type="text" class="form-control" name="lastName" th:value="${students.lastName}" required>
         </div>
 
-        <!-- Email -->
         <div class="mb-3">
             <label class="form-label">Email</label>
             <input type="email" class="form-control" name="email" th:value="${students.email}" required>
         </div>
 
-        <!-- Số Điện Thoại -->
         <div class="mb-3">
             <label class="form-label">Số Điện Thoại</label>
             <input type="text" class="form-control" name="phoneNumber" th:value="${students.phoneNumber}" required>
         </div>
 
-        <!-- Mã MIS -->
         <div class="mb-3">
             <label class="form-label">Mã MIS</label>
             <input type="text" class="form-control" name="misId" th:value="${students.misId}" placeholder="Nhập mã MIS">

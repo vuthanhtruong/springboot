@@ -7,6 +7,11 @@
 </head>
 <body>
 <h2>Chỉnh sửa thông tin nhân viên</h2>
+
+<!-- Hiển thị thông báo lỗi/thành công -->
+<div th:if="${error}" class="error-message" th:text="${error}" style="color: red;"></div>
+<div th:if="${success}" class="success-message" th:text="${success}" style="color: green;"></div>
+
 <form th:action="@{/SuaNhanVien/{id}(id=${employees.id})}" method="post">
   <label for="firstName">Họ:</label>
   <input type="text" id="firstName" name="firstName" th:value="${employees.firstName}" required>
@@ -24,12 +29,9 @@
   <input type="text" id="phoneNumber" name="phoneNumber" th:value="${employees.phoneNumber}" required>
   <br>
 
-  <label for="password">Mật khẩu:</label>
-  <input type="password" id="password" name="password" required>
-  <br>
-
   <button type="submit">Lưu</button>
 </form>
+
 <br>
 <a href="/DanhSachNhanVien">Quay lại danh sách nhân viên</a>
 </body>
