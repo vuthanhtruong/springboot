@@ -39,6 +39,7 @@ public class Documents {
 
     @ManyToOne
     @JoinColumn(name = "PostID", nullable = false, foreignKey = @ForeignKey(name = "FK_Documents_Posts"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Posts post;
 
     @ManyToOne

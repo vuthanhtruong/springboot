@@ -437,16 +437,31 @@ public class NhanVienGet {
     }
 
     @Transactional
-    @GetMapping("/XoaPhongHocOffline/{id}")
-    public String XoaPhongHocOffline(@PathVariable("id") String id) {
-        // Tìm phòng học theo ID
-        Rooms room = entityManager.find(Rooms.class, id);
+    @GetMapping("/XoaPhongHoc/{id}")
+    public String XoaPhongHoc(@PathVariable("id") String id) {
+        // Tìm phòng học offline trước
+        Object room = entityManager.find(Rooms.class, id);
+
+        // Nếu không tìm thấy trong Rooms, thử tìm trong OnlineRooms
+        if (room == null) {
+            room = entityManager.find(OnlineRooms.class, id);
+        }
 
         if (room == null) {
             return "redirect:/DanhSachPhongHoc?error=RoomNotFound";
         }
 
         try {
+            // Xóa documents liên quan đến posts trong phòng học này
+            entityManager.createQuery("DELETE FROM Documents d WHERE d.post IN (SELECT p FROM Posts p WHERE p.room = :room)")
+                    .setParameter("room", room)
+                    .executeUpdate();
+
+            // Xóa posts liên quan đến phòng học này
+            entityManager.createQuery("DELETE FROM Posts p WHERE p.room = :room")
+                    .setParameter("room", room)
+                    .executeUpdate();
+
             // Xóa tất cả ClassroomDetails liên quan đến phòng học này
             int deletedDetails = entityManager.createQuery("DELETE FROM ClassroomDetails c WHERE c.room = :room")
                     .setParameter("room", room)
@@ -468,44 +483,6 @@ public class NhanVienGet {
             return "redirect:/DanhSachPhongHoc?error=DeleteFailed";
         }
     }
-
-
-
-    @Transactional
-    @GetMapping("/XoaPhongHocOnline/{id}")
-    public String XoaPhongHocOnline(@PathVariable("id") String id) {
-        // Tìm phòng học online theo ID
-        OnlineRooms room = entityManager.find(OnlineRooms.class, id);
-
-        if (room == null) {
-            return "redirect:/DanhSachPhongHoc?error=RoomNotFound";
-        }
-
-        try {
-            // Xóa tất cả ClassroomDetails liên quan đến phòng học này
-            int deletedDetails = entityManager.createQuery("DELETE FROM ClassroomDetails c WHERE c.room = :room")
-                    .setParameter("room", room)
-                    .executeUpdate();
-
-            System.out.println("Deleted " + deletedDetails + " ClassroomDetails records.");
-
-            // Xóa tất cả ScheduleNotifications liên quan đến phòng học này
-            int deletedNotifications = entityManager.createQuery("DELETE FROM ScheduleNotifications s WHERE s.room = :room")
-                    .setParameter("room", room)
-                    .executeUpdate();
-
-            System.out.println("Deleted " + deletedNotifications + " ScheduleNotifications records.");
-
-            // Xóa phòng học online
-            entityManager.remove(room);
-
-            return "redirect:/DanhSachPhongHoc?success=RoomDeleted";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "redirect:/DanhSachPhongHoc?error=DeleteFailed";
-        }
-    }
-
 
     @GetMapping("/BoTriLopHoc")
     public String BoTriLopHoc(ModelMap model, HttpSession session) {

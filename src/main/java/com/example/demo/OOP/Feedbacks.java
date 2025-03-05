@@ -1,6 +1,9 @@
 package com.example.demo.OOP;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -30,6 +33,7 @@ public class Feedbacks {
     // Liên kết với bảng Events
     @ManyToOne
     @JoinColumn(name = "EventID", nullable = false, foreignKey = @ForeignKey(name = "FK_Feedbacks_Event"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Events event;
 
     @Column(name = "Text", nullable = false, columnDefinition = "TEXT")

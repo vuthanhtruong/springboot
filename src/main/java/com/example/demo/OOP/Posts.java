@@ -32,11 +32,13 @@ public class Posts {
     @Column(name = "Content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "RoomID", nullable = false, foreignKey = @ForeignKey(name = "FK_Posts_Room"))
+    @OnDelete(action = OnDeleteAction.CASCADE) // Đảm bảo DB cũng xóa bài viết khi phòng bị xóa
     private Room room;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Documents> documents;
 
     @ManyToOne

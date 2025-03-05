@@ -1,18 +1,21 @@
 package com.example.demo.GET;
 
-import com.example.demo.OOP.Events;
-import com.example.demo.OOP.Messages;
-import com.example.demo.OOP.Person;
+import com.example.demo.OOP.*;
 import com.example.demo.Repository.PersonRepository;
 import com.example.demo.websocket.dto.ChatMessage;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -28,7 +31,6 @@ public class MessageController {
         this.personRepository = personRepository;
         this.messagingTemplate = messagingTemplate;
     }
-
     @MessageMapping("/chat")
     @Transactional  // ✅ Transaction đảm bảo tính nhất quán dữ liệu
     public void sendMessage(ChatMessage chatMessage) {

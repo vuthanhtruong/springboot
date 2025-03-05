@@ -19,6 +19,7 @@ public class ScheduleNotifications {
 
     @ManyToOne
     @JoinColumn(name = "sender_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Employees sender;  // Người gửi thông báo
 
     @ManyToOne

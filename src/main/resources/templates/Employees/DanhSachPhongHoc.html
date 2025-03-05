@@ -70,7 +70,7 @@
           <a th:href="@{/SuaPhongHocOffline/{id}(id=${room.roomId})}" class="btn btn-warning btn-sm">
             <i class="fas fa-edit"></i> Sửa
           </a>
-          <a th:href="@{/XoaPhongHocOffline/{id}(id=${room.roomId})}" class="btn btn-danger btn-sm"
+          <a th:href="@{/XoaPhongHoc/{id}(id=${room.roomId})}" class="btn btn-danger btn-sm"
              onclick="return confirm('Bạn có chắc chắn muốn xóa?');">
             <i class="fas fa-trash-alt"></i> Xóa
           </a>
@@ -114,7 +114,7 @@
           <a th:href="@{/SuaPhongHocOnline/{id}(id=${room.roomId})}" class="btn btn-warning btn-sm">
             <i class="fas fa-edit"></i> Sửa
           </a>
-          <a th:href="@{/XoaPhongHocOnline/{id}(id=${room.roomId})}" class="btn btn-danger btn-sm"
+          <a th:href="@{/XoaPhongHoc/{id}(id=${room.roomId})}" class="btn btn-danger btn-sm"
              onclick="return confirm('Bạn có chắc chắn muốn xóa?');">
             <i class="fas fa-trash-alt"></i> Xóa
           </a>

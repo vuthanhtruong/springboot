@@ -4,8 +4,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED) // Chiến lược tạo bảng riêng cho từng lớp con
@@ -27,6 +31,7 @@ public abstract class Room {
 
     @ManyToOne
     @JoinColumn(name = "EmployeeID", nullable = true, foreignKey = @ForeignKey(name = "FK_Room_Employee"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Employees employee;
 
     @Column(name = "StartTime", nullable = true)
@@ -34,6 +39,10 @@ public abstract class Room {
 
     @Column(name = "EndTime", nullable = true)
     private LocalDateTime endTime;
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Posts> posts = new ArrayList<>();
+
 
     // Constructor
     public Room(String roomId, String roomName, Boolean status, Employees employee, LocalDateTime startTime, LocalDateTime endTime) {

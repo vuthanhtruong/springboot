@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 @RequestMapping("/")
@@ -38,8 +35,43 @@ public class GiaoVienGet {
         if(session.getAttribute("TeacherID") == null) {
             return "DangNhapGiaoVien";
         }
+        Teachers teachers = entityManager.find(Teachers.class, session.getAttribute("TeacherID"));
+        // Lấy danh sách tài liệu từ cơ sở dữ liệu
+        List<Documents> documents = entityManager.createQuery(
+                        "SELECT d FROM Documents d " +
+                                "WHERE d.creator != :teacher AND EXISTS ( " +
+                                "   SELECT 1 FROM ClassroomDetails cd " +
+                                "   WHERE cd.member = d.creator AND cd.room IN ( " +
+                                "       SELECT cd2.room FROM ClassroomDetails cd2 WHERE cd2.member = :teacher " +
+                                "   ) " +
+                                ")", Documents.class)
+                .setParameter("teacher", teachers)
+                .getResultList();
+        Collections.reverse(documents);
+        List<Posts> posts = entityManager.createQuery(
+                        "SELECT p FROM Posts p " +
+                                "WHERE p.creator != :teacher AND EXISTS ( " +
+                                "   SELECT 1 FROM ClassroomDetails cd " +
+                                "   WHERE cd.member = p.creator AND cd.room IN ( " +
+                                "       SELECT cd2.room FROM ClassroomDetails cd2 WHERE cd2.member = :teacher " +
+                                "   ) " +
+                                ")", Posts.class)
+                .setParameter("teacher", teachers)
+                .getResultList();
+        Collections.reverse(posts);
+
+        List<Messages> messagesList = entityManager.createQuery(
+                        "SELECT m FROM Messages m " +
+                                "WHERE m.sender != :teacher AND m.recipient = :teacher", Messages.class)
+                .setParameter("teacher", teachers)
+                .getResultList();
+        Collections.reverse(messagesList);
+
         Teachers teacher = entityManager.find(Teachers.class, session.getAttribute("TeacherID"));
         model.addAttribute("teacher", teacher);
+        model.addAttribute("documents", documents);
+        model.addAttribute("posts", posts);
+        model.addAttribute("messagesList", messagesList);
         return "TrangChuGiaoVien";
     }
     @GetMapping("/DangXuatGiaoVien")
