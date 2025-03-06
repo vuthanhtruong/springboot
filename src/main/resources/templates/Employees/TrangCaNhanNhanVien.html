@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang Cá Nhân Nhân Viên</title>
+    <link rel="stylesheet" th:href="@{/TrangCaNhan.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<div class="container">
+    <h2 class="text-center"><i class="fas fa-user-circle"></i> Trang Cá Nhân</h2>
+
+    <!-- Hiển thị thông tin nhân viên -->
+    <div class="profile-info">
+        <p><strong>Họ & Tên:</strong> <span th:text="${employee.firstName + ' ' + employee.lastName}"></span></p>
+        <p><strong>Email:</strong> <span th:text="${employee.email}"></span></p>
+        <p><strong>Số điện thoại:</strong> <span th:text="${employee.phoneNumber}"></span></p>
+    </div>
+
+    <!-- Form chỉnh sửa -->
+    <form th:action="@{/CapNhatTrangCaNhan}" method="post">
+        <input type="hidden" name="employeeId" th:value="${employee.id}" />
+
+        <label>Họ Tên:</label>
+        <input type="text" name="fullName" th:value="${employee.firstName + ' ' + employee.lastName}" required />
+
+        <label>Email:</label>
+        <input type="email" name="email" th:value="${employee.email}" required />
+
+        <label>Số điện thoại:</label>
+        <input type="text" name="phoneNumber" th:value="${employee.phoneNumber}" required />
+
+
+        <div class="buttons">
+            <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Lưu thay đổi</button>
+            <a href="/TrangChuNhanVien" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Hủy</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

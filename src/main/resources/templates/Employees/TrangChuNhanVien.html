@@ -11,7 +11,10 @@
 <div class="container mt-5">
   <div class="text-center mb-4">
     <h1 class="text-primary"><i class="fas fa-user-tie"></i> Trang Chủ Nhân Viên</h1>
-    <h2 class="text-secondary">Chào mừng, <span th:text="${employee.FirstName} + ' ' + ${employee.LastName}"></span></h2>
+    <h2 class="text-secondary">
+      Chào mừng, <span th:text="${employee.firstName} + ' ' + ${employee.lastName}"></span> |
+      <a th:href="@{/TrangCaNhanNhanVien}" class="text-info"><i class="fas fa-user-circle"></i> Trang Cá Nhân</a>
+    </h2>
   </div>
 
   <div class="row">

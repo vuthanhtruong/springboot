@@ -42,6 +42,16 @@ public class NhanVienGet {
         model.addAttribute("employee", employee);
         return "TrangChuNhanVien";
     }
+    @GetMapping("/TrangCaNhanNhanVien")
+    public String TrangCaNhanNhanVien(HttpSession session, ModelMap model) {
+        if(session.getAttribute("EmployeeID") == null) {
+            return "redirect:/DangNhapNhanVien";
+        }
+        Employees employee = entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
+        model.addAttribute("employee", employee);
+        return "TrangCaNhanNhanVien";
+    }
+
     @GetMapping("/DangXuatNhanVien")
     public String DangXuatGiaoVien(HttpSession session) {
         session.invalidate();
