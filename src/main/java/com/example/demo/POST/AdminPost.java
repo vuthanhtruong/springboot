@@ -42,6 +42,32 @@ public class AdminPost {
         session.setAttribute("AdminID", AdminID);
         return "redirect:/TrangChuAdmin";
     }
+    @Transactional
+    @PostMapping("/CapNhatAdmin")
+    public String capNhatAdmin(@RequestParam String id,
+                               @RequestParam String firstName,
+                               @RequestParam String lastName,
+                               @RequestParam String email,
+                               @RequestParam String phoneNumber,
+                               HttpSession session) {
+        if (session.getAttribute("AdminID") == null) {
+            return "redirect:/DangNhapAdmin";
+        }
+
+        Admin admin = entityManager.find(Admin.class, session.getAttribute("AdminID"));
+        if (admin == null) {
+            return "redirect:/TrangCaNhanAdmin";
+        }
+
+        admin.setFirstName(firstName);
+        admin.setLastName(lastName);
+        admin.setEmail(email);
+        admin.setPhoneNumber(phoneNumber);
+        entityManager.merge(admin);
+
+        return "redirect:/TrangChuAdmin";
+    }
+
     @PostMapping("/ThemGiaoVien")
     public String ThemGiaoVien(
             @RequestParam("EmployeeID") String employeeID,

@@ -278,6 +278,33 @@ public class StudentPost {
         }
         return "redirect:/TrangChuHocSinh";
     }
+    @PostMapping("/LuuThongTinHocSinh")
+    public String luuThongTinHocSinh(@RequestParam String firstName,
+                                     @RequestParam String lastName,
+                                     @RequestParam String email,
+                                     @RequestParam String phoneNumber,
+                                     HttpSession session) {
+        if (session.getAttribute("StudentID") == null) {
+            return "redirect:/DangNhapHocSinh";
+        }
+
+        String studentId = (String) session.getAttribute("StudentID");
+        Students student = entityManager.find(Students.class, studentId);
+
+        if (student == null) {
+            return "redirect:/DangNhapHocSinh";
+        }
+
+        // Cập nhật thông tin học sinh
+        student.setFirstName(firstName);
+        student.setLastName(lastName);
+        student.setEmail(email);
+        student.setPhoneNumber(phoneNumber);
+        entityManager.merge(student);
+
+        return "redirect:/TrangChuHocSinh"; // Tải lại trang cá nhân với thông tin mới
+    }
+
 
 
 

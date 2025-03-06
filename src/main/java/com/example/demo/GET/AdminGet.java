@@ -29,8 +29,20 @@ public class AdminGet {
         if (session.getAttribute("AdminID") == null) {
             return "redirect:/DangNhapAdmin";
         }
-        model.addAttribute("adminID", session.getAttribute("AdminID"));
+        List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
+        Admin admin = admins.get(0);
+        model.addAttribute("admin", admin);
         return "TrangChuAdmin";
+    }
+    @GetMapping("/TrangCaNhanAdmin")
+    public String trangCaNhanAdmin(ModelMap model,HttpSession session) {
+        if (session.getAttribute("AdminID") == null) {
+            return "redirect:/DangNhapAdmin";
+        }
+        List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
+        Admin admin = admins.get(0);
+        model.addAttribute("admin", admin);
+        return "TrangCaNhanAdmin";
     }
 
     @GetMapping("/DangXuatAdmin")

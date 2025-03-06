@@ -20,8 +20,6 @@
             </p>
             <p><strong>Email:</strong> <input type="email" name="email" th:value="${student.email}" required></p>
             <p><strong>Số Điện Thoại:</strong> <input type="text" name="phoneNumber" th:value="${student.phoneNumber}" required></p>
-            <p><strong>Mã Số Sinh Viên:</strong> <input type="text" name="studentID" th:value="${student.studentID}"></p>
-            <p><strong>Giáo viên hướng dẫn:</strong> <span th:if="${student.teacher}" th:text="${student.teacher.firstName} + ' ' + ${student.teacher.lastName}"></span></p>
             <button type="submit">Lưu</button>
         </form>
     </section>
