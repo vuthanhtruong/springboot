@@ -27,11 +27,20 @@
     <ul>
       <th:block th:each="teacher : ${teachers}">
         <li>
-          <strong th:text="${teacher.firstName} + ' ' + ${teacher.lastName}">Teacher Name</strong><br>
-          <span th:text="${teacher.email}">Teacher Email</span><br>
-          <span th:text="${teacher.phoneNumber}">Teacher Phone</span>
+          <div class="teacher-info">
+            <div class="teacher-details">
+              <strong th:text="${teacher.firstName} + ' ' + ${teacher.lastName}">Teacher Name</strong><br>
+              <span th:text="${teacher.email}">Teacher Email</span><br>
+              <span th:text="${teacher.phoneNumber}">Teacher Phone</span><br>
+              <!-- Link đến Bảng Điều Khiển Giáo Viên -->
+              <a th:href="@{/BangDieuKhienGiaoVien/{id}(id=${teacher.id})}" class="btn btn-dashboard">
+                Bảng Điều Khiển
+              </a>
+            </div>
+          </div>
         </li>
       </th:block>
+
     </ul>
   </div>
 
@@ -45,7 +54,11 @@
             <div class="student-details">
               <strong th:text="${student.firstName} + ' ' + ${student.lastName}">Student Name</strong><br>
               <span th:text="${student.email}">Student Email</span><br>
-              <span th:text="${student.phoneNumber}">Student Phone</span>
+              <span th:text="${student.phoneNumber}">Student Phone</span><br>
+              <!-- Link đến Bảng Điều Khiển Học Sinh -->
+              <a th:href="@{/BangDieuKhienHocSinh/{id}(id=${student.id})}" class="btn btn-dashboard">
+                Bảng Điều Khiển
+              </a>
             </div>
             <!-- Message Button -->
             <button class="btn btn-message"

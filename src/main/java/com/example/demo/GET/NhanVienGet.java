@@ -733,7 +733,10 @@ public class NhanVienGet {
         return "BangDieuKhienNhanVien";
     }
     @GetMapping("/BangDieuKhienHocSinh/{id}")
-    public String BangDieuKhienHocSinh(@PathVariable("id") String id, ModelMap model) {
+    public String BangDieuKhienHocSinh(@PathVariable("id") String id, ModelMap model, HttpSession session) {
+        if(session.getAttribute("EmployeeID") == null && session.getAttribute("TeacherID") == null){
+            return "redirect:/TrangChu";
+        }
 
         Students student = entityManager.find(Students.class, id);
         if (student == null) {
@@ -792,8 +795,11 @@ public class NhanVienGet {
         return "BangDieuKhienHocSinh";
     }
     @GetMapping("/BangDieuKhienGiaoVien/{id}")
-    public String BangDieuKhienGiaoVien(@PathVariable("id") String id, ModelMap model) {
+    public String BangDieuKhienGiaoVien(@PathVariable("id") String id, ModelMap model, HttpSession session) {
         // Find the teacher using the provided ID
+        if(session.getAttribute("EmployeeID") == null && session.getAttribute("TeacherID") == null){
+            return "redirect:/TrangChu";
+        }
         Teachers teacher = entityManager.find(Teachers.class, id);
         if (teacher == null) {
             model.addAttribute("errorMessage", "Teacher not found");
