@@ -29,12 +29,8 @@ import java.util.List;
 @RequestMapping("/")
 @Transactional
 public class StudentPost {
-    private static final Logger log = LoggerFactory.getLogger(GiaoVienPost.class);
     @PersistenceContext
     private EntityManager entityManager;
-    @Value("${file.upload-dir:C:/uploads}")
-    private String uploadDir;
-
     @PostMapping("/DangKyHocSinh")
     public String DangKyHocSinh(
             @RequestParam("EmployeeID") String employeeID,
@@ -114,6 +110,8 @@ public class StudentPost {
         return "redirect:/DangNhapHocSinh";
     }
 
+
+
     @PostMapping("/DangNhapHocSinh")
     public String DangNhapHocSinh(@RequestParam("studentID") String studentID,
                                   @RequestParam("password") String password,
@@ -134,7 +132,6 @@ public class StudentPost {
             return "redirect:/DangNhapHocSinh";
         }
     }
-
     @Transactional
     @PostMapping("/BinhLuanHocSinh")
     public String themBinhLuan(@RequestParam("postId") Long postId,
@@ -158,6 +155,9 @@ public class StudentPost {
         return "redirect:/ChiTietLopHocHocSinh/" + post.getRoom().getRoomId();
     }
 
+    private static final Logger log = LoggerFactory.getLogger(GiaoVienPost.class);
+    @Value("${file.upload-dir:C:/uploads}")
+    private String uploadDir;
     @Transactional
     @PostMapping("/BaiPostHocSinh")
     public String handleStudentPost(@RequestParam("postContent") String postContent,
@@ -238,7 +238,6 @@ public class StudentPost {
 
         return "redirect:/ChiTietLopHocHocSinh/" + roomId;
     }
-
     @PostMapping("/GuiNhanXetGiaoVien")
     @Transactional
     public String guiNhanXetGiaoVien(@RequestParam("teacherId") String teacherId,
@@ -263,8 +262,6 @@ public class StudentPost {
             feedback.setTeacher(teacher);
             feedback.setReceiver(student.getEmployee());
             feedback.setText(text);
-            Events event = entityManager.find(Events.class, 2);
-            feedback.setEvent(event);
             feedback.setCreatedAt(LocalDateTime.now());
 
             // Lưu vào database
@@ -281,7 +278,6 @@ public class StudentPost {
         }
         return "redirect:/TrangChuHocSinh";
     }
-
     @PostMapping("/LuuThongTinHocSinh")
     public String luuThongTinHocSinh(@RequestParam String firstName,
                                      @RequestParam String lastName,
@@ -308,6 +304,9 @@ public class StudentPost {
 
         return "redirect:/TrangChuHocSinh"; // Tải lại trang cá nhân với thông tin mới
     }
+
+
+
 
 
 }

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>Đăng Nhập Học Sinh</title>
-    <link rel="stylesheet" href="/DangNhapHocSinh.css">
+    <link href="/DangNhapHocSinh.css" rel="stylesheet">
 
 </head>
 <body class="d-flex align-items-center justify-content-center vh-100 bg-light">
@@ -13,21 +13,21 @@
         <div class="col-md-5">
             <div class="card shadow-lg p-4">
                 <h2 class="text-center mb-4">Đăng Nhập Học Sinh</h2>
-                <form action="/DangNhapHocSinh" method="post">
+                <form action="/login" method="post">
                     <div class="mb-3">
-                        <label for="studentID" class="form-label">Mã Học Sinh (StudentID)</label>
-                        <input type="text" id="studentID" name="studentID" class="form-control" required>
+                        <label class="form-label" for="studentID">Mã Học Sinh (StudentID)</label>
+                        <input class="form-control" id="studentID" name="username" required type="text">
                     </div>
 
                     <div class="mb-3">
-                        <label for="password" class="form-label">Mật Khẩu</label>
-                        <input type="password" id="password" name="password" class="form-control" required>
+                        <label class="form-label" for="password">Mật Khẩu</label>
+                        <input class="form-control" id="password" name="password" required type="password">
                     </div>
 
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Đăng Nhập</button>
-                        <a href="/DangKyHocSinh" class="btn btn-outline-secondary">Đăng Ký</a>
-                        <a href="/TrangChu" class="btn btn-outline-secondary">Quay Lại Trang Chủ</a>
+                        <button class="btn btn-primary" type="submit">Đăng Nhập</button>
+                        <a class="btn btn-outline-secondary" href="/DangKyHocSinh">Đăng Ký</a>
+                        <a class="btn btn-outline-secondary" href="/TrangChu">Quay Lại Trang Chủ</a>
                     </div>
                 </form>
             </div>

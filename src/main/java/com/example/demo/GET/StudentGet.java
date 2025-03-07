@@ -2,13 +2,12 @@ package com.example.demo.GET;
 
 import com.example.demo.OOP.*;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
-import jdk.jfr.Event;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,16 +23,20 @@ import java.util.*;
 public class StudentGet {
     @PersistenceContext
     private EntityManager entityManager;
+
     @GetMapping("/DangKyHocSinh")
     public String DangKyHocSinh(ModelMap model) {
         List<Employees> employees = entityManager.createQuery("from Employees", Employees.class).getResultList();
         model.addAttribute("employees", employees);
         return "DangKyHocSinh";
     }
+
     @GetMapping("/TrangChuHocSinh")
-    public String TrangChuHocSinh(HttpSession session, ModelMap model) {
-        Students student = entityManager.find(Students.class, session.getAttribute("StudentID"));
-        model.addAttribute("student", student);
+    public String TrangChuHocSinh(ModelMap model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String studentId = authentication.getName();
+        Person person = entityManager.find(Person.class, studentId);
+        Students student = (Students) person;
         // Lấy danh sách lớp học của học sinh
         List<ClassroomDetails> studentClasses = entityManager.createQuery(
                         "SELECT cd FROM ClassroomDetails cd WHERE cd.member = :studentId", ClassroomDetails.class)
@@ -54,11 +57,6 @@ public class StudentGet {
                     teachers.add((Teachers) member.getMember());
                 }
             }
-        }
-        // Lấy thông tin sinh viên từ session
-        String studentId = (String) session.getAttribute("StudentID");
-        if (student == null) {
-            throw new EntityNotFoundException("Không tìm thấy học sinh với ID: " + studentId);
         }
 // Lấy danh sách tài liệu từ cơ sở dữ liệu
         List<Documents> documents = entityManager.createQuery(
@@ -98,24 +96,19 @@ public class StudentGet {
 
         return "TrangChuHocSinh";
     }
+
     @GetMapping("/DangXuatHocSinh")
     public String DangXuatGiaoVien(HttpSession session) {
-        session.invalidate();
         return "redirect:/DangNhapHocSinh";
     }
+
     @GetMapping("/DanhSachLopHocHocSinh")
     public String DanhSachLopHocHocSinh(HttpSession session, ModelMap model) {
         // Lấy StudentID từ session
-        String studentId = (String) session.getAttribute("StudentID");
-        if (studentId == null) {
-            throw new IllegalArgumentException("Không tìm thấy StudentID trong session.");
-        }
-
-        // Tìm đối tượng Person theo ID
-        Person student = entityManager.find(Person.class, studentId);
-        if (student == null || !(student instanceof Students)) {
-            throw new IllegalArgumentException("Không tìm thấy học sinh với ID: " + studentId);
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String studentId = authentication.getName();
+        Person person = entityManager.find(Person.class, studentId);
+        Students student = (Students) person;
 
         // Lấy danh sách lớp mà học sinh này tham gia
         List<ClassroomDetails> classroomDetails = entityManager.createQuery(
@@ -194,14 +187,13 @@ public class StudentGet {
                 .getResultList();
 
         List<Students> students = new ArrayList<>();
-        List<Teachers>  teachers = new ArrayList<>();
+        List<Teachers> teachers = new ArrayList<>();
         for (ClassroomDetails classroomDetail : classroomDetails) {
             Person member = classroomDetail.getMember(); // Lấy đối tượng Person thay vì String ID
 
             if (member instanceof Students) {
                 students.add((Students) member);
-            }
-            else{
+            } else {
                 teachers.add((Teachers) member);
             }
         }
@@ -210,13 +202,13 @@ public class StudentGet {
         model.addAttribute("teachers", teachers);
         return "ThanhVienTrongLopHocSinh";
     }
+
     @GetMapping("/TinNhanCuaHocSinh")
     public String TinNhanCuaHocSinh(HttpSession session, ModelMap model) {
-        Person student = entityManager.find(Person.class, session.getAttribute("StudentID"));
-
-        if (student == null) {
-            return "redirect:/DangNhapHocSinh";
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String studentId = authentication.getName();
+        Person person = entityManager.find(Person.class, studentId);
+        Students student = (Students) person;
 
         // Truy vấn tin nhắn liên quan đến học sinh
         List<Messages> messages = entityManager.createQuery(
@@ -237,6 +229,7 @@ public class StudentGet {
         model.addAttribute("contacts", contacts);  // Danh sách các liên hệ (người đã nhắn tin)
         return "TinNhanCuaHocSinh";  // Trả về view
     }
+
     @GetMapping("/ChiTietTinNhanCuaHocSinh/{id}")
     public String ChiTietTinNhanCuaHocSinh(HttpSession session, ModelMap model, @PathVariable("id") String id) {
         // Tìm giáo viên bằng ID dạng String
@@ -245,17 +238,10 @@ public class StudentGet {
             return "redirect:/TinNhanCuaHocSinh?error=TeacherNotFound";
         }
 
-        // Kiểm tra xem học sinh đã đăng nhập chưa
-        String studentID = (String) session.getAttribute("StudentID");
-        if (studentID == null) {
-            return "redirect:/DangNhapHocSinh";
-        }
-
-        // Tìm học sinh
-        Students student = entityManager.find(Students.class, studentID);
-        if (student == null) {
-            return "redirect:/TinNhanCuaHocSinh?error=StudentNotFound";
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String studentId = authentication.getName();
+        Person person = entityManager.find(Person.class, studentId);
+        Students student = (Students) person;
 
         // Truy vấn tin nhắn giữa học sinh và giáo viên
         List<Messages> messages = entityManager.createQuery(
@@ -273,12 +259,14 @@ public class StudentGet {
 
         return "ChiTietTinNhanCuaHocSinh";
     }
+
     @GetMapping("/TrangCaNhanHocSinh")
     public String TrangCaNhanHocSinh(HttpSession session, ModelMap model) {
-        if(session.getAttribute("StudentID") == null) {
-            return "redirect:/DangNhapHocSinh?error=StudentNotFound";
-        }
-        Students student = entityManager.find(Students.class, session.getAttribute("StudentID"));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String studentId = authentication.getName();
+        Person person = entityManager.find(Person.class, studentId);
+        Students student = (Students) person;
         model.addAttribute("student", student);
 
         return "TrangCaNhanHocSinh";

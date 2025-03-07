@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đăng Nhập Admin</title>
-  <link rel="stylesheet" href="/DangNhapAdmin.css">
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Đăng Nhập Admin</title>
+    <link href="/DangNhapAdmin.css" rel="stylesheet">
 </head>
 <body>
 <div class="container">
-  <h2>Đăng Nhập Admin</h2>
-  <form action="/DangNhapAdmin" method="post">
-    <input type="text" name="AdminID" placeholder="ID Admin" required>
-    <input type="password" name="PasswordAdmin" placeholder="Mật khẩu" required>
-    <button type="submit">Đăng Nhập</button>
-  </form>
+    <h2>Đăng Nhập Admin</h2>
+    <form action="/login" method="post">
+        <input name="username" placeholder="ID Admin" required type="text">
+        <input name="password" placeholder="Mật khẩu" required type="password">
+        <button type="submit">Đăng Nhập</button>
+    </form>
 
-  <!-- Hiển thị lỗi nếu có -->
-  <div class="error">
-    <span th:if="${param.error}">Sai ID hoặc mật khẩu!</span>
-  </div>
+    <!-- Hiển thị lỗi nếu có -->
+    <div class="error">
+        <span th:if="${param.error}">Sai ID hoặc mật khẩu!</span>
+    </div>
 
-  <!-- Nút quay lại Trang chủ -->
-  <a href="/TrangChu" class="back-button">← Quay lại Trang chủ</a>
+    <!-- Nút quay lại Trang chủ -->
+    <a class="back-button" href="/TrangChu">← Quay lại Trang chủ</a>
 </div>
 </body>
 </html>

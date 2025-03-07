@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
 @Table(name = "Teachers")
@@ -13,17 +14,16 @@ import org.hibernate.annotations.OnDeleteAction;
 @Setter
 public class Teachers extends Person {
 
+    // Mã hóa mật khẩu bằng BCrypt
+    private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Column(name = "Password", nullable = false, length = 255)
     private String password;
-
     @Column(name = "MIS_ID", length = 100)
     private String misID;
-
     @ManyToOne
     @JoinColumn(name = "EmployeeID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Employees employee; // Liên kết với Employee (có thể là NULL)
-
     @ManyToOne
     @JoinColumn(name = "AdminID", nullable = true) // Có thể NULL nếu không có Admin trực tiếp quản lý
     private Admin admin;
@@ -36,7 +36,7 @@ public class Teachers extends Person {
         this.setLastName(lastName);
         this.setEmail(email);
         this.setPhoneNumber(phoneNumber);
-        this.password = password;
+        this.password = passwordEncoder.encode(password); // Mã hóa mật khẩu
         this.misID = misID;
         this.employee = employee;
         this.admin = admin;
@@ -44,5 +44,11 @@ public class Teachers extends Person {
 
     // Constructor không tham số (cần thiết cho JPA)
     public Teachers() {
+    }
+
+    // Thêm setter để tự động mã hóa khi đặt mật khẩu mới
+    public void setPassword(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        this.password = passwordEncoder.encode(password);
     }
 }

@@ -18,16 +18,19 @@ public class Feedbacks {
     // Người đánh giá là Student (Khóa ngoại)
     @ManyToOne
     @JoinColumn(name = "ReviewerID", nullable = false, foreignKey = @ForeignKey(name = "FK_Feedbacks_Reviewer"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Students reviewer;
 
     // Giáo viên được chọn để đánh giá (Khóa ngoại)
     @ManyToOne
     @JoinColumn(name = "TeacherID", nullable = false, foreignKey = @ForeignKey(name = "FK_Feedbacks_Teacher"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Teachers teacher;
 
     // Người nhận đánh giá là Employee (Khóa ngoại)
     @ManyToOne
     @JoinColumn(name = "ReceiverID", nullable = false, foreignKey = @ForeignKey(name = "FK_Feedbacks_Receiver"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Employees receiver;
 
     // Liên kết với bảng Events

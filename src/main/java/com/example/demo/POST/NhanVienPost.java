@@ -2,15 +2,18 @@ package com.example.demo.POST;
 
 import com.example.demo.OOP.*;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
@@ -26,6 +29,7 @@ public class NhanVienPost {
 
     @PersistenceContext
     private EntityManager entityManager;
+
 
     @PostMapping("/DangKyNhanVien")
     public String DangKyNhanVien(@RequestParam String EmployeeID,
@@ -96,29 +100,6 @@ public class NhanVienPost {
                 Pattern.compile("[0-9]").matcher(password).find() &&
                 Pattern.compile("[!@#$%^&*(),.?\":{}|<>]").matcher(password).find();
     }
-    @PostMapping("/DangNhapNhanVien")
-    public String DangNhapNhanVien(@RequestParam("EmployeeID") String employeeID,
-                                   @RequestParam("Password") String password,
-                                   HttpSession session,
-                                   ModelMap model) {
-        try {
-            Employees employee = entityManager.createQuery(
-                            "SELECT e FROM Employees e WHERE e.id = :employeeID", Employees.class)
-                    .setParameter("employeeID", employeeID)
-                    .getSingleResult();
-
-            if (employee != null && employee.getPassword().equals(password)) {
-                session.setAttribute("EmployeeID", employee.getId());
-                return "redirect:/TrangChuNhanVien";
-            } else {
-                model.addAttribute("error", "Mã nhân viên hoặc mật khẩu không đúng!");
-                return "redirect:/DangNhapNhanVien";
-            }
-        } catch (NoResultException e) {
-            model.addAttribute("error", "Mã nhân viên không tồn tại!");
-            return "redirect:/DangNhapNhanVien";
-        }
-    }
 
     @Transactional
     @PostMapping("/ThemGiaoVienCuaBan")
@@ -133,18 +114,11 @@ public class NhanVienPost {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        // Kiểm tra đăng nhập
-        Object employeeID = session.getAttribute("EmployeeID");
-        if (employeeID == null) {
-            redirectAttributes.addFlashAttribute("error", "Bạn chưa đăng nhập hoặc không có quyền thêm giáo viên.");
-            return "redirect:/ThemGiaoVienCuaBan";
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName();
+        Person person = entityManager.find(Person.class, employeeId);
+        Employees employee = (Employees) person;
 
-        Employees employee = entityManager.find(Employees.class, employeeID);
-        if (employee == null) {
-            redirectAttributes.addFlashAttribute("error", "Nhân viên không hợp lệ.");
-            return "redirect:/ThemGiaoVienCuaBan";
-        }
 
         // Kiểm tra TeacherID đã tồn tại chưa
         if (entityManager.find(Teachers.class, teacherID) != null) {
@@ -214,18 +188,10 @@ public class NhanVienPost {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        // Kiểm tra Employee từ session
-        Object employeeSession = session.getAttribute("EmployeeID");
-        if (employeeSession == null) {
-            redirectAttributes.addFlashAttribute("error", "Bạn chưa đăng nhập!");
-            return "redirect:/ThemHocSinhCuaBan";
-        }
-
-        Employees employee = entityManager.find(Employees.class, employeeSession);
-        if (employee == null) {
-            redirectAttributes.addFlashAttribute("error", "Nhân viên không hợp lệ!");
-            return "redirect:/ThemHocSinhCuaBan";
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName();
+        Person person = entityManager.find(Person.class, employeeId);
+        Employees employee = (Employees) person;
 
         // Lấy Admin (chỉ cần một admin)
         List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
@@ -270,8 +236,6 @@ public class NhanVienPost {
         redirectAttributes.addFlashAttribute("successMessage", "Thêm học sinh thành công!");
         return "redirect:/DanhSachHocSinhCuaBan";
     }
-
-
 
     @PostMapping("/SuaGiaoVienCuaBan")
     public String SuaGiaoVienCuaBan(@RequestParam("teacherID") String id,
@@ -319,19 +283,11 @@ public class NhanVienPost {
                                    @RequestParam("email") String email,
                                    @RequestParam("phoneNumber") String phoneNumber,
                                    @RequestParam(value = "misId", required = false) String misId,
-                                   HttpSession session,
                                    RedirectAttributes redirectAttributes) {
         // Tìm học sinh theo ID
         Students student = entityManager.find(Students.class, studentID);
         if (student == null) {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy học sinh!");
-            return "redirect:/DanhSachHocSinhCuaBan";
-        }
-
-        // Kiểm tra quyền chỉnh sửa (giáo viên phải là người phụ trách)
-        String employeeID = (String) session.getAttribute("EmployeeID");
-        if (employeeID == null || !employeeID.equals(student.getEmployee().getId())) {
-            redirectAttributes.addFlashAttribute("error", "Bạn không có quyền chỉnh sửa học sinh này!");
             return "redirect:/DanhSachHocSinhCuaBan";
         }
 
@@ -363,18 +319,12 @@ public class NhanVienPost {
     @PostMapping("/ThemPhongHoc")
     public String ThemPhongHoc(@RequestParam("roomId") String roomId,
                                @RequestParam("roomName") String roomName,
-                               HttpSession session,
-                               RedirectAttributes redirectAttributes) {
-        // Kiểm tra nhân viên đăng nhập
-        String employeeId = (String) session.getAttribute("EmployeeID");
-        if (employeeId == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
-        Employees loggedInEmployee = entityManager.find(Employees.class, employeeId);
-        if (loggedInEmployee == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
 
+                               RedirectAttributes redirectAttributes) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName();
+        Person person = entityManager.find(Person.class, employeeId);
+        Employees employee = (Employees) person;
         // Kiểm tra trùng ID
         Rooms existingRoomById = entityManager.find(Rooms.class, roomId);
         if (existingRoomById != null) {
@@ -396,7 +346,7 @@ public class NhanVienPost {
         Rooms newRoom = new Rooms();
         newRoom.setRoomId(roomId);
         newRoom.setRoomName(roomName);
-        newRoom.setEmployee(loggedInEmployee);
+        newRoom.setEmployee(employee);
         entityManager.persist(newRoom);
 
         redirectAttributes.addFlashAttribute("success", "Thêm phòng học thành công!");
@@ -408,21 +358,13 @@ public class NhanVienPost {
             @RequestParam("roomId") String roomId,
             @RequestParam("roomName") String roomName,
             @RequestParam("status") Boolean status,
-            HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        // Kiểm tra đăng nhập
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
 
-        // Lấy thông tin nhân viên từ session
-        String employeeId = (String) session.getAttribute("EmployeeID");
-        Employees employee = entityManager.find(Employees.class, employeeId);
-        if (employee == null) {
-            redirectAttributes.addFlashAttribute("error", "Nhân viên không hợp lệ.");
-            return "redirect:/ThemPhongHocOnline";
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName();
+        Person person = entityManager.find(Person.class, employeeId);
+        Employees employee = (Employees) person;
 
         // Kiểm tra ID phòng đã tồn tại chưa
         OnlineRooms existingRoomById = entityManager.find(OnlineRooms.class, roomId);
@@ -458,20 +400,17 @@ public class NhanVienPost {
 
     @PostMapping("/SuaPhongHocOffline")
     public String CapNhatPhongHoc(@RequestParam("roomId") String roomId,
-                                  @RequestParam("roomName") String roomName,
-                                  HttpSession session) {
+                                  @RequestParam("roomName") String roomName) {
         // Lấy thông tin phòng từ database
         Rooms room = entityManager.find(Rooms.class, roomId);
         if (room == null) {
             return "redirect:/DanhSachPhongHoc?error=RoomNotFound";
         }
 
-        // Kiểm tra nhân viên đang đăng nhập
-        String employeeId = (String) session.getAttribute("EmployeeID");
-        Employees loggedInEmployee = entityManager.find(Employees.class, employeeId);
-        if (loggedInEmployee == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName();
+        Person person = entityManager.find(Person.class, employeeId);
+        Employees employee = (Employees) person;
 
         // Kiểm tra xem tên phòng mới đã tồn tại chưa
         TypedQuery<Rooms> query = entityManager.createQuery(
@@ -488,7 +427,7 @@ public class NhanVienPost {
 
         // Cập nhật thông tin phòng học
         room.setRoomName(roomName);
-        room.setEmployee(loggedInEmployee);
+        room.setEmployee(employee);
         entityManager.merge(room);  // Lưu thay đổi
 
         return "redirect:/DanhSachPhongHoc?success=RoomUpdated";
@@ -497,8 +436,7 @@ public class NhanVienPost {
     @PostMapping("/SuaPhongHocOnline")
     public String CapNhatPhongHocOnline(
             @RequestParam("roomId") String roomId,
-            @RequestParam("roomName") String roomName,
-            HttpSession session) {
+            @RequestParam("roomName") String roomName) {
 
         // Kiểm tra phòng học có tồn tại không
         OnlineRooms room = entityManager.find(OnlineRooms.class, roomId);
@@ -506,16 +444,11 @@ public class NhanVienPost {
             return "redirect:/DanhSachPhongHoc?error=RoomNotFound";
         }
 
-        // Kiểm tra nhân viên đăng nhập
-        Object employeeIdObj = session.getAttribute("EmployeeID");
-        if (employeeIdObj == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName();
+        Person person = entityManager.find(Person.class, employeeId);
+        Employees employee = (Employees) person;
 
-        Employees loggedInEmployee = entityManager.find(Employees.class, employeeIdObj);
-        if (loggedInEmployee == null) {
-            return "redirect:/DanhSachPhongHoc?error=InvalidEmployee";
-        }
 
         // Kiểm tra trùng tên phòng (trừ phòng hiện tại)
         TypedQuery<OnlineRooms> query = entityManager.createQuery(
@@ -530,7 +463,7 @@ public class NhanVienPost {
 
         // Cập nhật thông tin phòng học online
         room.setRoomName(roomName);
-        room.setEmployee(loggedInEmployee);
+        room.setEmployee(employee);
         entityManager.merge(room);  // Lưu thay đổi
 
         return "redirect:/DanhSachPhongHoc?success=RoomUpdated";
@@ -620,11 +553,11 @@ public class NhanVienPost {
 
             Room room = entityManager.find(Room.class, roomId);
             if (room instanceof Rooms) {
-                ((Rooms) room).setStartTime(thoiGianBatDau);
-                ((Rooms) room).setEndTime(thoiGianKetThuc);
+                room.setStartTime(thoiGianBatDau);
+                room.setEndTime(thoiGianKetThuc);
             } else if (room instanceof OnlineRooms) {
-                ((OnlineRooms) room).setStartTime(thoiGianBatDau);
-                ((OnlineRooms) room).setEndTime(thoiGianKetThuc);
+                room.setStartTime(thoiGianBatDau);
+                room.setEndTime(thoiGianKetThuc);
             } else {
                 return "redirect:/BoTriLopHoc?error=notfound";
             }
@@ -636,6 +569,7 @@ public class NhanVienPost {
             return "redirect:/BoTriLopHoc?error=invalid_datetime";
         }
     }
+
     @PostMapping("/CapNhatDiaChi")
     @Transactional
     public String capNhatDiaChi(
@@ -668,6 +602,7 @@ public class NhanVienPost {
             return "redirect:/BoTriLopHoc?error=notfound";
         }
     }
+
     @PostMapping("/DanhSachHocSinhCuaBan")
     public String DanhSachHocSinhCuaBan(@RequestParam("pageSize") int pageSize, HttpSession session) {
         session.setAttribute("pageSize", pageSize); // Đặt session với đúng key

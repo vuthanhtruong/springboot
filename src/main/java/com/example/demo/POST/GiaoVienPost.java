@@ -1,20 +1,23 @@
 package com.example.demo.POST;
+
 import com.example.demo.OOP.*;
 import com.example.demo.Repository.DocumentsRepository;
 import com.example.demo.Repository.PersonRepository;
 import com.example.demo.Repository.PostsRepository;
-
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,11 +27,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Controller
 @RequestMapping("/")
@@ -36,19 +36,21 @@ import org.slf4j.LoggerFactory;
 public class GiaoVienPost {
 
 
+    private static final Logger log = LoggerFactory.getLogger(GiaoVienPost.class);
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @PersistenceContext
     private EntityManager entityManager;
     @Autowired
     private PersonRepository personRepository;
-
     @Autowired
     private PostsRepository postsRepository;
-
     @Autowired
     private DocumentsRepository documentsRepository;
+    @Value("${file.upload-dir:C:/uploads}")
+    private String uploadDir;
+
 
     @Transactional
-
     @PostMapping("/DangKyGiaoVien")
     public String dangKyGiaoVien(@RequestParam("EmployeeID") String employeeID,
                                  @RequestParam("TeacherID") String teacherID,
@@ -61,9 +63,17 @@ public class GiaoVienPost {
                                  @RequestParam("ConfirmPassword") String confirmPassword,
                                  Model model) {
 
+        System.out.println("Bắt đầu đăng ký giáo viên...");
+
         // Kiểm tra mật khẩu có khớp không
         if (!password.equals(confirmPassword)) {
             model.addAttribute("passwordError", "Mật khẩu không khớp.");
+            return "DangKyGiaoVien";
+        }
+
+        // Kiểm tra tính hợp lệ của mật khẩu
+        if (!isValidPassword(password)) {
+            model.addAttribute("passwordInvalid", "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.");
             return "DangKyGiaoVien";
         }
 
@@ -82,51 +92,50 @@ public class GiaoVienPost {
             return "DangKyGiaoVien";
         }
 
-        // Lấy Admin & Employee
-        Admin admin = entityManager.createQuery("from Admin", Admin.class).getResultList().get(0);
+        // Lấy Admin
+        List<Admin> adminList = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
+        if (adminList.isEmpty()) {
+            model.addAttribute("adminError", "Không tìm thấy Admin.");
+            return "DangKyGiaoVien";
+        }
+        Admin admin = adminList.get(0);
+
+        // Lấy Employee
         Employees employee = entityManager.find(Employees.class, employeeID);
+        if (employee == null) {
+            model.addAttribute("employeeError", "Employee ID không hợp lệ.");
+            return "DangKyGiaoVien";
+        }
 
         // Tạo giáo viên mới
-        Teachers giaoVien = new Teachers(teacherID, password, firstName, lastName, email, phoneNumber, misID, employee, admin);
-        entityManager.persist(giaoVien);
+        Teachers giaoVien = new Teachers();
+        giaoVien.setId(teacherID);
+        giaoVien.setFirstName(firstName);
+        giaoVien.setLastName(lastName);
+        giaoVien.setEmail(email);
+        giaoVien.setPhoneNumber(phoneNumber);
+        giaoVien.setMisID(misID);
+        giaoVien.setPassword(password); // Mã hóa mật khẩu trước khi lưu
+        giaoVien.setEmployee(employee);
+        giaoVien.setAdmin(admin);
+
+        try {
+            entityManager.persist(giaoVien);
+            System.out.println("Đăng ký giáo viên thành công!");
+        } catch (Exception e) {
+            System.out.println("Lỗi khi lưu giáo viên: " + e.getMessage());
+            model.addAttribute("databaseError", "Lỗi khi lưu dữ liệu.");
+            return "DangKyGiaoVien";
+        }
 
         return "redirect:/DangNhapGiaoVien";
     }
+
     private boolean isValidPassword(String password) {
         // Mật khẩu phải có ít nhất 8 ký tự, chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt
         String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
         return password.matches(passwordRegex);
     }
-
-
-
-    @PostMapping("/DangNhapGiaoVien")
-    public String DangNhapGiaoVien(@RequestParam("TeacherID") String teacherID,
-                                   @RequestParam("Password") String password,
-                                   ModelMap model,
-                                   HttpSession session) {
-        try {
-            Teachers teacher = entityManager.createQuery(
-                            "SELECT t FROM Teachers t WHERE t.id = :teacherID", Teachers.class)
-                    .setParameter("teacherID", teacherID)
-                    .getSingleResult();
-
-            if (teacher != null && teacher.getPassword().equals(password)) {
-                session.setAttribute("TeacherID", teacher.getId()); // ✅ Lưu ID vào session
-                return "redirect:/TrangChuGiaoVien"; // ✅ Đăng nhập thành công
-            } else {
-                model.addAttribute("error", "Mã giáo viên hoặc mật khẩu không đúng!");
-                return "DangNhapGiaoVien"; // ❌ Không dùng redirect để giữ thông báo lỗi
-            }
-        } catch (NoResultException e) {
-            model.addAttribute("error", "Mã giáo viên không tồn tại!");
-            return "DangNhapGiaoVien";
-        }
-    }
-
-    private static final Logger log = LoggerFactory.getLogger(GiaoVienPost.class);
-    @Value("${file.upload-dir:C:/uploads}")
-    private String uploadDir;
 
     @Transactional
     @PostMapping("/BaiPostGiaoVien")
@@ -138,20 +147,11 @@ public class GiaoVienPost {
         try {
             log.info("🔍 Bắt đầu xử lý bài đăng. Nội dung: {}", postContent);
 
-            // 🟢 Lấy ID giáo viên
-            String teacherId = (String) session.getAttribute("TeacherID");
-            if (teacherId == null) {
-                log.error("🚫 Không tìm thấy ID giáo viên.");
-                redirectAttributes.addFlashAttribute("error", "Lỗi: Không tìm thấy ID giáo viên.");
-                return "redirect:/DangNhapGiaoVien";
-            }
 
-            // 📚 Lấy thông tin giáo viên
-            Teachers teacher = entityManager.find(Teachers.class, teacherId);
-            if (teacher == null) {
-                throw new IllegalArgumentException("Không tìm thấy giáo viên với ID: " + teacherId);
-            }
-
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String teacherId = authentication.getName();
+            Person person = entityManager.find(Person.class, teacherId);
+            Teachers teacher = (Teachers) person;
             // 📝 Tạo bài đăng
             Posts newPost = new Posts();
             newPost.setContent(postContent);
@@ -214,7 +214,11 @@ public class GiaoVienPost {
                                       @RequestParam("email") String email,
                                       @RequestParam("misID") String misID, @RequestParam("phoneNumber") String phoneNumber, HttpSession session) {
 
-        Teachers teacher = entityManager.find(Teachers.class, session.getAttribute("TeacherID"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String teacherId = authentication.getName();
+        Person person = entityManager.find(Person.class, teacherId);
+        Teachers teacher = (Teachers) person;
+
         teacher.setFirstName(firstName);
         teacher.setLastName(lastName);
         teacher.setEmail(email);
@@ -229,7 +233,9 @@ public class GiaoVienPost {
     public String themBinhLuan(@RequestParam("postId") Long postId,
                                @RequestParam("commentText") String commentText, SessionStatus sessionStatus, HttpSession session) {
         // Lấy thông tin người bình luận
-        Person commenter = entityManager.find(Person.class, session.getAttribute("TeacherID"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String teacherId = authentication.getName();
+        Person commenter = entityManager.find(Person.class, teacherId);
 
         // Lấy thông tin bài đăng
         Posts post = entityManager.find(Posts.class, postId);

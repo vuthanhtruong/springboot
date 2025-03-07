@@ -5,11 +5,12 @@ import com.example.demo.OOP.Employees;
 import com.example.demo.OOP.Students;
 import com.example.demo.OOP.Teachers;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -25,23 +26,6 @@ public class AdminPost {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @PostMapping("/DangNhapAdmin")
-    public String DangNhapAdmin(@RequestParam("AdminID") String AdminID,
-                                @RequestParam("PasswordAdmin") String PasswordAdmin,
-                                HttpSession session) {
-        Admin admin = entityManager.find(Admin.class, AdminID);
-
-        if (admin == null) {
-            return "redirect:/DangNhapAdmin";
-        }
-
-        if (!PasswordAdmin.equals(admin.getPassword())) {
-            return "redirect:/DangNhapAdmin";
-        }
-
-        session.setAttribute("AdminID", AdminID);
-        return "redirect:/TrangChuAdmin";
-    }
     @Transactional
     @PostMapping("/CapNhatAdmin")
     public String capNhatAdmin(@RequestParam String id,
@@ -50,14 +34,10 @@ public class AdminPost {
                                @RequestParam String email,
                                @RequestParam String phoneNumber,
                                HttpSession session) {
-        if (session.getAttribute("AdminID") == null) {
-            return "redirect:/DangNhapAdmin";
-        }
-
-        Admin admin = entityManager.find(Admin.class, session.getAttribute("AdminID"));
-        if (admin == null) {
-            return "redirect:/TrangCaNhanAdmin";
-        }
+        // Lấy thông tin AdminID từ Spring Security
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String adminId = authentication.getName(); // Lấy AdminID từ SecurityContext
+        Admin admin = entityManager.find(Admin.class, adminId);
 
         admin.setFirstName(firstName);
         admin.setLastName(lastName);
@@ -234,7 +214,6 @@ public class AdminPost {
         }
         List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
         Admin admin = admins.get(0);  // Lấy trực tiếp đối tượng Admin từ danh sách
-
 
 
         Employees existingEmployee = entityManager.find(Employees.class, EmployeeID);
@@ -471,8 +450,8 @@ public class AdminPost {
 
     @PostMapping("/TimKiemHocSinh")
     public String TimKiemHocSinh(@RequestParam("searchType") String searchType, @RequestParam("keyword") String keyword
-    ,ModelMap ModelMap) {
-        if(searchType.equalsIgnoreCase("name")){
+            , ModelMap ModelMap) {
+        if (searchType.equalsIgnoreCase("name")) {
             List<Students> searchResults = entityManager.createQuery(
                             "SELECT s FROM Students s " +
                                     "WHERE LOWER(s.firstName) LIKE LOWER(:keyword) " +
@@ -481,13 +460,13 @@ public class AdminPost {
                     .setParameter("keyword", "%" + keyword + "%")
                     .getResultList();
             ModelMap.addAttribute("searchResults", searchResults);
-        }
-        else if(searchType.equalsIgnoreCase("id")){
+        } else if (searchType.equalsIgnoreCase("id")) {
             Students students = entityManager.find(Students.class, keyword);
             ModelMap.addAttribute("students", students);
         }
         return "DanhSachTimKiemHocSinh";
     }
+
     @PostMapping("/TimKiemGiaoVien")
     public String TimKiemGiaoVien(@RequestParam("searchType") String searchType,
                                   @RequestParam("keyword") String keyword,
@@ -512,6 +491,7 @@ public class AdminPost {
         model.addAttribute("teachers", searchResults);
         return "DanhSachTimKiemGiaoVien";
     }
+
     @PostMapping("/TimKiemNhanVien")
     public String TimKiemNhanVien(@RequestParam("searchType") String searchType,
                                   @RequestParam("keyword") String keyword,
@@ -536,7 +516,6 @@ public class AdminPost {
         model.addAttribute("employees", searchResults);
         return "DanhSachTimKiemNhanVien";
     }
-
 
 
 }

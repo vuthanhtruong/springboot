@@ -1,10 +1,8 @@
 package com.example.demo.OOP;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
-
 
 import java.util.Set;
 
@@ -31,7 +29,6 @@ public class Admin extends Person {
         this.setPhoneNumber(phoneNumber);
         this.password = password;
     }
-
 
     // Constructor không tham số (cần thiết cho JPA)
     public Admin() {

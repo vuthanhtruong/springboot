@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
 @Table(name = "Students")
@@ -44,5 +45,11 @@ public class Students extends Person {
 
     // Constructor không tham số (cần thiết cho JPA)
     public Students() {
+    }
+
+    // Thêm setter để tự động mã hóa khi đặt mật khẩu mới
+    public void setPassword(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        this.password = passwordEncoder.encode(password);
     }
 }
