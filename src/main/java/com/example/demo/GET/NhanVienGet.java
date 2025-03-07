@@ -3,20 +3,22 @@ package com.example.demo.GET;
 import com.example.demo.OOP.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/")
@@ -33,18 +35,20 @@ public class NhanVienGet {
     public String DangKyNhanVien() {
         return "DangKyNhanVien";
     }
+
     @GetMapping("/TrangChuNhanVien")
     public String TrangChuNhanVien(ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
         Employees employee = entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
         model.addAttribute("employee", employee);
         return "TrangChuNhanVien";
     }
+
     @GetMapping("/TrangCaNhanNhanVien")
     public String TrangCaNhanNhanVien(HttpSession session, ModelMap model) {
-        if(session.getAttribute("EmployeeID") == null) {
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
         Employees employee = entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
@@ -57,6 +61,7 @@ public class NhanVienGet {
         session.invalidate();
         return "redirect:/DangNhapNhanVien";
     }
+
     @GetMapping("/DanhSachGiaoVienCuaBan")
     public String DanhSachGiaoVienCuaBan(
             ModelMap model,
@@ -116,14 +121,14 @@ public class NhanVienGet {
     }
 
 
-
     @GetMapping("/ThemGiaoVienCuaBan")
     public String ThemGiaoVienCuaBan(HttpSession session, ModelMap model) {
-        if(session.getAttribute("EmployeeID") == null) {
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
         return "ThemGiaoVienCuaBan";
     }
+
     @GetMapping("/DanhSachHocSinhCuaBan")
     public String DanhSachHocSinhCuaBan(
             ModelMap model,
@@ -187,11 +192,12 @@ public class NhanVienGet {
 
     @GetMapping("/ThemHocSinhCuaBan")
     public String ThemHocSinhCuaBan(ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
         return "ThemHocSinhCuaBan";
     }
+
     @GetMapping("/DanhSachNguoiDungHeThong")
     public String DanhSachNguoiDungHeThong(
             HttpSession session,
@@ -324,22 +330,24 @@ public class NhanVienGet {
 
     @GetMapping("/SuaGiaoVienCuaBan/{id}")
     public String SuaGiaoVienCuaBan(ModelMap model, @PathVariable("id") String id, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
-        Teachers teachers=entityManager.find(Teachers.class, id);
+        Teachers teachers = entityManager.find(Teachers.class, id);
         model.addAttribute("teachers", teachers);
         return "SuaGiaoVienCuaBan";
     }
+
     @GetMapping("/SuaHocSinhCuaBan/{id}")
     public String SuaHocSinhCuaBan(ModelMap model, @PathVariable("id") String id, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
-        Students students=entityManager.find(Students.class, id);
+        Students students = entityManager.find(Students.class, id);
         model.addAttribute("students", students);
         return "SuaHocSinhCuaBan";
     }
+
     @GetMapping("/DanhSachPhongHoc")
     public String DanhSachPhongHoc(
             ModelMap model,
@@ -404,21 +412,23 @@ public class NhanVienGet {
 
     @GetMapping("/ThemPhongHoc")
     public String ThemPhongHoc(ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
         return "ThemPhongHoc";
     }
+
     @GetMapping("/ThemPhongHocOnline")
     public String ThemPhongHocOnline(ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
         return "ThemPhongHocOnline";
     }
+
     @GetMapping("/SuaPhongHocOffline/{id}")
     public String SuaPhongHoc(ModelMap model, @PathVariable("id") String id, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
         Rooms room = entityManager.find(Rooms.class, id);
@@ -430,6 +440,7 @@ public class NhanVienGet {
 
         return "SuaPhongHoc";
     }
+
     @GetMapping("/SuaPhongHocOnline/{id}")
     public String SuaPhongHocOnline(@PathVariable("id") String roomId, ModelMap model, HttpSession session) {
         if (session.getAttribute("EmployeeID") == null) {
@@ -512,6 +523,7 @@ public class NhanVienGet {
 
         return "BoTriLopHoc";
     }
+
     @GetMapping("/ChiTietLopHoc/{id}")
     public String ChiTietLopHoc(ModelMap model, @PathVariable("id") String id, HttpSession session) {
         // Kiểm tra xem EmployeeID có trong session không
@@ -662,16 +674,15 @@ public class NhanVienGet {
             // Xác định email người nhận
             String recipientEmail = null;
             if (member instanceof Students) {
-                recipientEmail = ((Students) member).getEmail();
+                recipientEmail = member.getEmail();
             } else if (member instanceof Teachers) {
-                recipientEmail = ((Teachers) member).getEmail();
+                recipientEmail = member.getEmail();
             }
 
             if (recipientEmail != null) {
                 // Xác định nội dung tin nhắn dựa vào loại phòng học
                 String messageContent;
-                if (room instanceof OnlineRooms) {
-                    OnlineRooms onlineRoom = (OnlineRooms) room;
+                if (room instanceof OnlineRooms onlineRoom) {
                     messageContent = "Lịch trình học Online của bạn bắt đầu từ " +
                             onlineRoom.getStartTime() + " đến hết " + onlineRoom.getEndTime();
                 } else {
@@ -728,13 +739,13 @@ public class NhanVienGet {
     public String BangDieuKhienNhanVien(@PathVariable("id") String id, ModelMap model) {
         Employees employee = entityManager.find(Employees.class, id);
 
-        List<Room> room= entityManager.createQuery("from Room r where r.employee=:employee", Room.class).
+        List<Room> room = entityManager.createQuery("from Room r where r.employee=:employee", Room.class).
                 setParameter("employee", employee).getResultList();
 
-        List<Teachers> teachers=entityManager.createQuery("from Teachers t where t.employee=:employee", Teachers.class).
+        List<Teachers> teachers = entityManager.createQuery("from Teachers t where t.employee=:employee", Teachers.class).
                 setParameter("employee", employee).getResultList();
 
-        List<Students> students=entityManager.createQuery("from Students s where s.employee=:employee", Students.class).
+        List<Students> students = entityManager.createQuery("from Students s where s.employee=:employee", Students.class).
                 setParameter("employee", employee).getResultList();
         model.addAttribute("room", room);
         model.addAttribute("teachers", teachers);
@@ -742,9 +753,10 @@ public class NhanVienGet {
         model.addAttribute("employee", employee);
         return "BangDieuKhienNhanVien";
     }
+
     @GetMapping("/BangDieuKhienHocSinh/{id}")
     public String BangDieuKhienHocSinh(@PathVariable("id") String id, ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null && session.getAttribute("TeacherID") == null){
+        if (session.getAttribute("EmployeeID") == null && session.getAttribute("TeacherID") == null) {
             return "redirect:/TrangChu";
         }
 
@@ -804,10 +816,11 @@ public class NhanVienGet {
 
         return "BangDieuKhienHocSinh";
     }
+
     @GetMapping("/BangDieuKhienGiaoVien/{id}")
     public String BangDieuKhienGiaoVien(@PathVariable("id") String id, ModelMap model, HttpSession session) {
         // Find the teacher using the provided ID
-        if(session.getAttribute("EmployeeID") == null && session.getAttribute("TeacherID") == null){
+        if (session.getAttribute("EmployeeID") == null && session.getAttribute("TeacherID") == null) {
             return "redirect:/TrangChu";
         }
         Teachers teacher = entityManager.find(Teachers.class, id);
@@ -869,20 +882,19 @@ public class NhanVienGet {
 
         return "BangDieuKhienGiaoVien"; // Ensure this matches the actual view file name
     }
+
     @GetMapping("/FeedbackHocSinh")
     public String FeedbackHocSinh(ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") != null){
+        if (session.getAttribute("EmployeeID") == null) {
             return "redirect:/DangNhapNhanVien";
         }
-        Employees employees=entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
+        Employees employees = entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
 
-        List<Feedbacks> feedbacks=entityManager.createQuery("from Feedbacks f where f.receiver=:receiver", Feedbacks.class).
+        List<Feedbacks> feedbacks = entityManager.createQuery("from Feedbacks f where f.receiver=:receiver", Feedbacks.class).
                 setParameter("receiver", employees).getResultList();
 
         model.addAttribute("feedbacks", feedbacks);
 
         return "FeedbackHocSinh";
     }
-
-
 }
