@@ -10,6 +10,8 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.ui.ModelMap;
@@ -29,8 +31,12 @@ import java.util.List;
 @RequestMapping("/")
 @Transactional
 public class StudentPost {
+    private static final Logger log = LoggerFactory.getLogger(GiaoVienPost.class);
     @PersistenceContext
     private EntityManager entityManager;
+    @Value("${file.upload-dir:C:/uploads}")
+    private String uploadDir;
+
     @PostMapping("/DangKyHocSinh")
     public String DangKyHocSinh(
             @RequestParam("EmployeeID") String employeeID,
@@ -43,13 +49,6 @@ public class StudentPost {
             @RequestParam("Password") String password,
             @RequestParam("ConfirmPassword") String confirmPassword,
             RedirectAttributes redirectAttributes) {
-
-        // Kiểm tra StudentID
-        if (!studentID.startsWith("STU")) {
-            redirectAttributes.addFlashAttribute("errorStudentID", "Mã học sinh phải bắt đầu bằng 'STU'.");
-            return "redirect:/DangKyHocSinh";
-        }
-
         // Kiểm tra mật khẩu
         if (!password.equals(confirmPassword)) {
             redirectAttributes.addFlashAttribute("errorPassword", "Mật khẩu nhập lại không khớp!");
@@ -110,8 +109,6 @@ public class StudentPost {
         return "redirect:/DangNhapHocSinh";
     }
 
-
-
     @PostMapping("/DangNhapHocSinh")
     public String DangNhapHocSinh(@RequestParam("studentID") String studentID,
                                   @RequestParam("password") String password,
@@ -121,7 +118,6 @@ public class StudentPost {
             Students student = entityManager.find(Students.class, studentID);
 
             if (student != null && student.getPassword().equals(password)) {
-                session.setAttribute("StudentID", student.getId());
                 return "redirect:/TrangChuHocSinh";
             } else {
                 model.addAttribute("error", "Mã học sinh hoặc mật khẩu không đúng!");
@@ -132,6 +128,7 @@ public class StudentPost {
             return "redirect:/DangNhapHocSinh";
         }
     }
+
     @Transactional
     @PostMapping("/BinhLuanHocSinh")
     public String themBinhLuan(@RequestParam("postId") Long postId,
@@ -155,9 +152,6 @@ public class StudentPost {
         return "redirect:/ChiTietLopHocHocSinh/" + post.getRoom().getRoomId();
     }
 
-    private static final Logger log = LoggerFactory.getLogger(GiaoVienPost.class);
-    @Value("${file.upload-dir:C:/uploads}")
-    private String uploadDir;
     @Transactional
     @PostMapping("/BaiPostHocSinh")
     public String handleStudentPost(@RequestParam("postContent") String postContent,
@@ -168,19 +162,10 @@ public class StudentPost {
         try {
             log.info("🔍 Xử lý bài đăng của học sinh. Nội dung: {}", postContent);
 
-            // 🟢 Lấy ID học sinh từ session
-            String studentId = (String) session.getAttribute("StudentID");
-            if (studentId == null) {
-                log.error("🚫 Không tìm thấy ID học sinh.");
-                redirectAttributes.addFlashAttribute("error", "Lỗi: Không tìm thấy ID học sinh.");
-                return "redirect:/DangNhapHocSinh";
-            }
-
-            // 📚 Lấy thông tin học sinh
-            Students student = entityManager.find(Students.class, studentId);
-            if (student == null) {
-                throw new IllegalArgumentException("Không tìm thấy học sinh với ID: " + studentId);
-            }
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String studentId = authentication.getName();
+            Person person = entityManager.find(Person.class, studentId);
+            Students student = (Students) person;
 
             // 📝 Tạo bài đăng mới
             Posts newPost = new Posts();
@@ -238,6 +223,7 @@ public class StudentPost {
 
         return "redirect:/ChiTietLopHocHocSinh/" + roomId;
     }
+
     @PostMapping("/GuiNhanXetGiaoVien")
     @Transactional
     public String guiNhanXetGiaoVien(@RequestParam("teacherId") String teacherId,
@@ -247,8 +233,10 @@ public class StudentPost {
         try {
             log.info("📝 Nhận xét giáo viên với ID: {}", teacherId);
 
-            // Lấy ID học sinh từ session
-            Students student = entityManager.find(Students.class, session.getAttribute("StudentID"));
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String studentId = authentication.getName();
+            Person person = entityManager.find(Person.class, studentId);
+            Students student = (Students) person; // Lấy ID học sinh từ session
 
 
             // Lấy thông tin giáo viên từ database
@@ -278,22 +266,17 @@ public class StudentPost {
         }
         return "redirect:/TrangChuHocSinh";
     }
+
     @PostMapping("/LuuThongTinHocSinh")
     public String luuThongTinHocSinh(@RequestParam String firstName,
                                      @RequestParam String lastName,
                                      @RequestParam String email,
                                      @RequestParam String phoneNumber,
                                      HttpSession session) {
-        if (session.getAttribute("StudentID") == null) {
-            return "redirect:/DangNhapHocSinh";
-        }
-
-        String studentId = (String) session.getAttribute("StudentID");
-        Students student = entityManager.find(Students.class, studentId);
-
-        if (student == null) {
-            return "redirect:/DangNhapHocSinh";
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String studentId = authentication.getName();
+        Person person = entityManager.find(Person.class, studentId);
+        Students student = (Students) person;
 
         // Cập nhật thông tin học sinh
         student.setFirstName(firstName);
@@ -304,9 +287,6 @@ public class StudentPost {
 
         return "redirect:/TrangChuHocSinh"; // Tải lại trang cá nhân với thông tin mới
     }
-
-
-
 
 
 }
