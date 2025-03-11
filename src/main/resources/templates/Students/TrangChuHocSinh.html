@@ -1,150 +1,153 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trang Chủ Học Sinh</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-  <link href="/TrangChuHocSinh.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Trang Chủ Học Sinh</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="/TrangChuHocSinh.css" rel="stylesheet">
 </head>
 <body>
 
 <div class="container">
-  <!-- Phần nội dung chính (trái) -->
-  <div class="main-content">
-    <header class="text-center">
-      <h2>Trang Chủ Học Sinh</h2>
-      <hr>
-    </header>
+    <!-- Phần nội dung chính (trái) -->
+    <div class="main-content">
+        <header class="text-center">
+            <h2>Trang Chủ Học Sinh</h2>
+            <hr>
+        </header>
 
-    <nav>
-      <div class="nav-item"><a href="/TinNhanCuaHocSinh"><i class="fas fa-comments"></i> Đoạn Chat</a></div>
-      <div class="nav-item"><a href="/DanhSachBlog"><i class="fas fa-blog"></i> Mục Blog</a></div>
-      <div class="nav-item"><a href="/DanhSachLopHocHocSinh"><i class="fas fa-chalkboard"></i> Lớp Học Của Tôi</a></div>
-      <div class="nav-item"><a href="/TrangCaNhanHocSinh"><i class="fas fa-user"></i> Trang Cá Nhân</a></div>
-      <div class="nav-item"><a href="/DangXuatHocSinh" class="text-danger"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a></div>
-    </nav>
+        <nav>
+            <div class="nav-item"><a href="/TinNhanCuaHocSinh"><i class="fas fa-comments"></i> Đoạn Chat</a></div>
+            <div class="nav-item"><a href="/DanhSachBlog"><i class="fas fa-blog"></i> Mục Blog</a></div>
+            <div class="nav-item"><a href="/DanhSachLopHocHocSinh"><i class="fas fa-chalkboard"></i> Lớp Học Của Tôi</a>
+            </div>
+            <div class="nav-item"><a href="/TrangCaNhan"><i class="fas fa-user"></i> Trang Cá Nhân</a></div>
+            <div class="nav-item"><a class="text-danger" href="/DangXuatHocSinh"><i class="fas fa-sign-out-alt"></i>
+                Đăng Xuất</a></div>
+        </nav>
 
-    <div class="teacher-feedback">
-      <h3><i class="fas fa-star"></i> Nhận Xét Giáo Viên</h3>
-      <form action="/GuiNhanXetGiaoVien" method="POST">
-        <label for="teacher">Chọn Giáo Viên:</label>
-        <select name="teacherId" id="teacher" required>
-          <option value="">-- Chọn giáo viên --</option>
-          <option th:each="teacher : ${teachers}" th:value="${teacher.id}" th:text="${teacher.firstName + ' ' + teacher.lastName}"></option>
-        </select>
-        <label for="comment">Nhận xét:</label>
-        <textarea id="comment" name="text" rows="3" required placeholder="Viết nhận xét của bạn..."></textarea>
-        <button type="submit"><i class="fas fa-paper-plane"></i> Gửi Nhận Xét</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Phần thông báo sự kiện (phải) -->
-  <div class="event-sidebar">
-    <h3><i class="fas fa-bell"></i> Thông Báo Sự Kiện</h3>
-
-    <!-- Danh sách tài liệu -->
-    <div class="document-list">
-      <h3><i class="fas fa-file-alt"></i> Tài liệu</h3>
-      <ul id="document-list">
-        <li th:each="doc : ${documents}">
-          <strong>ID Sự Kiện:</strong> <span th:text="${doc.event.eventId}"></span><br>
-          <strong>Mô tả:</strong> <span th:text="${doc.event.description}"></span>
-        </li>
-      </ul>
-
-      <!-- Phân trang -->
-      <div class="pagination">
-        <button onclick="changePage('document', -1)">⬅ Trang Trước</button>
-        <span id="document-page-info"></span>
-        <button onclick="changePage('document', 1)">Trang Sau ➡</button>
-      </div>
+        <div class="teacher-feedback">
+            <h3><i class="fas fa-star"></i> Nhận Xét Giáo Viên</h3>
+            <form action="/GuiNhanXetGiaoVien" method="POST">
+                <label for="teacher">Chọn Giáo Viên:</label>
+                <select id="teacher" name="teacherId" required>
+                    <option value="">-- Chọn giáo viên --</option>
+                    <option th:each="teacher : ${teachers}" th:text="${teacher.firstName + ' ' + teacher.lastName}"
+                            th:value="${teacher.id}"></option>
+                </select>
+                <label for="comment">Nhận xét:</label>
+                <textarea id="comment" name="text" placeholder="Viết nhận xét của bạn..." required rows="3"></textarea>
+                <button type="submit"><i class="fas fa-paper-plane"></i> Gửi Nhận Xét</button>
+            </form>
+        </div>
     </div>
 
-    <!-- Danh sách bài đăng -->
-    <div class="post-list">
-      <h3><i class="fas fa-newspaper"></i> Bài đăng</h3>
-      <ul id="post-list">
-        <li th:each="post : ${posts}">
-          <strong>ID Sự Kiện:</strong> <span th:text="${post.event.eventId}"></span><br>
-          <strong>Mô tả:</strong> <span th:text="${post.event.description}"></span>
-        </li>
-      </ul>
+    <!-- Phần thông báo sự kiện (phải) -->
+    <div class="event-sidebar">
+        <h3><i class="fas fa-bell"></i> Thông Báo Sự Kiện</h3>
 
-      <!-- Phân trang -->
-      <div class="pagination">
-        <button onclick="changePage('post', -1)">⬅ Trang Trước</button>
-        <span id="post-page-info"></span>
-        <button onclick="changePage('post', 1)">Trang Sau ➡</button>
-      </div>
+        <!-- Danh sách tài liệu -->
+        <div class="document-list">
+            <h3><i class="fas fa-file-alt"></i> Tài liệu</h3>
+            <ul id="document-list">
+                <li th:each="doc : ${documents}">
+                    <strong>ID Sự Kiện:</strong> <span th:text="${doc.event.eventId}"></span><br>
+                    <strong>Mô tả:</strong> <span th:text="${doc.event.description}"></span>
+                </li>
+            </ul>
+
+            <!-- Phân trang -->
+            <div class="pagination">
+                <button onclick="changePage('document', -1)">⬅ Trang Trước</button>
+                <span id="document-page-info"></span>
+                <button onclick="changePage('document', 1)">Trang Sau ➡</button>
+            </div>
+        </div>
+
+        <!-- Danh sách bài đăng -->
+        <div class="post-list">
+            <h3><i class="fas fa-newspaper"></i> Bài đăng</h3>
+            <ul id="post-list">
+                <li th:each="post : ${posts}">
+                    <strong>ID Sự Kiện:</strong> <span th:text="${post.event.eventId}"></span><br>
+                    <strong>Mô tả:</strong> <span th:text="${post.event.description}"></span>
+                </li>
+            </ul>
+
+            <!-- Phân trang -->
+            <div class="pagination">
+                <button onclick="changePage('post', -1)">⬅ Trang Trước</button>
+                <span id="post-page-info"></span>
+                <button onclick="changePage('post', 1)">Trang Sau ➡</button>
+            </div>
+        </div>
+
+        <!-- Danh sách tin nhắn -->
+        <div class="message-list">
+            <h3><i class="fas fa-comments"></i> Tin nhắn</h3>
+            <ul id="message-list">
+                <li th:each="msg : ${messages}">
+                    <strong>ID Sự Kiện:</strong> <span th:text="${msg.event.eventId}"></span><br>
+                    <strong>Mô tả:</strong> <span th:text="${msg.event.description}"></span>
+                </li>
+            </ul>
+
+            <!-- Phân trang -->
+            <div class="pagination">
+                <button onclick="changePage('message', -1)">⬅ Trang Trước</button>
+                <span id="message-page-info"></span>
+                <button onclick="changePage('message', 1)">Trang Sau ➡</button>
+            </div>
+        </div>
     </div>
-
-    <!-- Danh sách tin nhắn -->
-    <div class="message-list">
-      <h3><i class="fas fa-comments"></i> Tin nhắn</h3>
-      <ul id="message-list">
-        <li th:each="msg : ${messages}">
-          <strong>ID Sự Kiện:</strong> <span th:text="${msg.event.eventId}"></span><br>
-          <strong>Mô tả:</strong> <span th:text="${msg.event.description}"></span>
-        </li>
-      </ul>
-
-      <!-- Phân trang -->
-      <div class="pagination">
-        <button onclick="changePage('message', -1)">⬅ Trang Trước</button>
-        <span id="message-page-info"></span>
-        <button onclick="changePage('message', 1)">Trang Sau ➡</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
-  let pagination = {
-    document: { currentPage: 1, perPage: 5, listId: "document-list", pageInfoId: "document-page-info" },
-    post: { currentPage: 1, perPage: 5, listId: "post-list", pageInfoId: "post-page-info" },
-    message: { currentPage: 1, perPage: 5, listId: "message-list", pageInfoId: "message-page-info" }
-  };
+    let pagination = {
+        document: {currentPage: 1, perPage: 5, listId: "document-list", pageInfoId: "document-page-info"},
+        post: {currentPage: 1, perPage: 5, listId: "post-list", pageInfoId: "post-page-info"},
+        message: {currentPage: 1, perPage: 5, listId: "message-list", pageInfoId: "message-page-info"}
+    };
 
-  function showPage(type) {
-    let config = pagination[type];
-    let list = document.getElementById(config.listId);
-    let items = list.getElementsByTagName("li");
-    let totalItems = items.length;
-    let totalPages = Math.ceil(totalItems / config.perPage);
+    function showPage(type) {
+        let config = pagination[type];
+        let list = document.getElementById(config.listId);
+        let items = list.getElementsByTagName("li");
+        let totalItems = items.length;
+        let totalPages = Math.ceil(totalItems / config.perPage);
 
-    for (let i = 0; i < totalItems; i++) {
-      items[i].style.display = "none";
+        for (let i = 0; i < totalItems; i++) {
+            items[i].style.display = "none";
+        }
+
+        let start = (config.currentPage - 1) * config.perPage;
+        let end = start + config.perPage;
+        for (let i = start; i < end && i < totalItems; i++) {
+            items[i].style.display = "block";
+        }
+
+        document.getElementById(config.pageInfoId).textContent = `Trang ${config.currentPage} / ${totalPages}`;
     }
 
-    let start = (config.currentPage - 1) * config.perPage;
-    let end = start + config.perPage;
-    for (let i = start; i < end && i < totalItems; i++) {
-      items[i].style.display = "block";
+    function changePage(type, direction) {
+        let config = pagination[type];
+        let list = document.getElementById(config.listId);
+        let totalItems = list.getElementsByTagName("li").length;
+        let totalPages = Math.ceil(totalItems / config.perPage);
+
+        config.currentPage += direction;
+        if (config.currentPage < 1) config.currentPage = 1;
+        if (config.currentPage > totalPages) config.currentPage = totalPages;
+
+        showPage(type);
     }
 
-    document.getElementById(config.pageInfoId).textContent = `Trang ${config.currentPage} / ${totalPages}`;
-  }
-
-  function changePage(type, direction) {
-    let config = pagination[type];
-    let list = document.getElementById(config.listId);
-    let totalItems = list.getElementsByTagName("li").length;
-    let totalPages = Math.ceil(totalItems / config.perPage);
-
-    config.currentPage += direction;
-    if (config.currentPage < 1) config.currentPage = 1;
-    if (config.currentPage > totalPages) config.currentPage = totalPages;
-
-    showPage(type);
-  }
-
-  document.addEventListener("DOMContentLoaded", function () {
-    showPage("document");
-    showPage("post");
-    showPage("message");
-  });
+    document.addEventListener("DOMContentLoaded", function () {
+        showPage("document");
+        showPage("post");
+        showPage("message");
+    });
 </script>
 
 </body>

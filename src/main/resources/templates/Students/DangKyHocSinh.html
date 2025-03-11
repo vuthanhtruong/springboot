@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Đăng Ký Học Sinh</title>
-    <link rel="stylesheet" href="/DangKyHocSinh.css">
+    <link href="/DangKyHocSinh.css" rel="stylesheet">
 </head>
 <body class="d-flex align-items-center justify-content-center vh-100 bg-light">
 
@@ -13,58 +13,59 @@
             <div class="card shadow-lg p-4">
                 <h2 class="text-center mb-4">Đăng Ký Học Sinh</h2>
 
-                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
 
                 <form action="/DangKyHocSinh" method="post">
                     <div class="mb-3">
-                        <label for="studentID" class="form-label">Mã Học Sinh (StudentID)</label>
-                        <input type="text" id="studentID" name="StudentID" class="form-control" required>
+                        <label class="form-label" for="studentID">Mã Học Sinh (StudentID)</label>
+                        <input class="form-control" id="studentID" name="StudentID" required type="text">
                         <div class="text-danger" th:if="${errorStudentID}" th:text="${errorStudentID}"></div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="password" class="form-label">Mật Khẩu</label>
-                        <input type="password" id="password" name="Password" class="form-control" required>
+                        <label class="form-label" for="password">Mật Khẩu</label>
+                        <input class="form-control" id="password" name="Password" required type="password">
                     </div>
                     <div class="mb-3">
-                        <label for="ConfirmPassword" class="form-label">Nhập lại mật khẩu</label>
-                        <input type="password" id="ConfirmPassword" name="ConfirmPassword" class="form-control" required>
+                        <label class="form-label" for="ConfirmPassword">Nhập lại mật khẩu</label>
+                        <input class="form-control" id="ConfirmPassword" name="ConfirmPassword" required
+                               type="password">
                         <div class="text-danger" th:if="${errorPassword}" th:text="${errorPassword}"></div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="firstName" class="form-label">Họ</label>
-                        <input type="text" id="firstName" name="FirstName" class="form-control" required>
+                        <label class="form-label" for="firstName">Họ</label>
+                        <input class="form-control" id="firstName" name="FirstName" required type="text">
                     </div>
 
                     <div class="mb-3">
-                        <label for="lastName" class="form-label">Tên</label>
-                        <input type="text" id="lastName" name="LastName" class="form-control" required>
+                        <label class="form-label" for="lastName">Tên</label>
+                        <input class="form-control" id="lastName" name="LastName" required type="text">
                     </div>
 
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" id="email" name="Email" class="form-control" required>
+                        <label class="form-label" for="email">Email</label>
+                        <input class="form-control" id="email" name="Email" required type="email">
                         <div class="text-danger" th:if="${errorEmail}" th:text="${errorEmail}"></div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="phoneNumber" class="form-label">Số Điện Thoại</label>
-                        <input type="text" id="phoneNumber" name="PhoneNumber" class="form-control" required>
+                        <label class="form-label" for="phoneNumber">Số Điện Thoại</label>
+                        <input class="form-control" id="phoneNumber" name="PhoneNumber" required type="text">
                     </div>
 
                     <div class="mb-3">
-                        <label for="misId" class="form-label">MIS ID</label>
-                        <input type="text" id="misId" name="MisId" class="form-control">
+                        <label class="form-label" for="misId">MIS ID</label>
+                        <input class="form-control" id="misId" name="MisId" type="text">
                     </div>
 
                     <div class="mb-3">
-                        <label for="employeeID" class="form-label">Nhân Viên Quản Lý</label>
-                        <select id="employeeID" name="EmployeeID" class="form-select" required>
+                        <label class="form-label" for="employeeID">Nhân Viên Quản Lý</label>
+                        <select class="form-select" id="employeeID" name="EmployeeID" required>
                             <option value="">-- Chọn Nhân Viên --</option>
                             <option th:each="employee : ${employees}"
-                                    th:value="${employee.id}"
-                                    th:text="${employee.firstName + ' ' + employee.lastName}">
+                                    th:text="${employee.firstName + ' ' + employee.lastName}"
+                                    th:value="${employee.id}">
                             </option>
 
                         </select>
@@ -72,8 +73,8 @@
                     </div>
 
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success">Đăng Ký</button>
-                        <a href="/DangNhapHocSinh" class="btn btn-outline-secondary">Quay Lại Đăng Nhập</a>
+                        <button class="btn btn-success" type="submit">Đăng Ký</button>
+                        <a class="btn btn-outline-secondary" href="/TrangChu">Quay Lại Đăng Nhập</a>
                     </div>
                 </form>
             </div>

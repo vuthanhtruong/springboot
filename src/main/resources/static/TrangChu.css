@@ -2,7 +2,7 @@
 
 :root {
     --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-bg: rgba(255, 255, 255, 0.15);
     --border-glass: rgba(255, 255, 255, 0.3);
     --shadow-glass: rgba(0, 0, 0, 0.5);
     --neon-blue: #00eaff;
@@ -33,95 +33,141 @@ body {
 }
 
 .container {
-    max-width: 90%;
+    max-width: 600px;
     background: var(--glass-bg);
-    padding: 40px;
-    border-radius: 20px;
+    padding: 30px;
+    border-radius: 15px;
     border: 2px solid var(--border-glass);
-    box-shadow: 0 0 30px var(--shadow-glass);
-    backdrop-filter: blur(20px);
-    transition: 0.4s;
+    box-shadow: 0 0 20px var(--shadow-glass);
+    backdrop-filter: blur(15px);
+    transition: transform 0.3s ease-in-out;
 }
 
 .container:hover {
-    box-shadow: 0 0 40px var(--neon-blue);
-    transform: scale(1.03);
+    transform: scale(1.02);
+    box-shadow: 0 0 30px var(--neon-blue);
 }
 
-/* Hiệu ứng tiêu đề */
 h1 {
-    text-transform: uppercase;
     font-size: 2rem;
-    text-shadow: 0 0 25px var(--neon-blue), 0 0 40px var(--neon-purple);
-    margin-bottom: 30px;
+    text-shadow: 0 0 15px var(--neon-blue), 0 0 25px var(--neon-purple);
+    margin-bottom: 20px;
     animation: glowAnimation 1.5s infinite alternate;
 }
 
-/* Hiệu ứng phát sáng động */
 @keyframes glowAnimation {
     from {
-        text-shadow: 0 0 20px var(--neon-blue), 0 0 30px var(--neon-purple);
+        text-shadow: 0 0 15px var(--neon-blue), 0 0 25px var(--neon-purple);
     }
     to {
-        text-shadow: 0 0 30px var(--neon-pink), 0 0 50px var(--neon-green);
+        text-shadow: 0 0 20px var(--neon-pink), 0 0 30px var(--neon-green);
     }
 }
 
-/* Hiệu ứng cục (button) */
+/* Form đăng nhập */
+.login-form {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid var(--neon-blue);
+    border-radius: 5px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.form-control:focus {
+    border-color: var(--neon-green);
+    box-shadow: 0 0 10px var(--neon-green);
+}
+
+.btn {
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: var(--neon-blue);
+    border: 2px solid var(--neon-blue);
+    color: black;
+}
+
+.btn-success {
+    background: var(--neon-green);
+    border: 2px solid var(--neon-green);
+    color: black;
+}
+
+.btn-warning {
+    background: var(--neon-yellow);
+    border: 2px solid var(--neon-yellow);
+    color: black;
+}
+
+.btn-secondary {
+    background: var(--neon-pink);
+    border: 2px solid var(--neon-pink);
+    color: black;
+}
+
+.btn:hover {
+    transform: scale(1.1);
+    color: white;
+    box-shadow: 0 0 20px var(--neon-blue), 0 0 25px var(--neon-purple);
+}
+
+/* Căn các nút đăng ký ngang hàng */
 .d-grid {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
     justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 .d-grid a {
-    display: inline-block;
-    min-width: 250px;
-    padding: 18px 25px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: black;
+    flex: 1;
+    min-width: 180px;
+    padding: 15px;
     text-align: center;
-    border-radius: 15px;
-    border: 2px solid transparent;
-    position: relative;
-    overflow: hidden;
-    transition: 0.4s ease-in-out;
-    box-shadow: 0 0 15px var(--neon-blue);
+    font-size: 1rem;
 }
 
-/* Mỗi nút có màu neon khác nhau */
-.d-grid a:nth-child(1) { background: var(--neon-blue); border-color: var(--neon-blue); }
-.d-grid a:nth-child(2) { background: var(--neon-green); border-color: var(--neon-green); }
-.d-grid a:nth-child(3) { background: var(--neon-yellow); border-color: var(--neon-yellow); }
-.d-grid a:nth-child(4) { background: var(--neon-pink); border-color: var(--neon-pink); }
-
-/* Hover effect */
-.d-grid a:hover {
-    color: white;
-    transform: scale(1.1);
-    box-shadow: 0 0 25px var(--neon-blue), 0 0 35px var(--neon-purple);
+/* Link Quên mật khẩu */
+.forgot-password {
+    margin-top: 15px;
+    font-size: 0.9rem;
 }
 
-/* Hiệu ứng phát sáng chuyển động */
-.d-grid a::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    transition: 0.4s;
+.forgot-password a {
+    color: var(--neon-pink);
+    text-decoration: none;
+    font-weight: bold;
 }
 
-.d-grid a:hover::before {
-    left: 100%;
+.forgot-password a:hover {
+    text-shadow: 0 0 10px var(--neon-pink);
 }
 
-/* Hiệu ứng xuất hiện */
+/* Hiệu ứng fadeIn */
 @keyframes fadeIn {
     from {
         opacity: 0;

@@ -209,25 +209,6 @@ public class GiaoVienPost {
         return "redirect:/ChiTietLopHocGiaoVien/" + roomId;
     }
 
-    @PostMapping("/LuuThongTinGiaoVien")
-    public String LuuThongTinGiaoVien(@RequestParam("firstName") String firstName, @RequestParam("lastName") String lastName,
-                                      @RequestParam("email") String email,
-                                      @RequestParam("misID") String misID, @RequestParam("phoneNumber") String phoneNumber, HttpSession session) {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String teacherId = authentication.getName();
-        Person person = entityManager.find(Person.class, teacherId);
-        Teachers teacher = (Teachers) person;
-
-        teacher.setFirstName(firstName);
-        teacher.setLastName(lastName);
-        teacher.setEmail(email);
-        teacher.setMisID(misID);
-        teacher.setPhoneNumber(phoneNumber);
-        entityManager.persist(teacher);
-        return "redirect:/TrangCaNhanGiaoVien";
-    }
-
     @Transactional
     @PostMapping("/BinhLuanGiaoVien")
     public String themBinhLuan(@RequestParam("postId") Long postId,

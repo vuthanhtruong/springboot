@@ -1,23 +1,42 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trang Chủ</title>
-  <link rel="stylesheet"
-        href="/TrangChu.css">
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Trang Chủ</title>
+    <link href="/TrangChu.css" rel="stylesheet">
 </head>
 <body>
-<div class="container text-center mt-5">
-  <h1 class="mb-4">Chào mừng đến với Trang Chủ</h1>
+<div class="container text-center">
+    <h1>Chào mừng đến với Trang Chủ</h1>
 
-  <div class="d-grid gap-3">
-    <a href="/DangNhapHocSinh" class="btn btn-primary btn-lg">Dành cho Sinh viên</a>
-    <a href="/DangNhapGiaoVien" class="btn btn-success btn-lg">Dành cho Giáo viên</a>
-    <a href="/DangNhapNhanVien" class="btn btn-warning btn-lg">Dành cho Nhân viên</a>
-    <a href="/DangNhapAdmin" class="btn btn-warning btn-lg">Dành cho Admin</a>
-  </div>
+    <!-- Form Đăng Nhập -->
+    <div class="login-form">
+        <h2>Đăng Nhập</h2>
+        <form action="/login" method="POST">
+            <div class="mb-3">
+                <label class="form-label" for="username">Tên đăng nhập:</label>
+                <input class="form-control" id="username" name="username" required type="text">
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="password">Mật khẩu:</label>
+                <input class="form-control" id="password" name="password" required type="password">
+            </div>
+            <button class="btn btn-primary" type="submit">Đăng Nhập</button>
+        </form>
+
+        <!-- Link Quên Mật Khẩu -->
+        <div class="forgot-password">
+            <a href="/QuenMatKhau">Quên mật khẩu?</a>
+        </div>
+    </div>
+
+    <!-- Các liên kết đăng ký -->
+    <div class="d-grid">
+        <a class="btn btn-primary" href="/DangKyHocSinh">Đăng ký học sinh</a>
+        <a class="btn btn-success" href="/DangKyGiaoVien">Đăng ký giáo viên</a>
+        <a class="btn btn-warning" href="/DangKyNhanVien">Đăng ký nhân viên</a>
+    </div>
 </div>
-
 </body>
 </html>

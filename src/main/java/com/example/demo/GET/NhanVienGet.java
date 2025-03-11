@@ -3,20 +3,24 @@ package com.example.demo.GET;
 import com.example.demo.OOP.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/")
@@ -28,35 +32,34 @@ public class NhanVienGet {
     @Autowired
     private JavaMailSender mailSender; // Không khai báo lại ở nơi khác
 
-
     @GetMapping("/DangKyNhanVien")
     public String DangKyNhanVien() {
         return "DangKyNhanVien";
     }
+
     @GetMapping("/TrangChuNhanVien")
     public String TrangChuNhanVien(ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
-        Employees employee = entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName(); // AdminID đã đăng nhập
+
+        // Tìm Admin trong database bằng EntityManager
+        Employees employee = entityManager.find(Employees.class, employeeId);
+
         model.addAttribute("employee", employee);
         return "TrangChuNhanVien";
     }
+
     @GetMapping("/TrangCaNhanNhanVien")
     public String TrangCaNhanNhanVien(HttpSession session, ModelMap model) {
-        if(session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
-        Employees employee = entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName(); // AdminID đã đăng nhập
+
+        // Tìm Admin trong database bằng EntityManager
+        Employees employee = entityManager.find(Employees.class, employeeId);
         model.addAttribute("employee", employee);
         return "TrangCaNhanNhanVien";
     }
 
-    @GetMapping("/DangXuatNhanVien")
-    public String DangXuatGiaoVien(HttpSession session) {
-        session.invalidate();
-        return "redirect:/DangNhapNhanVien";
-    }
     @GetMapping("/DanhSachGiaoVienCuaBan")
     public String DanhSachGiaoVienCuaBan(
             ModelMap model,
@@ -64,9 +67,11 @@ public class NhanVienGet {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) Integer pageSizeParam
     ) {
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName(); // AdminID đã đăng nhập
+
+        // Tìm Admin trong database bằng EntityManager
+        Employees employee = entityManager.find(Employees.class, employeeId);
 
         // Lấy pageSize từ session nếu chưa có thì mặc định 5
         Integer pageSize = (Integer) session.getAttribute("pageSize2");
@@ -79,7 +84,7 @@ public class NhanVienGet {
         // Đếm tổng số giáo viên
         Long totalTeachers = (Long) entityManager.createQuery(
                         "SELECT COUNT(t) FROM Teachers t WHERE t.employee.id = :employeeId")
-                .setParameter("employeeId", session.getAttribute("EmployeeID"))
+                .setParameter("employeeId", employee.getId())
                 .getSingleResult();
 
         // Tránh lỗi chia cho 0
@@ -116,14 +121,11 @@ public class NhanVienGet {
     }
 
 
-
     @GetMapping("/ThemGiaoVienCuaBan")
     public String ThemGiaoVienCuaBan(HttpSession session, ModelMap model) {
-        if(session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
         return "ThemGiaoVienCuaBan";
     }
+
     @GetMapping("/DanhSachHocSinhCuaBan")
     public String DanhSachHocSinhCuaBan(
             ModelMap model,
@@ -131,9 +133,11 @@ public class NhanVienGet {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) Integer pageSize // Cho phép null
     ) {
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName(); // AdminID đã đăng nhập
+
+        // Tìm Admin trong database bằng EntityManager
+        Employees employee = entityManager.find(Employees.class, employeeId);
 
         // Nếu pageSize là null, lấy từ session hoặc đặt mặc định là 5
         if (pageSize == null) {
@@ -149,7 +153,7 @@ public class NhanVienGet {
         // Đếm tổng số học sinh thuộc nhân viên hiện tại
         Long totalStudents = (Long) entityManager.createQuery(
                         "SELECT COUNT(s) FROM Students s WHERE s.employee.id = :employeeId")
-                .setParameter("employeeId", session.getAttribute("EmployeeID"))
+                .setParameter("employeeId", employee.getId())
                 .getSingleResult();
 
         if (totalStudents == 0) {
@@ -187,11 +191,10 @@ public class NhanVienGet {
 
     @GetMapping("/ThemHocSinhCuaBan")
     public String ThemHocSinhCuaBan(ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
+
         return "ThemHocSinhCuaBan";
     }
+
     @GetMapping("/DanhSachNguoiDungHeThong")
     public String DanhSachNguoiDungHeThong(
             HttpSession session,
@@ -201,11 +204,6 @@ public class NhanVienGet {
             @RequestParam(defaultValue = "1") int pageStudents,
             @RequestParam(required = false) Integer pageSize // Cho phép null
     ) {
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
-
-        // Nếu pageSize là null, lấy từ session hoặc mặc định là 5
         if (pageSize == null) {
             pageSize = (Integer) session.getAttribute("pageSize4");
             if (pageSize == null) {
@@ -253,8 +251,14 @@ public class NhanVienGet {
                 .setMaxResults(pageSize)
                 .getResultList();
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName(); // AdminID đã đăng nhập
+
+        // Tìm Admin trong database bằng EntityManager
+        Employees employee = entityManager.find(Employees.class, employeeId);
+
         // Lấy thông tin admin từ EmployeeID
-        Employees employee1 = entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
+        Employees employee1 = entityManager.find(Employees.class, employee.getId());
         Admin admin = employee1.getAdmin();
 
         // ========== ĐƯA DỮ LIỆU LÊN GIAO DIỆN ==========
@@ -281,9 +285,6 @@ public class NhanVienGet {
     @GetMapping("/XoaGiaoVienCuaBan/{id}")
     @Transactional
     public String XoaGiaoVienCuaBan(@PathVariable String id, ModelMap model, HttpSession session) {
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
 
         Teachers teacher = entityManager.find(Teachers.class, id);
         if (teacher == null) {
@@ -300,10 +301,6 @@ public class NhanVienGet {
     @GetMapping("/XoaHocSinhCuaBan/{id}")
     @Transactional
     public String XoaHocSinhCuaBan(@PathVariable String id, ModelMap model, HttpSession session) {
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
-
         Students student = entityManager.find(Students.class, id);
         if (student == null) {
             model.addAttribute("error", "Không tìm thấy học sinh cần xóa!");
@@ -324,22 +321,18 @@ public class NhanVienGet {
 
     @GetMapping("/SuaGiaoVienCuaBan/{id}")
     public String SuaGiaoVienCuaBan(ModelMap model, @PathVariable("id") String id, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
-        Teachers teachers=entityManager.find(Teachers.class, id);
+        Teachers teachers = entityManager.find(Teachers.class, id);
         model.addAttribute("teachers", teachers);
         return "SuaGiaoVienCuaBan";
     }
+
     @GetMapping("/SuaHocSinhCuaBan/{id}")
     public String SuaHocSinhCuaBan(ModelMap model, @PathVariable("id") String id, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
-        Students students=entityManager.find(Students.class, id);
+        Students students = entityManager.find(Students.class, id);
         model.addAttribute("students", students);
         return "SuaHocSinhCuaBan";
     }
+
     @GetMapping("/DanhSachPhongHoc")
     public String DanhSachPhongHoc(
             ModelMap model,
@@ -348,11 +341,6 @@ public class NhanVienGet {
             @RequestParam(defaultValue = "1") int pageOnline,
             @RequestParam(required = false) Integer pageSize // Cho phép null
     ) {
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
-
-        // Nếu pageSize là null, lấy từ session hoặc mặc định là 5
         if (pageSize == null) {
             pageSize = (Integer) session.getAttribute("pageSize3");
             if (pageSize == null) {
@@ -404,23 +392,19 @@ public class NhanVienGet {
 
     @GetMapping("/ThemPhongHoc")
     public String ThemPhongHoc(ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
+
         return "ThemPhongHoc";
     }
+
     @GetMapping("/ThemPhongHocOnline")
     public String ThemPhongHocOnline(ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
+
         return "ThemPhongHocOnline";
     }
+
     @GetMapping("/SuaPhongHocOffline/{id}")
     public String SuaPhongHoc(ModelMap model, @PathVariable("id") String id, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
+
         Rooms room = entityManager.find(Rooms.class, id);
 
         if (room == null) {
@@ -430,13 +414,10 @@ public class NhanVienGet {
 
         return "SuaPhongHoc";
     }
+
     @GetMapping("/SuaPhongHocOnline/{id}")
     public String SuaPhongHocOnline(@PathVariable("id") String roomId, ModelMap model, HttpSession session) {
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
 
-        // Tìm phòng học online theo ID
         OnlineRooms room = entityManager.find(OnlineRooms.class, roomId);
         if (room == null) {
             return "redirect:/DanhSachPhongHoc?error=RoomNotFound";
@@ -496,9 +477,6 @@ public class NhanVienGet {
 
     @GetMapping("/BoTriLopHoc")
     public String BoTriLopHoc(ModelMap model, HttpSession session) {
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
 
         // Lấy danh sách phòng học offline
         List<Rooms> offlineRooms = entityManager.createQuery("FROM Rooms", Rooms.class).getResultList();
@@ -512,12 +490,9 @@ public class NhanVienGet {
 
         return "BoTriLopHoc";
     }
+
     @GetMapping("/ChiTietLopHoc/{id}")
     public String ChiTietLopHoc(ModelMap model, @PathVariable("id") String id, HttpSession session) {
-        // Kiểm tra xem EmployeeID có trong session không
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
 
         // Xác định loại phòng (Online hoặc Offline)
         Room room = entityManager.find(Room.class, id);
@@ -565,11 +540,7 @@ public class NhanVienGet {
     @Transactional
     @GetMapping("/XoaGiaoVienTrongLop")
     public String XoaGiaoVienTrongLop(@RequestParam String teacherId, @RequestParam String roomId, HttpSession session) {
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
 
-        // Tìm đối tượng Room theo ID
         Room room = entityManager.find(Room.class, roomId);
         if (room == null) {
             return "redirect:/ChiTietLopHoc/" + roomId + "?error=RoomNotFound";
@@ -602,9 +573,6 @@ public class NhanVienGet {
     @Transactional
     @GetMapping("/XoaHocSinhTrongLop")
     public String XoaHocSinhTrongLop(@RequestParam String studentId, @RequestParam String roomId, HttpSession session) {
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
 
         Room room = entityManager.find(Room.class, roomId);
         if (room == null) {
@@ -637,11 +605,11 @@ public class NhanVienGet {
 
     @GetMapping("/GuiThongBao/{id}")
     public String GuiThongBao(@PathVariable("id") String id, HttpSession session) {
-        // Kiểm tra đăng nhập
-        Employees employee = entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
-        if (employee == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName(); // AdminID đã đăng nhập
+
+        // Tìm Admin trong database bằng EntityManager
+        Employees employee = entityManager.find(Employees.class, employeeId);
 
         // Lấy phòng học theo ID
         Room room = entityManager.find(Room.class, id);
@@ -662,16 +630,15 @@ public class NhanVienGet {
             // Xác định email người nhận
             String recipientEmail = null;
             if (member instanceof Students) {
-                recipientEmail = ((Students) member).getEmail();
+                recipientEmail = member.getEmail();
             } else if (member instanceof Teachers) {
-                recipientEmail = ((Teachers) member).getEmail();
+                recipientEmail = member.getEmail();
             }
 
             if (recipientEmail != null) {
                 // Xác định nội dung tin nhắn dựa vào loại phòng học
                 String messageContent;
-                if (room instanceof OnlineRooms) {
-                    OnlineRooms onlineRoom = (OnlineRooms) room;
+                if (room instanceof OnlineRooms onlineRoom) {
                     messageContent = "Lịch trình học Online của bạn bắt đầu từ " +
                             onlineRoom.getStartTime() + " đến hết " + onlineRoom.getEndTime();
                 } else {
@@ -728,13 +695,13 @@ public class NhanVienGet {
     public String BangDieuKhienNhanVien(@PathVariable("id") String id, ModelMap model) {
         Employees employee = entityManager.find(Employees.class, id);
 
-        List<Room> room= entityManager.createQuery("from Room r where r.employee=:employee", Room.class).
+        List<Room> room = entityManager.createQuery("from Room r where r.employee=:employee", Room.class).
                 setParameter("employee", employee).getResultList();
 
-        List<Teachers> teachers=entityManager.createQuery("from Teachers t where t.employee=:employee", Teachers.class).
+        List<Teachers> teachers = entityManager.createQuery("from Teachers t where t.employee=:employee", Teachers.class).
                 setParameter("employee", employee).getResultList();
 
-        List<Students> students=entityManager.createQuery("from Students s where s.employee=:employee", Students.class).
+        List<Students> students = entityManager.createQuery("from Students s where s.employee=:employee", Students.class).
                 setParameter("employee", employee).getResultList();
         model.addAttribute("room", room);
         model.addAttribute("teachers", teachers);
@@ -742,11 +709,9 @@ public class NhanVienGet {
         model.addAttribute("employee", employee);
         return "BangDieuKhienNhanVien";
     }
+
     @GetMapping("/BangDieuKhienHocSinh/{id}")
     public String BangDieuKhienHocSinh(@PathVariable("id") String id, ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") == null && session.getAttribute("TeacherID") == null){
-            return "redirect:/TrangChu";
-        }
 
         Students student = entityManager.find(Students.class, id);
         if (student == null) {
@@ -804,12 +769,10 @@ public class NhanVienGet {
 
         return "BangDieuKhienHocSinh";
     }
+
     @GetMapping("/BangDieuKhienGiaoVien/{id}")
     public String BangDieuKhienGiaoVien(@PathVariable("id") String id, ModelMap model, HttpSession session) {
-        // Find the teacher using the provided ID
-        if(session.getAttribute("EmployeeID") == null && session.getAttribute("TeacherID") == null){
-            return "redirect:/TrangChu";
-        }
+
         Teachers teacher = entityManager.find(Teachers.class, id);
         if (teacher == null) {
             model.addAttribute("errorMessage", "Teacher not found");
@@ -869,15 +832,18 @@ public class NhanVienGet {
 
         return "BangDieuKhienGiaoVien"; // Ensure this matches the actual view file name
     }
+
     @GetMapping("/FeedbackHocSinh")
     public String FeedbackHocSinh(ModelMap model, HttpSession session) {
-        if(session.getAttribute("EmployeeID") != null){
-            return "redirect:/DangNhapNhanVien";
-        }
-        Employees employees=entityManager.find(Employees.class, session.getAttribute("EmployeeID"));
 
-        List<Feedbacks> feedbacks=entityManager.createQuery("from Feedbacks f where f.receiver=:receiver", Feedbacks.class).
-                setParameter("receiver", employees).getResultList();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName(); // AdminID đã đăng nhập
+
+        // Tìm Admin trong database bằng EntityManager
+        Employees employee = entityManager.find(Employees.class, employeeId);
+
+        List<Feedbacks> feedbacks = entityManager.createQuery("from Feedbacks f where f.receiver=:receiver", Feedbacks.class).
+                setParameter("receiver", employee).getResultList();
 
         model.addAttribute("feedbacks", feedbacks);
 

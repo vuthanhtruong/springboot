@@ -9,8 +9,6 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -27,26 +25,6 @@ public class AdminPost {
     private EntityManager entityManager;
 
     @Transactional
-    @PostMapping("/CapNhatAdmin")
-    public String capNhatAdmin(@RequestParam String id,
-                               @RequestParam String firstName,
-                               @RequestParam String lastName,
-                               @RequestParam String email,
-                               @RequestParam String phoneNumber,
-                               HttpSession session) {
-        // Lấy thông tin AdminID từ Spring Security
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String adminId = authentication.getName(); // Lấy AdminID từ SecurityContext
-        Admin admin = entityManager.find(Admin.class, adminId);
-
-        admin.setFirstName(firstName);
-        admin.setLastName(lastName);
-        admin.setEmail(email);
-        admin.setPhoneNumber(phoneNumber);
-        entityManager.merge(admin);
-
-        return "redirect:/TrangChuAdmin";
-    }
 
     @PostMapping("/ThemGiaoVien")
     public String ThemGiaoVien(

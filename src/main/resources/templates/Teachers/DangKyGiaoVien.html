@@ -1,81 +1,80 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Đăng Ký Giáo Viên</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="DangKyGiaoVien.css">
+    <meta charset="UTF-8">
+    <title>Đăng Ký Giáo Viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="DangKyGiaoVien.css" rel="stylesheet">
 </head>
 <body>
 
 <div class="container mt-5">
-  <h1 class="text-center">Đăng Ký Giáo Viên</h1>
+    <h1 class="text-center">Đăng Ký Giáo Viên</h1>
 
-  <!-- Hiển thị lỗi chung từ server -->
-  <div th:if="${errorMessage}" class="alert alert-danger text-center" role="alert">
-    <span th:text="${errorMessage}"></span>
-  </div>
-
-  <!-- Form đăng ký giáo viên -->
-  <form th:action="@{/DangKyGiaoVien}" method="POST">
-    <div class="mb-3">
-      <label for="employeeID" class="form-label">Chọn Nhân Viên:</label>
-      <select id="employeeID" name="EmployeeID" class="form-select" required>
-        <option value="" disabled selected>Chọn Nhân Viên</option>
-        <th:block th:each="employee : ${employees}">
-          <option th:value="${employee.id}" th:text="${employee.firstName + ' ' + employee.lastName}"></option>
-        </th:block>
-      </select>
+    <!-- Hiển thị lỗi chung từ server -->
+    <div class="alert alert-danger text-center" role="alert" th:if="${errorMessage}">
+        <span th:text="${errorMessage}"></span>
     </div>
 
-    <div class="mb-3">
-      <label for="TeacherID" class="form-label">ID Giáo Viên</label>
-      <input type="text" id="TeacherID" name="TeacherID" class="form-control" required>
-      <div th:if="${teacherIDError}" class="text-danger" th:text="${teacherIDError}"></div>
-    </div>
+    <!-- Form đăng ký giáo viên -->
+    <form method="POST" th:action="@{/DangKyGiaoVien}">
+        <div class="mb-3">
+            <label class="form-label" for="TeacherID">ID Giáo Viên</label>
+            <input class="form-control" id="TeacherID" name="TeacherID" required type="text">
+            <div class="text-danger" th:if="${teacherIDError}" th:text="${teacherIDError}"></div>
+        </div>
 
-    <div class="mb-3">
-      <label for="FirstName" class="form-label">Họ:</label>
-      <input type="text" id="FirstName" name="FirstName" class="form-control" required>
-    </div>
+        <div class="mb-3">
+            <label class="form-label" for="FirstName">Họ:</label>
+            <input class="form-control" id="FirstName" name="FirstName" required type="text">
+        </div>
 
-    <div class="mb-3">
-      <label for="LastName" class="form-label">Tên:</label>
-      <input type="text" id="LastName" name="LastName" class="form-control" required>
-    </div>
+        <div class="mb-3">
+            <label class="form-label" for="LastName">Tên:</label>
+            <input class="form-control" id="LastName" name="LastName" required type="text">
+        </div>
 
-    <div class="mb-3">
-      <label for="Email" class="form-label">Email:</label>
-      <input type="email" id="Email" name="Email" class="form-control" required>
-      <div th:if="${emailError}" class="text-danger" th:text="${emailError}"></div>
-    </div>
+        <div class="mb-3">
+            <label class="form-label" for="Email">Email:</label>
+            <input class="form-control" id="Email" name="Email" required type="email">
+            <div class="text-danger" th:if="${emailError}" th:text="${emailError}"></div>
+        </div>
 
-    <div class="mb-3">
-      <label for="PhoneNumber" class="form-label">Số Điện Thoại:</label>
-      <input type="text" id="PhoneNumber" name="PhoneNumber" class="form-control" required>
-    </div>
+        <div class="mb-3">
+            <label class="form-label" for="PhoneNumber">Số Điện Thoại:</label>
+            <input class="form-control" id="PhoneNumber" name="PhoneNumber" required type="text">
+        </div>
 
-    <div class="mb-3">
-      <label for="MisID" class="form-label">Mã Giảng Viên (MIS ID - nếu có):</label>
-      <input type="text" id="MisID" name="MisID" class="form-control">
-    </div>
+        <div class="mb-3">
+            <label class="form-label" for="MisID">Mã Giảng Viên (MIS ID - nếu có):</label>
+            <input class="form-control" id="MisID" name="MisID" type="text">
+        </div>
 
-    <div class="mb-3">
-      <label for="Password" class="form-label">Mật Khẩu:</label>
-      <input type="password" id="Password" name="Password" class="form-control" required>
-    </div>
+        <div class="mb-3">
+            <label class="form-label" for="Password">Mật Khẩu:</label>
+            <input class="form-control" id="Password" name="Password" required type="password">
+        </div>
 
-    <div class="mb-3">
-      <label for="ConfirmPassword" class="form-label">Xác Nhận Mật Khẩu:</label>
-      <input type="password" id="ConfirmPassword" name="ConfirmPassword" class="form-control" required>
-      <div th:if="${passwordError}" class="text-danger" th:text="${passwordError}"></div>
-    </div>
-
-    <div class="d-flex justify-content-between">
-      <button type="submit" class="btn btn-primary">Đăng Ký</button>
-      <a href="/DangNhapGiaoVien" class="btn btn-outline-secondary">Quay Lại Đăng Nhập</a>
-    </div>
-  </form>
+        <div class="mb-3">
+            <label class="form-label" for="ConfirmPassword">Xác Nhận Mật Khẩu:</label>
+            <input class="form-control" id="ConfirmPassword" name="ConfirmPassword" required type="password">
+            <div class="text-danger" th:if="${passwordError}" th:text="${passwordError}"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="employeeID">Chọn Nhân Viên:</label>
+            <select class="form-select" id="employeeID" name="EmployeeID" required>
+                <option disabled selected value="">Chọn Nhân Viên</option>
+                <th:block th:each="employee : ${employees}">
+                    <option th:text="${employee.firstName + ' ' + employee.lastName}"
+                            th:value="${employee.id}"></option>
+                </th:block>
+            </select>
+        </div>
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-primary" type="submit">Đăng Ký</button>
+            <a class="btn btn-outline-secondary" href="/TrangChu">Quay Lại Đăng Nhập</a>
+        </div>
+    </form>
 </div>
 
 </body>

@@ -627,43 +627,5 @@ public class NhanVienPost {
         return "redirect:/DanhSachNguoiDungHeThong";
     }
 
-    @PostMapping("/CapNhatTrangCaNhan")
-    public String CapNhatTrangCaNhan(
-            @RequestParam String employeeId,
-            @RequestParam String fullName,
-            @RequestParam String email,
-            @RequestParam String phoneNumber,
-            HttpSession session,
-            ModelMap model) {
-
-        if (session.getAttribute("EmployeeID") == null) {
-            return "redirect:/DangNhapNhanVien";
-        }
-
-        Employees employee = entityManager.find(Employees.class, employeeId);
-        if (employee == null) {
-            model.addAttribute("error", "Không tìm thấy nhân viên.");
-            return "TrangCaNhanNhanVien";
-        }
-
-        // Kiểm tra dữ liệu đầu vào
-        if (fullName.trim().isEmpty() || email.trim().isEmpty() || phoneNumber.trim().isEmpty()) {
-            model.addAttribute("error", "Vui lòng nhập đầy đủ thông tin.");
-            return "TrangCaNhanNhanVien";
-        }
-
-        // Cập nhật thông tin
-        String[] nameParts = fullName.split(" ", 2);
-        employee.setFirstName(nameParts.length > 1 ? nameParts[0] : fullName);
-        employee.setLastName(nameParts.length > 1 ? nameParts[1] : "");
-        employee.setEmail(email);
-        employee.setPhoneNumber(phoneNumber);
-
-        entityManager.merge(employee);
-        model.addAttribute("success", "Cập nhật thành công!");
-
-        return "redirect:/TrangCaNhanNhanVien";
-    }
-
 
 }

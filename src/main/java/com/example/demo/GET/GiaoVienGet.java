@@ -258,7 +258,6 @@ public class GiaoVienGet {
         Person person = entityManager.find(Person.class, teacherId);
         Teachers teacher = (Teachers) person;
         model.addAttribute("teacher", teacher);
-
         return "TrangCaNhanGiaoVien";
     }
 }

@@ -21,7 +21,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET,
                                 "/TrangChuAdmin",
-                                "/TrangCaNhanAdmin",
                                 "/DanhSachGiaoVien",
                                 "/DanhSachNhanVien",
                                 "/ThemGiaoVien",
@@ -44,7 +43,6 @@ public class SecurityConfig {
                         ).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,
                                 "/TrangChuNhanVien",
-                                "/TrangCaNhanNhanVien",
                                 "/DanhSachNhanVien",
                                 "/DanhSachGiaoVienCuaBan",
                                 "/DanhSachHocSinhCuaBan",
@@ -97,8 +95,7 @@ public class SecurityConfig {
                                 "/ChiTietLopHocHocSinh/{id}",
                                 "/ThanhVienTrongLopHocSinh/**",
                                 "/TinNhanCuaHocSinh",
-                                "/ChiTietTinNhanCuaHocSinh/**",
-                                "/TrangCaNhanHocSinh"
+                                "/ChiTietTinNhanCuaHocSinh/**"
                         ).hasRole("STUDENT")
                         .requestMatchers(HttpMethod.POST,
                                 "/BinhLuanHocSinh",
@@ -125,7 +122,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/DangNhap")
+                        .loginPage("/TrangChu")
                         .loginProcessingUrl("/login")
                         .usernameParameter("username") // Dùng chung cho cả Admin & Employee
                         .passwordParameter("password")
@@ -136,18 +133,7 @@ public class SecurityConfig {
                         .logoutUrl("/DangXuat")  // Dùng chung cho cả Admin & Nhân viên
                         .logoutSuccessHandler((request, response, authentication) -> {
                             if (authentication != null && authentication.getAuthorities() != null) {
-                                String role = authentication.getAuthorities().iterator().next().getAuthority();
-                                if ("ROLE_ADMIN".equals(role)) {
-                                    response.sendRedirect("/DangNhapAdmin");
-                                } else if ("ROLE_TEACHER".equals(role)) {
-                                    response.sendRedirect("/DangNhapGiaoVien");
-                                } else if ("ROLE_STUDENT".equals(role)) {
-                                    response.sendRedirect("/DangNhapHocSinh");
-                                } else {
-                                    response.sendRedirect("/DangNhapNhanVien");
-                                }
-                            } else {
-                                response.sendRedirect("/DangNhap");
+                                response.sendRedirect("/TrangChu");
                             }
                         })
                         .invalidateHttpSession(true)
@@ -169,6 +155,5 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(CustomAuthenticationProvider customAuthenticationProvider) {
         return new ProviderManager(List.of(customAuthenticationProvider));
     }
-
 
 }
