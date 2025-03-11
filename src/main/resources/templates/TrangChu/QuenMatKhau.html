@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Quên Mật Khẩu</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px;
+        }
+
+        .card {
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 20px;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        .alert {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Quên Mật Khẩu</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-center mb-4">Vui lòng nhập địa chỉ email của bạn để khôi phục mật khẩu</p>
+
+                    <!-- Hiển thị thông báo lỗi nếu có -->
+                    <div class="alert alert-danger" role="alert" th:if="${error}" th:text="${error}"></div>
+
+                    <form action="/auth/QuenMatKhau" method="post">
+                        <div class="mb-3">
+                            <label class="form-label" for="email">Địa chỉ Email</label>
+                            <input class="form-control" id="email" name="email" required type="email">
+                            <div class="form-text">Chúng tôi sẽ gửi mã OTP đến email này.</div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" type="submit">Gửi Mã OTP</button>
+                            <a class="btn btn-outline-secondary" href="/login">Quay Lại Đăng Nhập</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Đặt Lại Mật Khẩu</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px;
+        }
+
+        .card {
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 20px;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        .password-strength {
+            height: 5px;
+            margin-top: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .password-message {
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .password-rules {
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .password-rule {
+            color: #6c757d;
+        }
+
+        .password-rule.valid {
+            color: #198754;
+        }
+
+        .password-rule i {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Đặt Lại Mật Khẩu</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-center mb-4">Vui lòng nhập mật khẩu mới cho tài khoản của bạn</p>
+
+                    <!-- Hiển thị thông báo lỗi nếu có -->
+                    <div class="alert alert-danger" role="alert" th:if="${error}" th:text="${error}"></div>
+                    <!-- Hiển thị thông báo thành công nếu có -->
+                    <div class="alert alert-success" role="alert" th:if="${success}" th:text="${success}"></div>
+
+                    <form action="/auth/reset-password" id="resetPasswordForm" method="post">
+                        <input name="email" th:value="${email}" type="hidden">
+
+                        <div class="mb-3">
+                            <label class="form-label" for="newPassword">Mật khẩu mới</label>
+                            <input class="form-control" id="newPassword" minlength="8" name="newPassword" required
+                                   type="password">
+                            <div class="password-strength" id="passwordStrength"></div>
+                            <div class="password-message" id="passwordMessage"></div>
+
+                            <div class="password-rules mt-2">
+                                <div class="password-rule" id="rule1">
+                                    <i class="bi bi-circle"></i> Ít nhất 8 ký tự
+                                </div>
+                                <div class="password-rule" id="rule2">
+                                    <i class="bi bi-circle"></i> Ít nhất 1 chữ cái viết hoa
+                                </div>
+                                <div class="password-rule" id="rule3">
+                                    <i class="bi bi-circle"></i> Ít nhất 1 chữ cái viết thường
+                                </div>
+                                <div class="password-rule" id="rule4">
+                                    <i class="bi bi-circle"></i> Ít nhất 1 số
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label" for="confirmPassword">Xác nhận mật khẩu mới</label>
+                            <input class="form-control" id="confirmPassword" name="confirmPassword" required
+                                   type="password">
+                            <div class="form-text" id="passwordMatch"></div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" id="submitBtn" type="submit">Đặt lại mật khẩu</button>
+                            <a class="btn btn-outline-secondary" href="/login">Hủy</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

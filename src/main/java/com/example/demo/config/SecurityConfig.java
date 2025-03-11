@@ -112,14 +112,22 @@ public class SecurityConfig {
                                 "/DangKyHocSinh",
                                 "/DangKyGiaoVien",
                                 "/DangKyNhanVien",
-                                "/*.css"
+                                "/*.css",
+                                "/auth/QuenMatKhau",
+                                "/auth/verify-otp",
+                                "/auth/DatLaiMatKhau"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/DangKyGiaoVien",
                                 "/DangKyNhanVien",
-                                "/DangKyHocSinh"
+                                "/DangKyHocSinh",
+                                "/auth/QuenMatKhau",
+                                "/auth/verify-otp",
+                                "/auth/reset-password",
+                                "/auth/DatLaiMatKhau"
                         ).permitAll()
                         .anyRequest().authenticated()
+                        
                 )
                 .formLogin(form -> form
                         .loginPage("/TrangChu")

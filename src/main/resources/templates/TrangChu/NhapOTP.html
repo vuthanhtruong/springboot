@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Nhập Mã OTP</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px;
+        }
+
+        .card {
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 20px;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        .otp-input {
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 0.5em;
+        }
+
+        .timer {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .resend {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Xác thực OTP</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-center mb-4">
+                        Mã OTP đã được gửi đến email <span class="fw-bold" th:text="${email}"></span>.
+                        Vui lòng kiểm tra và nhập mã vào ô bên dưới.
+                    </p>
+
+                    <!-- Hiển thị thông báo lỗi nếu có -->
+                    <div class="alert alert-danger" role="alert" th:if="${error}" th:text="${error}"></div>
+
+                    <form action="/auth/verify-otp" method="post">
+                        <input name="email" th:value="${email}" type="hidden">
+
+                        <div class="mb-3">
+                            <label class="form-label" for="otp">Mã OTP</label>
+                            <input autocomplete="off" class="form-control otp-input" id="otp" maxlength="6"
+                                   name="otp" required type="text">
+                            <div class="form-text">
+                                Mã OTP có hiệu lực trong <span class="timer" id="timer">10:00</span> phút.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" type="submit">Xác nhận</button>
+                            <a class="btn btn-outline-secondary" href="/auth/QuenMatKhau">Quay lại</a>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <p>Không nhận được mã?
+                            <a class="resend" href="#" id="resendOTP"
+                               onclick="resendOTP()">Gửi lại mã</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
