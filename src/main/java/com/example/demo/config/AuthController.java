@@ -57,6 +57,28 @@ public class AuthController {
         return "NhapOTP";
     }
 
+    @PostMapping("/resend-otp")
+    public String resendOtp(HttpSession session, Model model) {
+        String email = (String) session.getAttribute("email");
+        if (email == null) {
+            model.addAttribute("error", "Không có email trong session");
+            return "NhapOTP";
+        }
+
+        Person person = findPersonByEmail(email);
+        if (person == null) {
+            model.addAttribute("error", "Email không tồn tại");
+            return "NhapOTP";
+        }
+
+        String otp = generateOTP();
+        savePasswordResetToken(person, otp);
+        sendEmail(person.getEmail(), otp);
+        session.setAttribute("otp", otp);
+        model.addAttribute("message", "OTP đã được gửi lại");
+        return "NhapOTP";
+    }
+
     @PostMapping("/verify-otp")
     public String verifyOtp(@RequestParam String otp, Model model, HttpSession session) {
         String email = (String) session.getAttribute("email");
@@ -164,17 +186,27 @@ public class AuthController {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(email);
-            helper.setSubject("Mã OTP đặt lại mật khẩu");
-            String emailContent = "<html><body>" +
-                    "<h2>Yêu cầu đặt lại mật khẩu</h2>" +
-                    "<p>Mã OTP của bạn là: <strong>" + otp + "</strong></p>" +
-                    "<p>OTP có hiệu lực trong 10 phút.</p>" +
-                    "<p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>" +
+            helper.setSubject("Xác nhận yêu cầu đặt lại mật khẩu");
+
+            String emailContent = "<html><body style='font-family: Arial, sans-serif; color: #333;'>" +
+                    "<div style='max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;'>" +
+                    "<h2 style='color: #2c3e50;'>Yêu cầu đặt lại mật khẩu</h2>" +
+                    "<p>Xin chào,</p>" +
+                    "<p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Vui lòng sử dụng mã OTP dưới đây để xác nhận yêu cầu:</p>" +
+                    "<div style='padding: 10px; font-size: 18px; font-weight: bold; text-align: center; background-color: #ecf0f1; border-radius: 5px;'>" +
+                    otp +
+                    "</div>" +
+                    "<p style='font-style: italic;'>Lưu ý: Mã OTP có hiệu lực trong vòng <strong>10 phút</strong>. Vui lòng không chia sẻ mã này với bất kỳ ai.</p>" +
+                    "<p>Nếu bạn không yêu cầu đặt lại mật khẩu, xin vui lòng bỏ qua email này. Tài khoản của bạn vẫn an toàn.</p>" +
+                    "<p>Trân trọng,<br>Đội ngũ hỗ trợ</p>" +
+                    "</div>" +
                     "</body></html>";
+
             helper.setText(emailContent, true);
             mailSender.send(message);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
     }
+
 }

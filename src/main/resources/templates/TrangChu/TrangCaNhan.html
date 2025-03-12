@@ -13,22 +13,44 @@
 </header>
 
 <main>
-    <section>
+    <section class="profile-section">
         <h2><i class="fas fa-user"></i> Hồ Sơ Cá Nhân</h2>
         <form action="/LuuThongTinCaNhan" method="post">
-            <p><strong>ID:</strong> <span th:text="${user.id}"></span></p>
-            <p><strong>Họ và Tên:</strong>
-                <input name="firstName" required th:value="${user.firstName}" type="text">
-                <input name="lastName" required th:value="${user.lastName}" type="text">
-            </p>
-            <p><strong>Email:</strong> <input name="email" required th:value="${user.email}" type="email"></p>
-            <p><strong>Số Điện Thoại:</strong> <input name="phoneNumber" required th:value="${user.phoneNumber}"
-                                                      type="text"></p>
+            <div class="form-group">
+                <label><strong>ID:</strong></label>
+                <span th:text="${user.id}"></span>
+            </div>
+
+            <div class="form-group">
+                <label><strong>Họ và Tên:</strong></label>
+                <input autocomplete="off" name="firstName" placeholder="Nhập Họ" required th:value="${user.firstName}"
+                       type="text">
+                <input autocomplete="off" name="lastName" placeholder="Nhập Tên" required th:value="${user.lastName}"
+                       type="text">
+            </div>
+
+            <div class="form-group">
+                <label><strong>Email:</strong></label>
+                <input autocomplete="off" name="email" placeholder="Nhập Email" required th:value="${user.email}"
+                       type="email">
+            </div>
+
+            <div class="form-group">
+                <label><strong>Số Điện Thoại:</strong></label>
+                <input autocomplete="off" name="phoneNumber" placeholder="Nhập Số Điện Thoại" required
+                       th:value="${user.phoneNumber}" type="text">
+            </div>
+
             <button type="submit"><i class="fas fa-save"></i> Lưu</button>
         </form>
     </section>
 
-    <section>
+    <section class="password-section">
+        <h2><i class="fas fa-key"></i> Bảo Mật</h2>
+        <a class="btn btn-warning" href="/DoiMatKhau"><i class="fas fa-lock"></i> Đổi Mật Khẩu</a>
+    </section>
+
+    <section class="navigation-section">
         <a class="btn" href="/QuayVeTrangChu"><i class="fas fa-home"></i> Quay về Trang Chủ</a>
         <a class="btn btn-danger" href="/DangXuat"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
     </section>

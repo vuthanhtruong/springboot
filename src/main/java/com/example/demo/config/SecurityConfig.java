@@ -124,10 +124,11 @@ public class SecurityConfig {
                                 "/auth/QuenMatKhau",
                                 "/auth/verify-otp",
                                 "/auth/reset-password",
-                                "/auth/DatLaiMatKhau"
+                                "/auth/DatLaiMatKhau",
+                                "/auth/resend-otp"
                         ).permitAll()
                         .anyRequest().authenticated()
-                        
+
                 )
                 .formLogin(form -> form
                         .loginPage("/TrangChu")

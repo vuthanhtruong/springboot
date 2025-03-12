@@ -97,15 +97,16 @@
 
                     <div class="text-center mt-3">
                         <p>Không nhận được mã?
-                            <a class="resend" href="#" id="resendOTP"
-                               onclick="resendOTP()">Gửi lại mã</a>
+                        <form method="post" th:action="@{/auth/resend-otp}" class="d-inline">
+                            <button type="submit" class="btn btn-link resend">Gửi lại mã</button>
+                        </form>
                         </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
 </div>
 </body>
 </html>

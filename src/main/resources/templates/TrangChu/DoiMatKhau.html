@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Đổi Mật Khẩu</title>
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <h1>Đổi Mật Khẩu</h1>
+</header>
+
+<main>
+    <section class="password-reset-section">
+        <h2><i class="fas fa-lock"></i> Thay Đổi Mật Khẩu</h2>
+        <form action="/XuLyDoiMatKhau" method="post">
+            <div class="form-group">
+                <label for="currentPassword"><i class="fas fa-key"></i> Mật Khẩu Hiện Tại:</label>
+                <input autocomplete="off" id="currentPassword" name="currentPassword" placeholder="Nhập mật khẩu hiện tại"
+                       required type="password">
+            </div>
+
+            <div class="form-group">
+                <label for="newPassword"><i class="fas fa-lock"></i> Mật Khẩu Mới:</label>
+                <input autocomplete="off" id="newPassword" name="newPassword" placeholder="Nhập mật khẩu mới" required
+                       type="password">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword"><i class="fas fa-check"></i> Xác Nhận Mật Khẩu:</label>
+                <input autocomplete="off" id="confirmPassword" name="confirmPassword" placeholder="Nhập lại mật khẩu mới"
+                       required type="password">
+            </div>
+
+            <button type="submit"><i class="fas fa-save"></i> Đổi Mật Khẩu</button>
+        </form>
+    </section>
+
+    <section class="navigation-section">
+        <a class="btn" href="/TrangCaNhan"><i class="fas fa-arrow-left"></i> Quay lại Trang Cá Nhân</a>
+    </section>
+</main>
+
+</body>
+</html>
