@@ -4,12 +4,12 @@ import com.example.demo.OOP.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -24,8 +24,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.time.temporal.ChronoUnit;
 
 @Controller
 @RequestMapping("/")
@@ -45,17 +46,19 @@ public class StudentPost {
             @RequestParam("LastName") String lastName,
             @RequestParam("Email") String email,
             @RequestParam("PhoneNumber") String phoneNumber,
-            @RequestParam(value = "MisId", required = false) String misId, // Fix tên biến
+            @RequestParam("BirthDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate, // Thêm ngày sinh
+            @RequestParam(value = "MisId", required = false) String misId,
             @RequestParam("Password") String password,
             @RequestParam("ConfirmPassword") String confirmPassword,
             RedirectAttributes redirectAttributes) {
-        // Kiểm tra mật khẩu
+
+        // Kiểm tra mật khẩu khớp nhau
         if (!password.equals(confirmPassword)) {
             redirectAttributes.addFlashAttribute("errorPassword", "Mật khẩu nhập lại không khớp!");
             return "redirect:/DangKyHocSinh";
         }
 
-        // Kiểm tra nhân viên
+        // Kiểm tra nhân viên có tồn tại không
         Employees employee = entityManager.find(Employees.class, employeeID);
         if (employee == null) {
             redirectAttributes.addFlashAttribute("errorEmployee", "Mã nhân viên không hợp lệ!");
@@ -68,34 +71,54 @@ public class StudentPost {
             return "redirect:/DangKyHocSinh";
         }
 
-        // Kiểm tra Email
-        TypedQuery<Students> emailQuery = entityManager.createQuery(
-                "SELECT s FROM Students s WHERE s.email = :email", Students.class);
-        emailQuery.setParameter("email", email);
-        List<Students> existingStudents = emailQuery.getResultList();
+        // Kiểm tra Email có tồn tại chưa
+        boolean emailExists = !entityManager.createQuery(
+                        "SELECT s FROM Person s WHERE s.email = :email", Person.class)
+                .setParameter("email", email)
+                .getResultList().isEmpty();
 
-        if (!existingStudents.isEmpty()) {
+        if (emailExists) {
             redirectAttributes.addFlashAttribute("errorEmail", "Email đã tồn tại!");
             return "redirect:/DangKyHocSinh";
         }
 
-        // Kiểm tra độ mạnh của mật khẩu
+        // Kiểm tra số điện thoại có tồn tại chưa
+        boolean phoneExists = !entityManager.createQuery(
+                        "SELECT s FROM Students s WHERE s.phoneNumber = :phoneNumber", Students.class)
+                .setParameter("phoneNumber", phoneNumber)
+                .getResultList().isEmpty();
+
+        if (phoneExists) {
+            redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại đã được đăng ký!");
+            return "redirect:/DangKyHocSinh";
+        }
+
+        // Kiểm tra mật khẩu có đủ mạnh không
         if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$")) {
             redirectAttributes.addFlashAttribute("errorPassword", "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
             return "redirect:/DangKyHocSinh";
         }
 
-        // Lấy admin
-        List<Admin> admins = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
-        Admin admin = admins.get(0);
+        // Kiểm tra độ tuổi hợp lệ (ví dụ: ít nhất 6 tuổi)
+        LocalDate today = LocalDate.now();
+        if (ChronoUnit.YEARS.between(birthDate, today) < 6) {
+            redirectAttributes.addFlashAttribute("errorBirthDate", "Học sinh phải từ 6 tuổi trở lên!");
+            return "redirect:/DangKyHocSinh";
+        }
 
-        // Tạo học sinh mới
+        // Lấy admin (giả sử chỉ có một admin)
+        Admin admin = entityManager.createQuery("FROM Admin", Admin.class)
+                .setMaxResults(1)
+                .getSingleResult();
+
+        // Tạo đối tượng học sinh
         Students student = new Students();
         student.setId(studentID);
         student.setFirstName(firstName);
         student.setLastName(lastName);
         student.setEmail(email);
         student.setPhoneNumber(phoneNumber);
+        student.setBirthDate(birthDate); // Thêm ngày sinh
         student.setPassword(password);
         student.setMisId(misId);
         student.setEmployee(employee);
@@ -106,7 +129,7 @@ public class StudentPost {
 
         // Chuyển hướng đến trang đăng nhập với thông báo thành công
         redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công! Vui lòng đăng nhập.");
-        return "redirect:/DangNhapHocSinh";
+        return "redirect:/TrangChu";
     }
 
     @PostMapping("/DangNhapHocSinh")

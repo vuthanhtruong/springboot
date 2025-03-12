@@ -70,10 +70,15 @@ public class GiaoVienGet {
                 .setParameter("teacher", teachers)
                 .getResultList();
         Collections.reverse(messagesList);
+
+        List<Blogs> blogs = entityManager.createQuery("from Blogs  b where b.creator!=:creator", Blogs.class).
+                setParameter("creator", teachers).getResultList();
+        Collections.reverse(blogs);
         model.addAttribute("teacher", teachers);
         model.addAttribute("documents", documents);
         model.addAttribute("posts", posts);
         model.addAttribute("messagesList", messagesList);
+        model.addAttribute("blogs", blogs);
         return "TrangChuGiaoVien";
     }
 

@@ -46,6 +46,13 @@
             <div class="text-danger" th:if="${emailError}" th:text="${emailError}"></div>
         </div>
 
+        <!-- Ngày sinh -->
+        <div class="mb-3">
+            <label class="form-label" for="DateOfBirth">Ngày sinh</label>
+            <input class="form-control" id="DateOfBirth" name="DateOfBirth" required type="date">
+            <div class="text-danger" id="dobError"></div>
+        </div>
+
         <!-- Số điện thoại -->
         <div class="mb-3">
             <label class="form-label" for="PhoneNumber">Số điện thoại</label>

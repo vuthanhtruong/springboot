@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <h1><i class="fas fa-blog"></i> Blog</h1>
+    <a class="btn btn-home" th:href="@{/QuayVeTrangChu}"><i class="fas fa-home"></i> Quay Về Trang Chủ</a>
+</header>
+
+<main>
+
+    <!-- 🔹 Hộp nhập Blog -->
+    <section class="new-post">
+        <div class="profile-pic">
+            <img alt="User Avatar" th:src="@{/images/user-default.png}">
+        </div>
+        <form action="/XuLyThemBlog" class="post-form" method="post">
+            <input id="title" name="title" placeholder="Bạn đang nghĩ gì?" required type="text">
+            <textarea id="content" name="content" placeholder="Viết nội dung blog..." required></textarea>
+            <button type="submit"><i class="fas fa-paper-plane"></i> Đăng</button>
+        </form>
+    </section>
+
+    <!-- 🔹 Danh sách Blog -->
+    <section class="blog-feed">
+        <h2><i class="fas fa-list"></i> Bài viết mới nhất</h2>
+        <div class="blog-item" th:each="blog : ${blogs}">
+            <div class="blog-header">
+                <div class="blog-info">
+                    <p class="creator-name" th:text="${blog.creator.firstName} + ' ' + ${blog.creator.lastName}"></p>
+                    <p class="blog-time" th:text="${#temporals.format(blog.createdAt, 'dd/MM/yyyy HH:mm')}"></p>
+                </div>
+            </div>
+            <div class="blog-content">
+                <h3 th:text="${blog.title}"></h3>
+                <p th:text="${blog.content}"></p>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>

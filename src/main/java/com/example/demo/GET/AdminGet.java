@@ -1,21 +1,22 @@
 package com.example.demo.GET;
 
-import com.example.demo.OOP.Admin;
-import com.example.demo.OOP.Employees;
-import com.example.demo.OOP.Students;
-import com.example.demo.OOP.Teachers;
+import com.example.demo.OOP.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -36,6 +37,10 @@ public class AdminGet {
         if (admin == null) {
             throw new IllegalStateException("Admin không tồn tại");
         }
+        List<Blogs> blogs = entityManager.createQuery("from Blogs  b where b.creator!=:creator", Blogs.class).
+                setParameter("creator", admin).getResultList();
+        Collections.reverse(blogs);
+        model.addAttribute("blogs", blogs);
 
         model.addAttribute("admin", admin);
         return "TrangChuAdmin";
@@ -57,12 +62,25 @@ public class AdminGet {
     }
 
     @GetMapping("/DanhSachGiaoVien")
-    public String danhSachGiaoVien(ModelMap model) {
-        // Lấy danh sách giáo viên
-        List<Teachers> teachers = entityManager.createQuery("from Teachers", Teachers.class).getResultList();
-        model.addAttribute("teachers", teachers);
+    public String danhSachGiaoVien(
+            @RequestParam(value = "order", required = false) String sortOrder,
+            Model model) {
 
-        return "DanhSachGiaoVien"; // Trả về trang danh sách giáo viên
+        String jpql = "SELECT t FROM Teachers t"; // Mặc định không sắp xếp
+
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            jpql += " ORDER BY t.birthDate ASC"; // Sắp xếp tăng dần
+        } else if ("desc".equalsIgnoreCase(sortOrder)) {
+            jpql += " ORDER BY t.birthDate DESC"; // Sắp xếp giảm dần
+        }
+
+        TypedQuery<Teachers> query = entityManager.createQuery(jpql, Teachers.class);
+        List<Teachers> teachers = query.getResultList();
+
+        model.addAttribute("teachers", teachers);
+        model.addAttribute("order", sortOrder);
+
+        return "DanhSachGiaoVien";
     }
 
 
@@ -75,10 +93,24 @@ public class AdminGet {
     }
 
     @GetMapping("/DanhSachHocSinh")
-    public String DanhSachHocSinh(ModelMap model, HttpSession session) {
+    public String danhSachHocSinh(
+            @RequestParam(value = "order", required = false) String sortOrder,
+            Model model) {
 
-        List<Students> students = entityManager.createQuery("from Students", Students.class).getResultList();
+        String jpql = "SELECT s FROM Students s"; // Mặc định: không sắp xếp
+
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            jpql += " ORDER BY s.birthDate ASC"; // Sắp xếp tăng dần
+        } else if ("desc".equalsIgnoreCase(sortOrder)) {
+            jpql += " ORDER BY s.birthDate DESC"; // Sắp xếp giảm dần
+        }
+
+        TypedQuery<Students> query = entityManager.createQuery(jpql, Students.class);
+        List<Students> students = query.getResultList();
+
         model.addAttribute("students", students);
+        model.addAttribute("order", sortOrder);
+
         return "DanhSachHocSinh";
     }
 
@@ -90,11 +122,25 @@ public class AdminGet {
         return "ThemHocSinh";
     }
 
-    @GetMapping("DanhSachNhanVien")
-    public String DanhSachNhanVien(ModelMap model, HttpSession session) {
+    @GetMapping("/DanhSachNhanVien")
+    public String danhSachNhanVien(
+            @RequestParam(value = "order", required = false) String sortOrder,
+            Model model) {
 
-        List<Employees> employees = entityManager.createQuery("from Employees", Employees.class).getResultList();
+        String jpql = "SELECT e FROM Employees e"; // Mặc định không sắp xếp
+
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            jpql += " ORDER BY e.firstName ASC"; // Sắp xếp A → Z
+        } else if ("desc".equalsIgnoreCase(sortOrder)) {
+            jpql += " ORDER BY e.firstName DESC"; // Sắp xếp Z → A
+        }
+
+        TypedQuery<Employees> query = entityManager.createQuery(jpql, Employees.class);
+        List<Employees> employees = query.getResultList();
+
         model.addAttribute("employees", employees);
+        model.addAttribute("order", sortOrder);
+
         return "DanhSachNhanVien";
     }
 
@@ -167,4 +213,23 @@ public class AdminGet {
         model.addAttribute("employees", employee);
         return "SuaNhanVien";
     }
+
+    @GetMapping("/XoaTatCaHocSinh")
+    public String xoaTatCaHocSinh() {
+        entityManager.createQuery("DELETE FROM Students").executeUpdate();
+        return "redirect:/DanhSachHocSinh";
+    }
+
+    @GetMapping("/XoaTatCaGiaoVien")
+    public String xoaTatCaGiaoVien() {
+        entityManager.createQuery("DELETE FROM Teachers").executeUpdate();
+        return "redirect:/DanhSachGiaoVien";
+    }
+
+    @GetMapping("/XoaTatCaNhanVien")
+    public String xoaTatCaNhanVien() {
+        entityManager.createQuery("DELETE FROM Employees").executeUpdate();
+        return "redirect:/DanhSachNhanVien";
+    }
+
 }

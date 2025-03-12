@@ -428,7 +428,7 @@ public class AdminPost {
 
     @PostMapping("/TimKiemHocSinh")
     public String TimKiemHocSinh(@RequestParam("searchType") String searchType, @RequestParam("keyword") String keyword
-            , ModelMap ModelMap) {
+            , ModelMap ModelMap, Model model) {
         if (searchType.equalsIgnoreCase("name")) {
             List<Students> searchResults = entityManager.createQuery(
                             "SELECT s FROM Students s " +
@@ -441,6 +441,7 @@ public class AdminPost {
         } else if (searchType.equalsIgnoreCase("id")) {
             Students students = entityManager.find(Students.class, keyword);
             ModelMap.addAttribute("students", students);
+            model.addAttribute("keyword", keyword);
         }
         return "DanhSachTimKiemHocSinh";
     }
@@ -465,7 +466,7 @@ public class AdminPost {
         } else {
             searchResults = List.of();
         }
-
+        model.addAttribute("keyword", keyword);
         model.addAttribute("teachers", searchResults);
         return "DanhSachTimKiemGiaoVien";
     }
@@ -490,9 +491,55 @@ public class AdminPost {
         } else {
             searchResults = List.of();
         }
+        model.addAttribute("keyword", keyword);
 
         model.addAttribute("employees", searchResults);
         return "DanhSachTimKiemNhanVien";
+    }
+
+    @PostMapping("/XoaTatCaHocSinh")
+    public String xoaTatCaHocSinh() {
+        entityManager.createQuery("DELETE FROM Students").executeUpdate();
+        return "redirect:/DanhSachHocSinh";
+    }
+
+    @PostMapping("/XoaTatCaNhanVienWithAttributes")
+    public String xoaTatCaNhanVien(@RequestParam("keyword") String keyword, RedirectAttributes redirectAttributes) {
+        int deletedCount = entityManager.createQuery(
+                        "DELETE FROM Employees e WHERE LOWER(e.firstName) LIKE LOWER(:keyword) " +
+                                "OR LOWER(e.lastName) LIKE LOWER(:keyword) " +
+                                "OR LOWER(CONCAT(e.firstName, ' ', e.lastName)) LIKE LOWER(:keyword)")
+                .setParameter("keyword", "%" + keyword + "%")
+                .executeUpdate();
+
+        redirectAttributes.addFlashAttribute("message", "Đã xóa " + deletedCount + " nhân viên.");
+        return "redirect:/DanhSachNhanVien";
+    }
+
+    @PostMapping("/XoaTatCaHocSinhWithAttributes")
+    public String xoaTatCaHocSinh(@RequestParam("keyword") String keyword, RedirectAttributes redirectAttributes) {
+        int deletedCount = entityManager.createQuery(
+                        "DELETE FROM Students s WHERE LOWER(s.firstName) LIKE LOWER(:keyword) " +
+                                "OR LOWER(s.lastName) LIKE LOWER(:keyword) " +
+                                "OR LOWER(CONCAT(s.firstName, ' ', s.lastName)) LIKE LOWER(:keyword)")
+                .setParameter("keyword", "%" + keyword + "%")
+                .executeUpdate();
+
+        redirectAttributes.addFlashAttribute("message", "Đã xóa " + deletedCount + " học sinh.");
+        return "redirect:/DanhSachHocSinh";
+    }
+
+    @PostMapping("/XoaTatCaGiaoVienWithAttributes")
+    public String xoaTatCaGiaoVien(@RequestParam("keyword") String keyword, RedirectAttributes redirectAttributes) {
+        int deletedCount = entityManager.createQuery(
+                        "DELETE FROM Teachers t WHERE LOWER(t.firstName) LIKE LOWER(:keyword) " +
+                                "OR LOWER(t.lastName) LIKE LOWER(:keyword) " +
+                                "OR LOWER(CONCAT(t.firstName, ' ', t.lastName)) LIKE LOWER(:keyword)")
+                .setParameter("keyword", "%" + keyword + "%")
+                .executeUpdate();
+
+        redirectAttributes.addFlashAttribute("message", "Đã xóa " + deletedCount + " giáo viên.");
+        return "redirect:/DanhSachGiaoVien";
     }
 
 

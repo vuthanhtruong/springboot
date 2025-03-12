@@ -13,7 +13,8 @@
         <h1 class="text-primary"><i class="fas fa-user-tie"></i> Trang Chủ Nhân Viên</h1>
         <h2 class="text-secondary">
             Chào mừng, <span th:text="${employee.firstName} + ' ' + ${employee.lastName}"></span> |
-            <a class="text-info" th:href="@{/TrangCaNhan}"><i class="fas fa-user-circle"></i> Trang Cá Nhân</a>
+            <a class="text-info" th:href="@{/TrangCaNhan}"><i class="fas fa-user-circle"></i> Trang Cá Nhân</a> |
+            <a class="text-warning" th:href="@{/Blogs}"><i class="fas fa-blog"></i> Blogs</a>
         </h2>
     </div>
 

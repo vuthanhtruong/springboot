@@ -6,6 +6,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -39,6 +42,7 @@ public class NhanVienPost {
                                  @RequestParam String PhoneNumber,
                                  @RequestParam String Password,
                                  @RequestParam String ConfirmPassword,
+                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate DateOfBirth,
                                  Model model) {
 
         // Kiểm tra EmployeeID đã tồn tại chưa
@@ -75,6 +79,13 @@ public class NhanVienPost {
             return "DangKyNhanVien";
         }
 
+        // Kiểm tra ngày sinh (phải >= 18 tuổi)
+        LocalDate today = LocalDate.now();
+        int age = Period.between(DateOfBirth, today).getYears();
+        if (age > 6) {
+            model.addAttribute("dobError", "Bạn phải hơn 6 tuổi để đăng ký.");
+            return "DangKyNhanVien";
+        }
         // Lấy Admin
         List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
         Admin admin = admins.get(0);
@@ -87,12 +98,14 @@ public class NhanVienPost {
         employees.setEmail(Email);
         employees.setPassword(Password);
         employees.setPhoneNumber(PhoneNumber);
+        employees.setBirthDate(DateOfBirth);
         employees.setAdmin(admin);
 
         entityManager.persist(employees);
 
-        return "redirect:/DangNhapNhanVien";
+        return "redirect:/TrangChu";
     }
+
 
     // Hàm kiểm tra độ mạnh của mật khẩu
     private boolean isValidPassword(String password) {

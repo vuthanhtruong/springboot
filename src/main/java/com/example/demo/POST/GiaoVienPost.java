@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,6 +28,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -49,7 +51,6 @@ public class GiaoVienPost {
     @Value("${file.upload-dir:C:/uploads}")
     private String uploadDir;
 
-
     @Transactional
     @PostMapping("/DangKyGiaoVien")
     public String dangKyGiaoVien(@RequestParam("EmployeeID") String employeeID,
@@ -58,6 +59,7 @@ public class GiaoVienPost {
                                  @RequestParam("LastName") String lastName,
                                  @RequestParam("Email") String email,
                                  @RequestParam("PhoneNumber") String phoneNumber,
+                                 @RequestParam("BirthDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
                                  @RequestParam(value = "MisID", required = false) String misID,
                                  @RequestParam("Password") String password,
                                  @RequestParam("ConfirmPassword") String confirmPassword,
@@ -77,6 +79,12 @@ public class GiaoVienPost {
             return "DangKyGiaoVien";
         }
 
+        // Kiểm tra ngày sinh có hợp lệ không (phải trong quá khứ)
+        if (birthDate.isAfter(LocalDate.now())) {
+            model.addAttribute("birthDateError", "Ngày sinh không hợp lệ.");
+            return "DangKyGiaoVien";
+        }
+
         // Kiểm tra nếu Email đã tồn tại
         List<Teachers> existingTeachers = entityManager.createQuery("SELECT t FROM Teachers t WHERE t.email = :email", Teachers.class)
                 .setParameter("email", email)
@@ -87,11 +95,10 @@ public class GiaoVienPost {
         }
 
         // Kiểm tra TeacherID đã tồn tại
-        if (entityManager.find(Teachers.class, teacherID) != null) {
+        if (entityManager.find(Person.class, teacherID) != null) {
             model.addAttribute("teacherIDError", "TeacherID đã tồn tại.");
             return "DangKyGiaoVien";
         }
-
         // Lấy Admin
         List<Admin> adminList = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
         if (adminList.isEmpty()) {
@@ -114,8 +121,9 @@ public class GiaoVienPost {
         giaoVien.setLastName(lastName);
         giaoVien.setEmail(email);
         giaoVien.setPhoneNumber(phoneNumber);
+        giaoVien.setBirthDate(birthDate); // Lưu ngày sinh
         giaoVien.setMisID(misID);
-        giaoVien.setPassword(password); // Mã hóa mật khẩu trước khi lưu
+        giaoVien.setPassword(password); // Nên mã hóa mật khẩu trước khi lưu
         giaoVien.setEmployee(employee);
         giaoVien.setAdmin(admin);
 
@@ -127,9 +135,9 @@ public class GiaoVienPost {
             model.addAttribute("databaseError", "Lỗi khi lưu dữ liệu.");
             return "DangKyGiaoVien";
         }
-
-        return "redirect:/DangNhapGiaoVien";
+        return "redirect:/TrangChu";
     }
+
 
     private boolean isValidPassword(String password) {
         // Mật khẩu phải có ít nhất 8 ký tự, chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt

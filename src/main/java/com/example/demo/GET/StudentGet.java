@@ -80,7 +80,10 @@ public class StudentGet {
                                 ")", Posts.class)
                 .setParameter("student", student)
                 .getResultList();
-        Collections.reverse(posts);
+
+        List<Blogs> blogs = entityManager.createQuery("from Blogs  b where b.creator!=:creator", Blogs.class).
+                setParameter("creator", student).getResultList();
+        Collections.reverse(blogs);
 
         List<Messages> messagesList = entityManager.createQuery(
                         "SELECT m FROM Messages m " +
@@ -93,6 +96,7 @@ public class StudentGet {
         model.addAttribute("posts", posts);
         model.addAttribute("messages", messagesList);
         model.addAttribute("teachers", teachers);
+        model.addAttribute("blogs", blogs);
 
         return "TrangChuHocSinh";
     }

@@ -2,6 +2,8 @@ package com.example.demo.OOP;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +23,7 @@ public class Blogs {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CreatorID", nullable = false, foreignKey = @ForeignKey(name = "FK_Blogs_Person"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Person creator; // Liên kết với bảng Person (có thể là Student, Teacher, Employee)
 
     @ManyToOne(fetch = FetchType.LAZY)

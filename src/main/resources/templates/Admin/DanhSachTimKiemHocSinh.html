@@ -1,66 +1,76 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Kết Quả Tìm Kiếm Học Sinh</title>
-  <link rel="stylesheet" href="/DanhSachHocSinh.css">
+    <meta charset="UTF-8">
+    <title>Kết Quả Tìm Kiếm Học Sinh</title>
+    <link href="/DanhSachHocSinh.css" rel="stylesheet">
 </head>
 <body>
 <div class="container mt-5">
-  <h2 class="mb-4">Kết Quả Tìm Kiếm Học Sinh</h2>
+    <h2 class="mb-4">Kết Quả Tìm Kiếm Học Sinh</h2>
 
-  <table class="table table-bordered">
-    <thead>
-    <tr>
-      <th>ID</th>
-      <th>Họ</th>
-      <th>Tên</th>
-      <th>Email</th>
-      <th>Số điện thoại</th>
-      <th>MIS ID</th>
-      <th>Nhân viên phụ trách</th>
-      <th>Hành động</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!-- Nếu tìm kiếm theo tên -->
-    <tr th:each="student : ${searchResults}">
-      <td th:text="${student.id}"></td>
-      <td th:text="${student.lastName}"></td>
-      <td th:text="${student.firstName}"></td>
-      <td th:text="${student.email}"></td>
-      <td th:text="${student.phoneNumber}"></td>
-      <td th:text="${student.misId}"></td>
-      <td th:text="${student.employee != null ? student.employee.firstName + ' ' + student.employee.lastName : 'Không có'}"></td>
-      <td>
-        <a th:href="@{/SuaHocSinh/{id}(id=${student.id})}" class="btn btn-warning">Sửa</a>
-        <a th:href="@{/XoaHocSinh/{id}(id=${student.id})}" class="btn btn-danger"
-           onclick="return confirm('Bạn có chắc chắn muốn xóa học sinh này?');">Xóa</a>
-      </td>
-    </tr>
+    <!-- Nút Xóa Tất Cả -->
+    <form method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tất cả học sinh?');"
+          th:action="@{/XoaTatCaHocSinhWithAttributes}">
+        <input name="keyword" th:value="${keyword}" type="hidden">
+        <button class="btn btn-danger" type="submit">🗑️ Xóa Tất Cả Học Sinh theo tìm kiếm này</button>
+    </form>
 
-    <!-- Nếu tìm kiếm theo ID -->
-    <tr th:if="${students != null}">
-      <td th:text="${students.id}"></td>
-      <td th:text="${students.lastName}"></td>
-      <td th:text="${students.firstName}"></td>
-      <td th:text="${students.email}"></td>
-      <td th:text="${students.phoneNumber}"></td>
-      <td th:text="${students.misId}"></td>
-      <td th:text="${students.employee != null ? students.employee.firstName + ' ' + students.employee.lastName : 'Không có'}"></td>
-      <td>
-        <a th:href="@{/SuaHocSinh/{id}(id=${students.id})}" class="btn btn-warning">Sửa</a>
-        <a th:href="@{/XoaHocSinh/{id}(id=${students.id})}" class="btn btn-danger"
-           onclick="return confirm('Bạn có chắc chắn muốn xóa học sinh này?');">Xóa</a>
-      </td>
-    </tr>
-    </tbody>
-  </table>
 
-  <div class="text-center mt-3">
-    <a href="/DanhSachHocSinh" class="btn btn-primary">Quay Lại Danh Sách Học Sinh</a>
-    <a href="/TrangChuAdmin" class="btn btn-secondary">Quay Lại Trang Chủ Admin</a>
-  </div>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Họ</th>
+            <th>Tên</th>
+            <th>Email</th>
+            <th>Số điện thoại</th>
+            <th>Ngày Sinh</th>
+            <th>MIS ID</th>
+            <th>Nhân viên phụ trách</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Nếu tìm kiếm theo tên -->
+        <tr th:each="student : ${searchResults}">
+            <td th:text="${student.id}"></td>
+            <td th:text="${student.lastName}"></td>
+            <td th:text="${student.firstName}"></td>
+            <td th:text="${student.email}"></td>
+            <td th:text="${student.phoneNumber}"></td>
+            <td th:text="${#dates.format(student.birthDate, 'dd/MM/yyyy')}"></td>
+            <td th:text="${student.misId}"></td>
+            <td th:text="${student.employee != null ? student.employee.firstName + ' ' + student.employee.lastName : 'Không có'}"></td>
+            <td>
+                <a class="btn btn-warning" th:href="@{/SuaHocSinh/{id}(id=${student.id})}">Sửa</a>
+                <a class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa học sinh này?');"
+                   th:href="@{/XoaHocSinh/{id}(id=${student.id})}">Xóa</a>
+            </td>
+        </tr>
+
+        <!-- Nếu tìm kiếm theo ID -->
+        <tr th:if="${students != null}">
+            <td th:text="${students.id}"></td>
+            <td th:text="${students.lastName}"></td>
+            <td th:text="${students.firstName}"></td>
+            <td th:text="${students.email}"></td>
+            <td th:text="${students.phoneNumber}"></td>
+            <td th:text="${students.misId}"></td>
+            <td th:text="${students.employee != null ? students.employee.firstName + ' ' + students.employee.lastName : 'Không có'}"></td>
+            <td>
+                <a class="btn btn-warning" th:href="@{/SuaHocSinh/{id}(id=${students.id})}">Sửa</a>
+                <a class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa học sinh này?');"
+                   th:href="@{/XoaHocSinh/{id}(id=${students.id})}">Xóa</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="text-center mt-3">
+        <a class="btn btn-primary" href="/DanhSachHocSinh">Quay Lại Danh Sách Học Sinh</a>
+        <a class="btn btn-secondary" href="/TrangChuAdmin">Quay Lại Trang Chủ Admin</a>
+    </div>
 </div>
 </body>
 </html>

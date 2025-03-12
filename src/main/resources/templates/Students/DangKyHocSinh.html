@@ -23,17 +23,6 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="password">Mật Khẩu</label>
-                        <input class="form-control" id="password" name="Password" required type="password">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="ConfirmPassword">Nhập lại mật khẩu</label>
-                        <input class="form-control" id="ConfirmPassword" name="ConfirmPassword" required
-                               type="password">
-                        <div class="text-danger" th:if="${errorPassword}" th:text="${errorPassword}"></div>
-                    </div>
-
-                    <div class="mb-3">
                         <label class="form-label" for="firstName">Họ</label>
                         <input class="form-control" id="firstName" name="FirstName" required type="text">
                     </div>
@@ -53,10 +42,25 @@
                         <label class="form-label" for="phoneNumber">Số Điện Thoại</label>
                         <input class="form-control" id="phoneNumber" name="PhoneNumber" required type="text">
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="birthDate">Ngày Sinh</label>
+                        <input class="form-control" id="birthDate" name="BirthDate" required type="date">
+                        <div class="text-danger" th:if="${errorBirthDate}" th:text="${errorBirthDate}"></div>
+                    </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="misId">MIS ID</label>
                         <input class="form-control" id="misId" name="MisId" type="text">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="password">Mật Khẩu</label>
+                        <input class="form-control" id="password" name="Password" required type="password">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="ConfirmPassword">Nhập lại mật khẩu</label>
+                        <input class="form-control" id="ConfirmPassword" name="ConfirmPassword" required
+                               type="password">
+                        <div class="text-danger" th:if="${errorPassword}" th:text="${errorPassword}"></div>
                     </div>
 
                     <div class="mb-3">

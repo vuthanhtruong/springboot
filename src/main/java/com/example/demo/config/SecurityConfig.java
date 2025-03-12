@@ -115,7 +115,9 @@ public class SecurityConfig {
                                 "/*.css",
                                 "/auth/QuenMatKhau",
                                 "/auth/verify-otp",
-                                "/auth/DatLaiMatKhau"
+                                "/auth/DatLaiMatKhau",
+                                "/Blogs",
+                                "/XoaTatCaHocSinh"
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/DangKyGiaoVien",
@@ -125,7 +127,8 @@ public class SecurityConfig {
                                 "/auth/verify-otp",
                                 "/auth/reset-password",
                                 "/auth/DatLaiMatKhau",
-                                "/auth/resend-otp"
+                                "/auth/resend-otp",
+                                "/XuLyThemBlog"
                         ).permitAll()
                         .anyRequest().authenticated()
 

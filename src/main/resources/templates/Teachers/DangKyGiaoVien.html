@@ -45,6 +45,13 @@
             <input class="form-control" id="PhoneNumber" name="PhoneNumber" required type="text">
         </div>
 
+        <!-- Thêm trường nhập ngày sinh -->
+        <div class="mb-3">
+            <label class="form-label" for="BirthDate">Ngày Sinh:</label>
+            <input class="form-control" id="BirthDate" name="BirthDate" required type="date">
+            <div class="text-danger" th:if="${birthDateError}" th:text="${birthDateError}"></div>
+        </div>
+
         <div class="mb-3">
             <label class="form-label" for="MisID">Mã Giảng Viên (MIS ID - nếu có):</label>
             <input class="form-control" id="MisID" name="MisID" type="text">
@@ -60,6 +67,7 @@
             <input class="form-control" id="ConfirmPassword" name="ConfirmPassword" required type="password">
             <div class="text-danger" th:if="${passwordError}" th:text="${passwordError}"></div>
         </div>
+
         <div class="mb-3">
             <label class="form-label" for="employeeID">Chọn Nhân Viên:</label>
             <select class="form-select" id="employeeID" name="EmployeeID" required>
@@ -70,6 +78,7 @@
                 </th:block>
             </select>
         </div>
+
         <div class="d-flex justify-content-between">
             <button class="btn btn-primary" type="submit">Đăng Ký</button>
             <a class="btn btn-outline-secondary" href="/TrangChu">Quay Lại Đăng Nhập</a>
