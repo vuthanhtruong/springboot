@@ -76,13 +76,13 @@
                     <!-- Hiển thị thông báo lỗi nếu có -->
                     <div class="alert alert-danger" role="alert" th:if="${error}" th:text="${error}"></div>
 
-                    <form action="/auth/verify-otp" method="post">
+                    <form method="post" th:action="@{/auth/verify-otp}">
                         <input name="email" th:value="${email}" type="hidden">
 
                         <div class="mb-3">
                             <label class="form-label" for="otp">Mã OTP</label>
-                            <input autocomplete="off" class="form-control otp-input" id="otp" maxlength="6"
-                                   name="otp" required type="text">
+                            <input autofocus class="form-control otp-input" id="otp" maxlength="6" name="otp"
+                                   pattern="\d{6}" required title="Mã OTP gồm 6 chữ số" type="text">
                             <div class="form-text">
                                 Mã OTP có hiệu lực trong <span class="timer" id="timer">10:00</span> phút.
                             </div>
@@ -94,6 +94,7 @@
                         </div>
                     </form>
 
+
                     <div class="text-center mt-3">
                         <p>Không nhận được mã?
                             <a class="resend" href="#" id="resendOTP"
@@ -104,6 +105,7 @@
             </div>
         </div>
     </div>
+    
 </div>
 </body>
 </html>

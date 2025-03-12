@@ -19,9 +19,6 @@ public class PasswordResetToken {
     @Column(name = "otp", nullable = true, length = 6)
     private String otp;
 
-    @Column(name = "reset_token", nullable = true, length = 36)
-    private String resetToken;
-
     @Column(name = "expiry_date", nullable = true)
     private LocalDateTime expiryDate;
 

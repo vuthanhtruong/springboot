@@ -87,34 +87,18 @@
                     <!-- Hiển thị thông báo thành công nếu có -->
                     <div class="alert alert-success" role="alert" th:if="${success}" th:text="${success}"></div>
 
-                    <form action="/auth/reset-password" id="resetPasswordForm" method="post">
+                    <form method="post" th:action="@{/auth/reset-password}">
                         <input name="email" th:value="${email}" type="hidden">
+                        <input name="otp" th:value="${otp}" type="hidden">  <!-- Thêm OTP -->
 
                         <div class="mb-3">
                             <label class="form-label" for="newPassword">Mật khẩu mới</label>
                             <input class="form-control" id="newPassword" minlength="8" name="newPassword" required
                                    type="password">
-                            <div class="password-strength" id="passwordStrength"></div>
-                            <div class="password-message" id="passwordMessage"></div>
-
-                            <div class="password-rules mt-2">
-                                <div class="password-rule" id="rule1">
-                                    <i class="bi bi-circle"></i> Ít nhất 8 ký tự
-                                </div>
-                                <div class="password-rule" id="rule2">
-                                    <i class="bi bi-circle"></i> Ít nhất 1 chữ cái viết hoa
-                                </div>
-                                <div class="password-rule" id="rule3">
-                                    <i class="bi bi-circle"></i> Ít nhất 1 chữ cái viết thường
-                                </div>
-                                <div class="password-rule" id="rule4">
-                                    <i class="bi bi-circle"></i> Ít nhất 1 số
-                                </div>
-                            </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label" for="confirmPassword">Xác nhận mật khẩu mới</label>
+                        <div class="mb-3">
+                            <label class="form-label" for="confirmPassword">Xác nhận mật khẩu</label>
                             <input class="form-control" id="confirmPassword" name="confirmPassword" required
                                    type="password">
                             <div class="form-text" id="passwordMatch"></div>
@@ -125,6 +109,7 @@
                             <a class="btn btn-outline-secondary" href="/login">Hủy</a>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>

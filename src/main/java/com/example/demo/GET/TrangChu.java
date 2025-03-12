@@ -1,5 +1,6 @@
 package com.example.demo.GET;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,23 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/")
 public class TrangChu {
     @GetMapping("/TrangChu")
-    public String TrangChu() {
+    public String TrangChu(HttpSession session) {
         return "TrangChu";
-    }
-    @GetMapping("/DangNhapGiaoVien")
-    public String DanhChoGiaoVien() {
-        return "DangNhapGiaoVien";
-    }
-    @GetMapping("/DangNhapNhanVien")
-    public String DanhChoNhanVien() {
-        return "DangNhapNhanVien";
-    }
-    @GetMapping("/DangNhapHocSinh")
-    public String DanhChoHocSinh() {
-        return "DangNhapHocSinh";
-    }
-    @GetMapping("/DangNhapAdmin")
-    public String DanhChoAdmih() {
-        return "DangNhapAdmin";
     }
 }
