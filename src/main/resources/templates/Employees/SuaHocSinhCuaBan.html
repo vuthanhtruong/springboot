@@ -3,64 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <title>Sửa Học Sinh</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/SuaHocSinhCuaBan.css}">
 </head>
 <body>
 
 <div class="container mt-5">
     <h1 class="text-center text-primary"><i class="fas fa-edit"></i> Sửa Học Sinh</h1>
-    <a th:href="@{/DanhSachHocSinhCuaBan}" class="btn btn-secondary">
+    <a class="btn btn-secondary" th:href="@{/DanhSachHocSinhCuaBan}">
         <i class="fas fa-arrow-left"></i> Quay lại
     </a>
 
     <!-- Hiển thị thông báo lỗi -->
-    <div th:if="${error}" class="alert alert-danger mt-3 text-center">
+    <div class="alert alert-danger mt-3 text-center" th:if="${error}">
         <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
     </div>
 
     <!-- Hiển thị thông báo thành công -->
-    <div th:if="${successMessage}" class="alert alert-success mt-3 text-center">
+    <div class="alert alert-success mt-3 text-center" th:if="${successMessage}">
         <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
     </div>
 
-    <!-- Kiểm tra quyền chỉnh sửa -->
-    <div th:if="${session.EmployeeID != students.employee.id}" class="alert alert-danger mt-3">
-        <i class="fas fa-exclamation-triangle"></i> Bạn không có quyền chỉnh sửa học sinh này.
-    </div>
-
-    <!-- Chỉ hiển thị form nếu có quyền sửa -->
-    <form th:if="${session.EmployeeID == students.employee.id}"
-          th:action="@{/SuaHocSinhCuaBan}" method="post" class="mt-4">
-        <input type="hidden" name="studentID" th:value="${students.id}">
+    <!-- Form sửa học sinh -->
+    <form class="mt-4" method="post" th:action="@{/SuaHocSinhCuaBan}">
+        <input name="studentID" th:value="${student.id}" type="hidden">
 
         <div class="mb-3">
             <label class="form-label">Họ</label>
-            <input type="text" class="form-control" name="firstName" th:value="${students.firstName}" required>
+            <input class="form-control" name="firstName" required th:value="${student.firstName}" type="text">
         </div>
 
         <div class="mb-3">
             <label class="form-label">Tên</label>
-            <input type="text" class="form-control" name="lastName" th:value="${students.lastName}" required>
+            <input class="form-control" name="lastName" required th:value="${student.lastName}" type="text">
         </div>
 
         <div class="mb-3">
             <label class="form-label">Email</label>
-            <input type="email" class="form-control" name="email" th:value="${students.email}" required>
+            <input class="form-control" name="email" required th:value="${student.email}" type="email">
         </div>
 
         <div class="mb-3">
             <label class="form-label">Số Điện Thoại</label>
-            <input type="text" class="form-control" name="phoneNumber" th:value="${students.phoneNumber}" required>
+            <input class="form-control" name="phoneNumber" required th:value="${student.phoneNumber}" type="text">
         </div>
 
         <div class="mb-3">
             <label class="form-label">Mã MIS</label>
-            <input type="text" class="form-control" name="misId" th:value="${students.misId}" placeholder="Nhập mã MIS">
+            <input class="form-control" name="misId" placeholder="Nhập mã MIS" th:value="${student.misId}" type="text">
         </div>
 
         <div class="text-center">
-            <button type="submit" class="btn btn-success">
+            <button class="btn btn-success" type="submit">
                 <i class="fas fa-save"></i> Lưu Thay Đổi
             </button>
         </div>

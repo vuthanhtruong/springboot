@@ -63,6 +63,7 @@
                 <th>📛 Tên</th>
                 <th>📧 Email</th>
                 <th>📞 Số điện thoại</th>
+                <th>Ngày sinh</th>
                 <th>⚙️ Hành động</th>
             </tr>
             </thead>
@@ -73,6 +74,7 @@
                 <td th:text="${employee.firstName}"></td>
                 <td th:text="${employee.email}"></td>
                 <td th:text="${employee.phoneNumber}"></td>
+                <td th:text="${employee.birthDate}"></td>
                 <td class="action-buttons">
                     <a class="btn btn-warning" th:href="@{/SuaNhanVien/{id}(id=${employee.id})}">
                         <i class="fas fa-edit"></i> Sửa

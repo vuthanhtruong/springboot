@@ -14,7 +14,7 @@
     <form method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tất cả học sinh?');"
           th:action="@{/XoaTatCaGiaoVienWithAttributes}">
         <input name="keyword" th:value="${keyword}" type="hidden">
-        <button class="btn btn-danger" type="submit">🗑️ Xóa Tất Cả Học Sinh theo tìm kiếm này</button>
+        <button class="btn btn-danger" type="submit">🗑️ Xóa Tất Cả Học Sinh theo tìm kiếm này dùng cho tên</button>
     </form>
 
     <table border="1">

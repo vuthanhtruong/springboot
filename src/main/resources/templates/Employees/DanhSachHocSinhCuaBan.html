@@ -14,7 +14,6 @@
     </h1>
 
     <div>
-
         <div>
             <a class="btn btn-secondary mx-2" th:href="@{/TrangChuNhanVien}">
                 <i class="fas fa-home"></i> Trang Chủ
@@ -39,6 +38,7 @@
             </form>
         </div>
 
+        <!-- Phân trang: chọn số bản ghi mỗi trang -->
         <form method="get" th:action="@{/DanhSachHocSinhCuaBan}">
             <label for="pageSizeInput">📌 Hiển thị:</label>
             <input class="form-control" id="pageSizeInput" max="100" min="1"
@@ -56,6 +56,7 @@
                 <th>Lớp</th>
                 <th>Email</th>
                 <th>Số Điện Thoại</th>
+                <th>Ngày sinh</th>
                 <th>Hành Động</th>
             </tr>
             </thead>
@@ -66,6 +67,7 @@
                 <td th:text="${student.lastName}"></td>
                 <td th:text="${student.email}"></td>
                 <td th:text="${student.phoneNumber}"></td>
+                <td th:text="${student.birthDate}"></td>
                 <td>
                     <a class="btn btn-warning" th:href="@{/SuaHocSinhCuaBan/{id}(id=${student.id})}">Sửa</a>
                     <a class="btn btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?');"
@@ -76,19 +78,38 @@
         </table>
 
         <!-- Phân trang -->
-        <nav th:if="${totalPages > 1}">
-            <ul class="pagination">
-                <li th:classappend="${currentPage == 1} ? 'disabled'">
-                    <a th:href="@{/DanhSachHocSinhCuaBan(page=1, pageSize=${pageSize})}">Đầu</a>
+        <ul class="pagination justify-content-center">
+            <!-- Nút "Đầu" -->
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/DanhSachHocSinhCuaBan(page=1, pageSize=${pageSize})}">Đầu</a>
+            </li>
+
+            <!-- Nút "Trước" -->
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/DanhSachHocSinhCuaBan(page=${currentPage - 1}, pageSize=${pageSize})}">&laquo;</a>
+            </li>
+
+            <!-- Duyệt số trang -->
+            <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
+                <li class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/DanhSachHocSinhCuaBan(page=${i}, pageSize=${pageSize})}"
+                       th:text="${i}"></a>
                 </li>
-                <li th:classappend="${i == currentPage} ? 'active'" th:each="i : ${#numbers.sequence(1, totalPages)}">
-                    <a th:href="@{/DanhSachHocSinhCuaBan(page=${i}, pageSize=${pageSize})}" th:text="${i}"></a>
-                </li>
-                <li th:classappend="${currentPage == totalPages} ? 'disabled'">
-                    <a th:href="@{/DanhSachHocSinhCuaBan(page=${totalPages}, pageSize=${pageSize})}">Cuối</a>
-                </li>
-            </ul>
-        </nav>
+            </th:block>
+
+            <!-- Nút "Sau" -->
+            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/DanhSachHocSinhCuaBan(page=${currentPage + 1}, pageSize=${pageSize})}">&raquo;</a>
+            </li>
+
+            <!-- Nút "Cuối" -->
+            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/DanhSachHocSinhCuaBan(page=${totalPages}, pageSize=${pageSize})}">Cuối</a>
+            </li>
+        </ul>
 
     </div>
 </div>

@@ -107,7 +107,7 @@ public class NhanVienGet {
         // Lấy danh sách giáo viên có sắp xếp theo ID
         List<Teachers> teachers = entityManager.createQuery(
                         "FROM Teachers t WHERE t.employee.id = :employeeId ORDER BY t.id ASC", Teachers.class)
-                .setParameter("employeeId", session.getAttribute("EmployeeID"))
+                .setParameter("employeeId", employee.getId())
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();
@@ -133,10 +133,11 @@ public class NhanVienGet {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) Integer pageSize // Cho phép null
     ) {
+        // Lấy tên người dùng từ SecurityContext (sử dụng thông tin đã đăng nhập)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String employeeId = authentication.getName(); // AdminID đã đăng nhập
+        String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
 
-        // Tìm Admin trong database bằng EntityManager
+        // Tìm Employee trong database bằng EntityManager
         Employees employee = entityManager.find(Employees.class, employeeId);
 
         // Nếu pageSize là null, lấy từ session hoặc đặt mặc định là 5
@@ -156,6 +157,7 @@ public class NhanVienGet {
                 .setParameter("employeeId", employee.getId())
                 .getSingleResult();
 
+        // Tránh lỗi khi không có học sinh
         if (totalStudents == 0) {
             model.addAttribute("students", new ArrayList<>());
             model.addAttribute("currentPage", 1);
@@ -169,25 +171,26 @@ public class NhanVienGet {
         if (page < 1) page = 1;
         if (page > totalPages) page = totalPages;
 
-        // Tính vị trí bắt đầu lấy dữ liệu
+        // Tính vị trí bắt đầu lấy dữ liệu (setFirstResult)
         int firstResult = (page - 1) * pageSize;
 
-        // Truy vấn danh sách học sinh có phân trang
+        // Lấy danh sách học sinh có phân trang
         List<Students> students = entityManager.createQuery(
                         "FROM Students s WHERE s.employee.id = :employeeId ORDER BY s.id ASC", Students.class)
-                .setParameter("employeeId", session.getAttribute("EmployeeID"))
-                .setFirstResult(firstResult)
-                .setMaxResults(pageSize)
+                .setParameter("employeeId", employee.getId()) // Sử dụng employee.getId() thay vì session.getAttribute("EmployeeID")
+                .setFirstResult(firstResult) // Thiết lập vị trí bắt đầu
+                .setMaxResults(pageSize) // Thiết lập số lượng kết quả tối đa
                 .getResultList();
 
         // Đưa dữ liệu lên giao diện
         model.addAttribute("students", students);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("currentPage", page); // Trang hiện tại
+        model.addAttribute("totalPages", totalPages); // Tổng số trang
+        model.addAttribute("pageSize", pageSize); // Kích thước trang
 
         return "DanhSachHocSinhCuaBan";
     }
+
 
     @GetMapping("/ThemHocSinhCuaBan")
     public String ThemHocSinhCuaBan(ModelMap model, HttpSession session) {
@@ -329,7 +332,7 @@ public class NhanVienGet {
     @GetMapping("/SuaHocSinhCuaBan/{id}")
     public String SuaHocSinhCuaBan(ModelMap model, @PathVariable("id") String id, HttpSession session) {
         Students students = entityManager.find(Students.class, id);
-        model.addAttribute("students", students);
+        model.addAttribute("student", students);
         return "SuaHocSinhCuaBan";
     }
 

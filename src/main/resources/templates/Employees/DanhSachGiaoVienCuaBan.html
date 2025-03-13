@@ -55,6 +55,7 @@
                     <th>Họ và Tên</th>
                     <th>Email</th>
                     <th>Số Điện Thoại</th>
+                    <th>Ngày sinh</th>
                     <th>Hành Động</th>
                 </tr>
                 </thead>
@@ -64,6 +65,7 @@
                     <td th:text="${teacher.firstName + ' ' + teacher.lastName}"></td>
                     <td th:text="${teacher.email}"></td>
                     <td class="text-center" th:text="${teacher.phoneNumber}"></td>
+                    <td class="text-center" th:text="${teacher.birthDate}"></td>
                     <td class="text-center">
                         <a class="btn btn-warning btn-sm" th:href="@{/SuaGiaoVienCuaBan/{id}(id=${teacher.id})}">
                             <i class="fas fa-edit"></i> Sửa

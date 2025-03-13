@@ -1,70 +1,76 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Thêm Học Sinh</title>
-  <link rel="stylesheet" th:href="@{/ThemHocSinhCuaBan.css}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <meta charset="UTF-8">
+    <title>Thêm Học Sinh</title>
+    <link rel="stylesheet" th:href="@{/ThemHocSinhCuaBan.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="container mt-5">
-  <h1 class="text-center text-primary"><i class="fas fa-user-plus"></i> Thêm Học Sinh Mới</h1>
+    <h1 class="text-center text-primary"><i class="fas fa-user-plus"></i> Thêm Học Sinh Mới</h1>
 
-  <!-- Hiển thị thông báo lỗi -->
-  <div th:if="${error}" class="alert alert-danger text-center">
-    <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
-  </div>
-
-  <!-- Hiển thị thông báo thành công -->
-  <div th:if="${successMessage}" class="alert alert-success text-center">
-    <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
-  </div>
-
-  <form th:action="@{/ThemHocSinhCuaBan}" method="post" class="mt-4">
-    <div class="mb-3">
-      <label class="form-label">Mã Học Sinh (ID):</label>
-      <input type="text" class="form-control" name="studentID" required>
+    <!-- Hiển thị thông báo lỗi -->
+    <div class="alert alert-danger text-center" th:if="${errors}">
+        <ul>
+            <li th:each="error : ${errors}">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+            </li>
+        </ul>
     </div>
 
-    <div class="mb-3">
-      <label class="form-label">Họ:</label>
-      <input type="text" class="form-control" name="firstName" required>
+    <!-- Hiển thị thông báo thành công -->
+    <div class="alert alert-success text-center" th:if="${successMessage}">
+        <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
     </div>
 
-    <div class="mb-3">
-      <label class="form-label">Tên:</label>
-      <input type="text" class="form-control" name="lastName" required>
-    </div>
+    <form class="mt-4" method="post" th:action="@{/ThemHocSinhCuaBan}">
+        <div class="mb-3">
+            <label class="form-label">Mã Học Sinh (ID):</label>
+            <input class="form-control" name="studentID" required th:value="${studentID}" type="text">
+        </div>
 
-    <div class="mb-3">
-      <label class="form-label">Email:</label>
-      <input type="email" class="form-control" name="email" required>
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Họ:</label>
+            <input class="form-control" name="firstName" required th:value="${firstName}" type="text">
+        </div>
 
-    <div class="mb-3">
-      <label class="form-label">Mật khẩu:</label>
-      <input type="password" class="form-control" name="password" required>
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Tên:</label>
+            <input class="form-control" name="lastName" required th:value="${lastName}" type="text">
+        </div>
 
-    <div class="mb-3">
-      <label class="form-label">Số Điện Thoại:</label>
-      <input type="text" class="form-control" name="phoneNumber" required>
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Email:</label>
+            <input class="form-control" name="email" required th:value="${email}" type="email">
+        </div>
 
-    <div class="mb-3">
-      <label class="form-label">Mã MIS:</label>
-      <input type="text" class="form-control" name="misId">
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Mật khẩu:</label>
+            <input class="form-control" name="password" required type="password">
+            <small class="form-text text-muted">Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự
+                đặc biệt.</small>
+        </div>
 
-    <div class="text-center">
-      <button type="submit" class="btn btn-success">
-        <i class="fas fa-save"></i> Lưu Học Sinh
-      </button>
-      <a th:href="@{/DanhSachHocSinhCuaBan}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> Quay lại
-      </a>
-    </div>
-  </form>
+        <div class="mb-3">
+            <label class="form-label">Số Điện Thoại:</label>
+            <input class="form-control" name="phoneNumber" required th:value="${phoneNumber}" type="text">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Mã MIS:</label>
+            <input class="form-control" name="misId" th:value="${misId}" type="text">
+        </div>
+
+        <div class="text-center">
+            <button class="btn btn-success" type="submit">
+                <i class="fas fa-save"></i> Lưu Học Sinh
+            </button>
+            <a class="btn btn-secondary" th:href="@{/DanhSachHocSinhCuaBan}">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </form>
 </div>
 </body>
 </html>

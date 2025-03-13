@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Thêm Giáo Viên</title>
-    <link rel="stylesheet" href="/ThemGiaoVien.css">
+    <link href="/ThemGiaoVien.css" rel="stylesheet">
 </head>
 <body>
 
@@ -11,52 +11,58 @@
     <h2 class="mb-4">Thêm Giáo Viên</h2>
 
     <!-- Hiển thị thông báo lỗi -->
-    <div th:if="${error}" class="alert alert-danger">
+    <div class="alert alert-danger" th:if="${error}">
         <p th:text="${error}"></p>
     </div>
 
-    <form th:action="@{/ThemGiaoVien}" method="post">
+    <!-- Hiển thị thông báo thành công -->
+    <div class="alert alert-success" th:if="${successMessage}">
+        <p th:text="${successMessage}"></p>
+    </div>
+
+    <!-- Form thêm giáo viên -->
+    <form method="post" th:action="@{/ThemGiaoVien}">
         <div class="mb-3">
-            <label for="teacherID" class="form-label">ID Giáo Viên</label>
-            <input type="text" class="form-control" id="teacherID" name="TeacherID" required>
+            <label class="form-label" for="teacherID">ID Giáo Viên</label>
+            <input class="form-control" id="teacherID" name="TeacherID" required type="text">
         </div>
         <div class="mb-3">
-            <label for="firstName" class="form-label">Tên</label>
-            <input type="text" class="form-control" id="firstName" name="FirstName" required>
+            <label class="form-label" for="firstName">Tên</label>
+            <input class="form-control" id="firstName" name="FirstName" required type="text">
         </div>
         <div class="mb-3">
-            <label for="lastName" class="form-label">Họ</label>
-            <input type="text" class="form-control" id="lastName" name="LastName" required>
+            <label class="form-label" for="lastName">Họ</label>
+            <input class="form-control" id="lastName" name="LastName" required type="text">
         </div>
         <div class="mb-3">
-            <label for="password" class="form-label">Mật khẩu</label>
-            <input type="text" class="form-control" id="password" name="Password" required>
+            <label class="form-label" for="password">Mật khẩu</label>
+            <input class="form-control" id="password" name="Password" required type="password">
         </div>
         <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="Email" required>
+            <label class="form-label" for="email">Email</label>
+            <input class="form-control" id="email" name="Email" required type="email">
         </div>
         <div class="mb-3">
-            <label for="phoneNumber" class="form-label">Số điện thoại</label>
-            <input type="text" class="form-control" id="phoneNumber" name="PhoneNumber" required>
+            <label class="form-label" for="phoneNumber">Số điện thoại</label>
+            <input class="form-control" id="phoneNumber" name="PhoneNumber" required type="text">
         </div>
         <div class="mb-3">
-            <label for="misID" class="form-label">MIS ID</label>
-            <input type="text" class="form-control" id="misID" name="MisID">
+            <label class="form-label" for="misID">MIS ID</label>
+            <input class="form-control" id="misID" name="MisID" type="text">
         </div>
         <div class="mb-3">
-            <label for="employee" class="form-label">Chọn Nhân Viên</label>
+            <label class="form-label" for="employee">Chọn Nhân Viên</label>
             <select class="form-select" id="employee" name="EmployeeID">
                 <option value="">-- Chọn nhân viên (không bắt buộc) --</option>
                 <option th:each="employee : ${employees}"
-                        th:value="${employee.id}"
-                        th:text="${employee.firstName + ' ' + employee.lastName}">
+                        th:text="${employee.firstName + ' ' + employee.lastName}"
+                        th:value="${employee.id}">
                 </option>
             </select>
         </div>
-        <button type="submit" class="btn btn-primary">Thêm Giáo Viên</button>
+        <button class="btn btn-primary" type="submit">Thêm Giáo Viên</button>
         <div class="text-center mt-3">
-            <a href="/DanhSachGiaoVien" class="btn btn-secondary">Quay Lại Danh Sách Giáo Viên</a>
+            <a class="btn btn-secondary" href="/DanhSachGiaoVien">Quay Lại Danh Sách Giáo Viên</a>
         </div>
     </form>
 </div>
