@@ -34,6 +34,7 @@ public class NhanVienPost {
     private EntityManager entityManager;
 
 
+    @Transactional
     @PostMapping("/DangKyNhanVien")
     public String DangKyNhanVien(@RequestParam String EmployeeID,
                                  @RequestParam String FirstName,
@@ -45,18 +46,26 @@ public class NhanVienPost {
                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate DateOfBirth,
                                  Model model) {
 
+        System.out.println("Bắt đầu đăng ký nhân viên...");
+
         // Kiểm tra EmployeeID đã tồn tại chưa
-        if (entityManager.find(Employees.class, EmployeeID) != null) {
+        if (entityManager.find(Person.class, EmployeeID) != null) {
             model.addAttribute("employeeIDError", "Mã nhân viên đã tồn tại.");
             return "DangKyNhanVien";
         }
 
+        // Kiểm tra Email có hợp lệ không
+        if (!Email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            model.addAttribute("emailFormatError", "Email không hợp lệ.");
+            return "DangKyNhanVien";
+        }
+
         // Kiểm tra Email đã tồn tại chưa
-        List<Employees> existingEmployees = entityManager.createQuery(
-                        "SELECT e FROM Employees e WHERE e.email = :email", Employees.class)
+        List<Person> existingEmployeesByEmail = entityManager.createQuery(
+                        "SELECT e FROM Person e WHERE e.email = :email", Person.class)
                 .setParameter("email", Email)
                 .getResultList();
-        if (!existingEmployees.isEmpty()) {
+        if (!existingEmployeesByEmail.isEmpty()) {
             model.addAttribute("emailError", "Email này đã được sử dụng.");
             return "DangKyNhanVien";
         }
@@ -67,27 +76,42 @@ public class NhanVienPost {
             return "DangKyNhanVien";
         }
 
+        // Kiểm tra số điện thoại đã tồn tại chưa
+        List<Person> existingEmployeesByPhone = entityManager.createQuery(
+                        "SELECT e FROM Person e WHERE e.phoneNumber = :phoneNumber", Person.class)
+                .setParameter("phoneNumber", PhoneNumber)
+                .getResultList();
+        if (!existingEmployeesByPhone.isEmpty()) {
+            model.addAttribute("phoneDuplicateError", "Số điện thoại này đã được sử dụng.");
+            return "DangKyNhanVien";
+        }
+
         // Kiểm tra mật khẩu có khớp không
         if (!Password.equals(ConfirmPassword)) {
             model.addAttribute("passwordError", "Mật khẩu không khớp.");
             return "DangKyNhanVien";
         }
 
-        // Kiểm tra độ mạnh của mật khẩu (8+ ký tự, chứa số và ký tự đặc biệt)
+        // Kiểm tra độ mạnh của mật khẩu (ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt)
         if (!isValidPassword(Password)) {
-            model.addAttribute("passwordStrengthError", "Mật khẩu phải có ít nhất 8 ký tự, bao gồm số và ký tự đặc biệt.");
+            model.addAttribute("passwordStrengthError", "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.");
             return "DangKyNhanVien";
         }
 
-        // Kiểm tra ngày sinh (phải >= 18 tuổi)
+        // Kiểm tra tuổi (phải >= 18 tuổi)
         LocalDate today = LocalDate.now();
         int age = Period.between(DateOfBirth, today).getYears();
-        if (age > 6) {
-            model.addAttribute("dobError", "Bạn phải hơn 6 tuổi để đăng ký.");
+        if (age < 18) {
+            model.addAttribute("dobError", "Bạn phải từ 18 tuổi trở lên để đăng ký.");
             return "DangKyNhanVien";
         }
-        // Lấy Admin
-        List<Admin> admins = entityManager.createQuery("from Admin", Admin.class).getResultList();
+
+        // Lấy Admin (nếu không có admin -> lỗi)
+        List<Admin> admins = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
+        if (admins.isEmpty()) {
+            model.addAttribute("adminError", "Không tìm thấy Admin.");
+            return "DangKyNhanVien";
+        }
         Admin admin = admins.get(0);
 
         // Tạo nhân viên mới
@@ -96,12 +120,19 @@ public class NhanVienPost {
         employees.setFirstName(FirstName);
         employees.setLastName(LastName);
         employees.setEmail(Email);
-        employees.setPassword(Password);
+        employees.setPassword(Password); // Lưu mật khẩu đã mã hóa
         employees.setPhoneNumber(PhoneNumber);
         employees.setBirthDate(DateOfBirth);
         employees.setAdmin(admin);
 
-        entityManager.persist(employees);
+        try {
+            entityManager.persist(employees);
+            System.out.println("Đăng ký nhân viên thành công!");
+        } catch (Exception e) {
+            System.out.println("Lỗi khi lưu nhân viên: " + e.getMessage());
+            model.addAttribute("databaseError", "Lỗi khi lưu dữ liệu.");
+            return "DangKyNhanVien";
+        }
 
         return "redirect:/TrangChu";
     }
@@ -360,6 +391,7 @@ public class NhanVienPost {
         newRoom.setRoomId(roomId);
         newRoom.setRoomName(roomName);
         newRoom.setEmployee(employee);
+        newRoom.setCreatedAt(LocalDateTime.now());
         entityManager.persist(newRoom);
 
         redirectAttributes.addFlashAttribute("success", "Thêm phòng học thành công!");
@@ -402,6 +434,7 @@ public class NhanVienPost {
         newRoom.setRoomName(roomName);
         newRoom.setStatus(status);
         newRoom.setEmployee(employee);
+        newRoom.setCreatedAt(LocalDateTime.now());
 
         // Lưu vào database
         entityManager.persist(newRoom);
@@ -638,6 +671,99 @@ public class NhanVienPost {
     public String DanhSachNguoiDungHeThong1(@RequestParam("pageSize") int pageSize, HttpSession session) {
         session.setAttribute("pageSize4", pageSize); // Thống nhất key với GET request
         return "redirect:/DanhSachNguoiDungHeThong";
+    }
+
+    @PostMapping("/TimKiemGiaoVienCuaBan")
+    public String timKiemGiaoVienCuaBan(@RequestParam("searchType") String searchType,
+                                        @RequestParam("keyword") String keyword,
+                                        ModelMap model) {
+        List<Teachers> searchResults;
+
+        if (searchType.equalsIgnoreCase("name")) {
+            searchResults = entityManager.createQuery(
+                            "SELECT t FROM Teachers t " +
+                                    "WHERE LOWER(t.firstName) LIKE LOWER(:keyword) " +
+                                    "OR LOWER(t.lastName) LIKE LOWER(:keyword) " +
+                                    "OR LOWER(CONCAT(t.firstName, ' ', t.lastName)) LIKE LOWER(:keyword)", Teachers.class)
+                    .setParameter("keyword", "%" + keyword + "%")
+                    .getResultList();
+        } else if (searchType.equalsIgnoreCase("id")) {
+            Teachers teacher = entityManager.find(Teachers.class, keyword);
+            searchResults = (teacher != null) ? List.of(teacher) : List.of();
+        } else {
+            searchResults = List.of();
+        }
+
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("teachers", searchResults);
+        return "DanhSachTimKiemGiaoVienCuaBan";
+    }
+
+    @PostMapping("/TimKiemHocSinhCuaBan")
+    public String timKiemHocSinhCuaBan(@RequestParam("searchType") String searchType,
+                                       @RequestParam("keyword") String keyword,
+                                       ModelMap model) {
+        List<Students> searchResults = List.of(); // Mặc định danh sách rỗng
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            if ("id".equalsIgnoreCase(searchType)) {
+                Students student = entityManager.find(Students.class, keyword);
+                if (student != null) {
+                    searchResults = List.of(student);
+                }
+            } else if ("name".equalsIgnoreCase(searchType)) {
+                searchResults = entityManager.createQuery("""
+                                SELECT s FROM Students s 
+                                WHERE LOWER(s.firstName) LIKE :keyword 
+                                   OR LOWER(s.lastName) LIKE :keyword
+                                   OR LOWER(CONCAT(s.firstName, ' ', s.lastName)) LIKE :keyword
+                                """, Students.class)
+                        .setParameter("keyword", "%" + keyword.toLowerCase() + "%")
+                        .getResultList();
+            }
+        }
+
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("students", searchResults);
+        return "DanhSachTimKiemHocSinhCuaBan";
+    }
+
+    @PostMapping("/DanhSachTimKiemPhongHoc")
+    public String searchRooms(
+            @RequestParam("searchType") String searchType,
+            @RequestParam("keyword") String keyword,
+            Model model) {
+
+        List<Rooms> roomsOffline;
+        List<OnlineRooms> roomsOnline;
+
+        if ("id".equals(searchType)) {
+            roomsOffline = entityManager.createQuery(
+                            "FROM Rooms r WHERE r.roomId = :keyword", Rooms.class)
+                    .setParameter("keyword", keyword)
+                    .getResultList();
+
+            roomsOnline = entityManager.createQuery(
+                            "FROM OnlineRooms r WHERE r.roomId = :keyword", OnlineRooms.class)
+                    .setParameter("keyword", keyword)
+                    .getResultList();
+        } else {
+            roomsOffline = entityManager.createQuery(
+                            "FROM Rooms r WHERE r.roomName LIKE :keyword", Rooms.class)
+                    .setParameter("keyword", "%" + keyword + "%")
+                    .getResultList();
+
+            roomsOnline = entityManager.createQuery(
+                            "FROM OnlineRooms r WHERE r.roomName LIKE :keyword", OnlineRooms.class)
+                    .setParameter("keyword", "%" + keyword + "%")
+                    .getResultList();
+        }
+
+        model.addAttribute("roomsOffline", roomsOffline);
+        model.addAttribute("roomsOnline", roomsOnline);
+        model.addAttribute("keyword", keyword);
+
+        return "DanhSachTimKiemPhongHoc"; // Đảm bảo có file HTML này trong templates
     }
 
 

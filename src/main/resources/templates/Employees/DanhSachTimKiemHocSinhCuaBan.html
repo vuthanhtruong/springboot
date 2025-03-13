@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết Quả Tìm Kiếm Học Sinh</title>
+    <link rel="stylesheet" th:href="@{/DanhSachHocSinhCuaBan.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h1 class="text-center text-primary">
+        <i class="fas fa-user-graduate"></i> Kết Quả Tìm Kiếm Học Sinh
+    </h1>
+
+    <!-- Thanh điều hướng -->
+    <div class="mb-3">
+        <a class="btn btn-secondary" th:href="@{/TrangChuNhanVien}">
+            <i class="fas fa-home"></i> Trang Chủ
+        </a>
+        <a class="btn btn-success" th:href="@{/ThemHocSinhCuaBan}">
+            <i class="fas fa-user-plus"></i> Thêm Học Sinh
+        </a>
+    </div>
+
+    <!-- Form tìm kiếm -->
+    <form method="post" th:action="@{/TimKiemHocSinhCuaBan}">
+        <div class="input-group mb-3 w-50">
+            <select class="form-select" name="searchType">
+                <option th:selected="${searchType == 'name'}" value="name">🔍 Tìm theo Tên</option>
+                <option th:selected="${searchType == 'id'}" value="id">🔍 Tìm theo ID</option>
+            </select>
+            <input class="form-control" name="keyword" placeholder="Nhập từ khóa..." th:value="${keyword}" type="text">
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-search"></i> Tìm Kiếm
+            </button>
+        </div>
+    </form>
+
+    <!-- Bảng hiển thị kết quả -->
+    <table class="table table-bordered">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Họ và Tên</th>
+            <th>Misld</th>
+            <th>Email</th>
+            <th>Số Điện Thoại</th>
+            <th>Hành Động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="student : ${students}">
+            <td th:text="${student.id}"></td>
+            <td th:text="${student.firstName + ' ' + student.lastName}"></td>
+            <td th:text="${student.getMisId()}"></td>
+            <td th:text="${student.email}"></td>
+            <td th:text="${student.phoneNumber}"></td>
+            <td>
+                <a class="btn btn-warning btn-sm" th:href="@{/SuaHocSinhCuaBan/{id}(id=${student.id})}">
+                    <i class="fas fa-edit"></i> Sửa
+                </a>
+                <a class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn xóa?');"
+                   th:href="@{/XoaHocSinhCuaBan/{id}(id=${student.id})}">
+                    <i class="fas fa-trash"></i> Xóa
+                </a>
+            </td>
+        </tr>
+        <tr th:if="${students.isEmpty()}">
+            <td class="text-center text-danger" colspan="6">
+                <i class="fas fa-exclamation-circle"></i> Không tìm thấy học sinh nào!
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -69,7 +69,7 @@ public class TrangCaNhanPost {
             return "redirect:/TrangChuNhanVien";
         }
 
-        return "redirect:/TrangChu"; // Mặc định về trang chủ nếu không xác định được loại user
+        return "redirect:/TrangChu";
     }
 
 }

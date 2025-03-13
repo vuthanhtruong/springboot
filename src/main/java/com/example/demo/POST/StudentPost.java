@@ -66,7 +66,7 @@ public class StudentPost {
         }
 
         // Kiểm tra StudentID đã tồn tại chưa
-        if (entityManager.find(Students.class, studentID) != null) {
+        if (entityManager.find(Person.class, studentID) != null) {
             redirectAttributes.addFlashAttribute("errorStudentID", "Mã học sinh đã tồn tại!");
             return "redirect:/DangKyHocSinh";
         }
@@ -84,7 +84,7 @@ public class StudentPost {
 
         // Kiểm tra số điện thoại có tồn tại chưa
         boolean phoneExists = !entityManager.createQuery(
-                        "SELECT s FROM Students s WHERE s.phoneNumber = :phoneNumber", Students.class)
+                        "SELECT s FROM Person s WHERE s.phoneNumber = :phoneNumber", Person.class)
                 .setParameter("phoneNumber", phoneNumber)
                 .getResultList().isEmpty();
 

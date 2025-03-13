@@ -5,21 +5,6 @@
     <title>Danh Sách Giáo Viên Của Bạn</title>
     <link rel="stylesheet" th:href="@{/DanhSachGiaoVienCuaBan.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <script>
-        function searchTeachers() {
-            let input = document.getElementById("searchInput").value.toLowerCase();
-            let filterType = document.getElementById("searchFilter").value;
-            let rows = document.querySelectorAll("#teacherTable tbody tr");
-
-            rows.forEach(row => {
-                let id = row.querySelector("td:nth-child(1)").textContent.toLowerCase();
-                let fullName = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
-
-                row.style.display = (filterType === "id" && id.includes(input)) ||
-                (filterType === "name" && fullName.includes(input)) ? "" : "none";
-            });
-        }
-    </script>
 </head>
 <body>
 
@@ -31,14 +16,18 @@
     <div>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="input-group w-50">
-                <select class="form-select" id="searchFilter">
-                    <option value="name">🔍 Tìm theo Tên</option>
-                    <option value="id">🔍 Tìm theo ID</option>
-                </select>
-                <input class="form-control" id="searchInput" onkeyup="searchTeachers()" placeholder="Nhập từ khóa..."
-                       type="text">
-            </div>
+            <form method="post" th:action="@{/TimKiemHocSinhCuaBan}">
+                <div class="input-group w-50">
+                    <select class="form-select" name="searchType">
+                        <option value="name">🔍 Tìm theo Tên</option>
+                        <option value="id">🔍 Tìm theo ID</option>
+                    </select>
+                    <input class="form-control" name="keyword" placeholder="Nhập từ khóa..." type="text">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i> Tìm Kiếm
+                    </button>
+                </div>
+            </form>
             <div>
                 <a class="btn btn-secondary mx-2" th:href="@{/TrangChuNhanVien}">
                     <i class="fas fa-home"></i> Trang Chủ

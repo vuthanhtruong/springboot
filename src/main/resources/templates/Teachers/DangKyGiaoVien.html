@@ -12,11 +12,10 @@
     <h1 class="text-center">Đăng Ký Giáo Viên</h1>
 
     <!-- Hiển thị lỗi chung từ server -->
-    <div class="alert alert-danger text-center" role="alert" th:if="${errorMessage}">
-        <span th:text="${errorMessage}"></span>
+    <div class="alert alert-danger text-center" role="alert" th:if="${databaseError}">
+        <span th:text="${databaseError}"></span>
     </div>
 
-    <!-- Form đăng ký giáo viên -->
     <form method="POST" th:action="@{/DangKyGiaoVien}">
         <div class="mb-3">
             <label class="form-label" for="TeacherID">ID Giáo Viên</label>
@@ -43,9 +42,9 @@
         <div class="mb-3">
             <label class="form-label" for="PhoneNumber">Số Điện Thoại:</label>
             <input class="form-control" id="PhoneNumber" name="PhoneNumber" required type="text">
+            <div class="text-danger" th:if="${phoneError}" th:text="${phoneError}"></div>
         </div>
 
-        <!-- Thêm trường nhập ngày sinh -->
         <div class="mb-3">
             <label class="form-label" for="BirthDate">Ngày Sinh:</label>
             <input class="form-control" id="BirthDate" name="BirthDate" required type="date">
@@ -69,14 +68,15 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label" for="employeeID">Chọn Nhân Viên:</label>
-            <select class="form-select" id="employeeID" name="EmployeeID" required>
+            <label class="form-label" for="EmployeeID">Chọn Nhân Viên:</label>
+            <select class="form-select" id="EmployeeID" name="EmployeeID" required>
                 <option disabled selected value="">Chọn Nhân Viên</option>
                 <th:block th:each="employee : ${employees}">
                     <option th:text="${employee.firstName + ' ' + employee.lastName}"
                             th:value="${employee.id}"></option>
                 </th:block>
             </select>
+            <div class="text-danger" th:if="${employeeError}" th:text="${employeeError}"></div>
         </div>
 
         <div class="d-flex justify-content-between">

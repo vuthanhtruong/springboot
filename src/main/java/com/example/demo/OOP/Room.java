@@ -40,6 +40,10 @@ public abstract class Room {
     @Column(name = "EndTime", nullable = true)
     private LocalDateTime endTime;
 
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdAt;
+
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Posts> posts = new ArrayList<>();
 

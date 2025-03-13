@@ -339,7 +339,8 @@ public class NhanVienGet {
             HttpSession session,
             @RequestParam(defaultValue = "1") int pageOffline,
             @RequestParam(defaultValue = "1") int pageOnline,
-            @RequestParam(required = false) Integer pageSize // Cho phép null
+            @RequestParam(required = false) Integer pageSize,
+            @RequestParam(required = false) String sortOrder // NULL nếu không chọn
     ) {
         if (pageSize == null) {
             pageSize = (Integer) session.getAttribute("pageSize3");
@@ -347,17 +348,17 @@ public class NhanVienGet {
                 pageSize = 5; // Mặc định 5 nếu chưa có
             }
         }
-        session.setAttribute("pageSize3", pageSize); // Lưu pageSize vào session để dùng sau
+        session.setAttribute("pageSize3", pageSize);
 
         // ====== XỬ LÝ PHÂN TRANG CHO PHÒNG HỌC OFFLINE ======
         Long totalOfflineRooms = (Long) entityManager.createQuery("SELECT COUNT(r) FROM Rooms r")
                 .getSingleResult();
-        int totalOfflinePages = (int) Math.ceil((double) totalOfflineRooms / pageSize);
-        totalOfflinePages = Math.max(totalOfflinePages, 1); // Đảm bảo totalOfflinePages ≥ 1
-        pageOffline = Math.max(1, Math.min(pageOffline, totalOfflinePages)); // Giới hạn trang từ 1 → totalPages
+        int totalOfflinePages = Math.max(1, (int) Math.ceil((double) totalOfflineRooms / pageSize));
+        pageOffline = Math.max(1, Math.min(pageOffline, totalOfflinePages));
 
         int firstOfflineResult = (pageOffline - 1) * pageSize;
-        List<Rooms> offlineRooms = entityManager.createQuery("FROM Rooms", Rooms.class)
+        String offlineQuery = "FROM Rooms r" + (sortOrder != null ? " ORDER BY r.createdAt " + ("asc".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC") : "");
+        List<Rooms> offlineRooms = entityManager.createQuery(offlineQuery, Rooms.class)
                 .setFirstResult(firstOfflineResult)
                 .setMaxResults(pageSize)
                 .getResultList();
@@ -365,12 +366,12 @@ public class NhanVienGet {
         // ====== XỬ LÝ PHÂN TRANG CHO PHÒNG HỌC ONLINE ======
         Long totalOnlineRooms = (Long) entityManager.createQuery("SELECT COUNT(r) FROM OnlineRooms r")
                 .getSingleResult();
-        int totalOnlinePages = (int) Math.ceil((double) totalOnlineRooms / pageSize);
-        totalOnlinePages = Math.max(totalOnlinePages, 1); // Đảm bảo totalOnlinePages ≥ 1
-        pageOnline = Math.max(1, Math.min(pageOnline, totalOnlinePages)); // Giới hạn trang từ 1 → totalPages
+        int totalOnlinePages = Math.max(1, (int) Math.ceil((double) totalOnlineRooms / pageSize));
+        pageOnline = Math.max(1, Math.min(pageOnline, totalOnlinePages));
 
         int firstOnlineResult = (pageOnline - 1) * pageSize;
-        List<OnlineRooms> onlineRooms = entityManager.createQuery("FROM OnlineRooms", OnlineRooms.class)
+        String onlineQuery = "FROM OnlineRooms r" + (sortOrder != null ? " ORDER BY r.createdAt " + ("asc".equalsIgnoreCase(sortOrder) ? "ASC" : "DESC") : "");
+        List<OnlineRooms> onlineRooms = entityManager.createQuery(onlineQuery, OnlineRooms.class)
                 .setFirstResult(firstOnlineResult)
                 .setMaxResults(pageSize)
                 .getResultList();
@@ -385,6 +386,7 @@ public class NhanVienGet {
         model.addAttribute("currentPageOnline", pageOnline);
         model.addAttribute("totalPagesOnline", totalOnlinePages);
         model.addAttribute("pageSize", pageSize);
+        model.addAttribute("sortOrder", sortOrder); // Truyền sortOrder lên giao diện
 
         return "DanhSachPhongHoc";
     }
@@ -850,5 +852,30 @@ public class NhanVienGet {
         return "FeedbackHocSinh";
     }
 
+    @Transactional
+    @GetMapping("/XoaTatCaPhongHocOffline")
+    public String deleteAllOfflineRooms() {
+        entityManager.createQuery("DELETE FROM Rooms").executeUpdate();
+        return "redirect:/DanhSachPhongHoc"; // Chuyển hướng về danh sách phòng
+    }
 
+    /**
+     * 🔹 Xóa tất cả phòng học online (GET)
+     */
+    @Transactional
+    @GetMapping("/XoaTatCaPhongHocOnline")
+    public String deleteAllOnlineRooms() {
+        entityManager.createQuery("DELETE FROM OnlineRooms").executeUpdate();
+        return "redirect:/DanhSachPhongHoc"; // Chuyển hướng về danh sách phòng
+    }
+
+    /**
+     * 🔹 Xóa tất cả phòng học (Cả online & offline) (GET)
+     */
+    @Transactional
+    @GetMapping("/XoaTatCaPhongHoc")
+    public String deleteAllRooms() {
+        entityManager.createQuery("DELETE FROM Room").executeUpdate();
+        return "redirect:/DanhSachPhongHoc"; // Chuyển hướng về danh sách phòng
+    }
 }

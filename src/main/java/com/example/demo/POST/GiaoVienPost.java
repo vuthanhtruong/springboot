@@ -67,6 +67,12 @@ public class GiaoVienPost {
 
         System.out.println("Bắt đầu đăng ký giáo viên...");
 
+        // Kiểm tra TeacherID đã tồn tại
+        if (entityManager.find(Person.class, teacherID) != null) {
+            model.addAttribute("teacherIDError", "TeacherID đã tồn tại.");
+            return "DangKyGiaoVien";
+        }
+
         // Kiểm tra mật khẩu có khớp không
         if (!password.equals(confirmPassword)) {
             model.addAttribute("passwordError", "Mật khẩu không khớp.");
@@ -86,19 +92,23 @@ public class GiaoVienPost {
         }
 
         // Kiểm tra nếu Email đã tồn tại
-        List<Teachers> existingTeachers = entityManager.createQuery("SELECT t FROM Teachers t WHERE t.email = :email", Teachers.class)
+        List<Person> existingTeachersByEmail = entityManager.createQuery("SELECT t FROM Person t WHERE t.email = :email", Person.class)
                 .setParameter("email", email)
                 .getResultList();
-        if (!existingTeachers.isEmpty()) {
+        if (!existingTeachersByEmail.isEmpty()) {
             model.addAttribute("emailError", "Email này đã được sử dụng.");
             return "DangKyGiaoVien";
         }
 
-        // Kiểm tra TeacherID đã tồn tại
-        if (entityManager.find(Person.class, teacherID) != null) {
-            model.addAttribute("teacherIDError", "TeacherID đã tồn tại.");
+        // Kiểm tra nếu Số điện thoại đã tồn tại
+        List<Person> existingTeachersByPhone = entityManager.createQuery("SELECT t FROM Person t WHERE t.phoneNumber = :phoneNumber", Person.class)
+                .setParameter("phoneNumber", phoneNumber)
+                .getResultList();
+        if (!existingTeachersByPhone.isEmpty()) {
+            model.addAttribute("phoneError", "Số điện thoại này đã được sử dụng.");
             return "DangKyGiaoVien";
         }
+
         // Lấy Admin
         List<Admin> adminList = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
         if (adminList.isEmpty()) {
@@ -135,6 +145,7 @@ public class GiaoVienPost {
             model.addAttribute("databaseError", "Lỗi khi lưu dữ liệu.");
             return "DangKyGiaoVien";
         }
+
         return "redirect:/TrangChu";
     }
 

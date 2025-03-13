@@ -70,7 +70,10 @@ public class SecurityConfig {
                                 "/GuiThongBao/**",
                                 "/BangDieuKhienNhanVien/**",
                                 "/BangDieuKhienHocSinh/**",
-                                "/BangDieuKhienGiaoVien/**"
+                                "/BangDieuKhienGiaoVien/**",
+                                "/TimKiemGiaoVienCuaBan",
+                                "/TimKiemHocSinhCuaBan",
+                                "/DanhSachTimKiemPhongHoc"
                         ).hasRole("EMPLOYEE")
                         .requestMatchers(HttpMethod.GET,
                                 "/TrangChuGiaoVien",

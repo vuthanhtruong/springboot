@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết Quả Tìm Kiếm Giáo Viên</title>
+    <link rel="stylesheet" th:href="@{/DanhSachGiaoVienCuaBan.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h1 class="text-center text-primary">
+        <i class="fas fa-search"></i> Kết Quả Tìm Kiếm Giáo Viên
+    </h1>
+
+    <!-- Form tìm kiếm -->
+    <form class="d-flex justify-content-center mb-3" method="post" th:action="@{/TimKiemGiaoVienCuaBan}">
+        <div class="input-group w-50">
+            <select class="form-select" id="searchType" name="searchType">
+                <option th:selected="${searchType == 'name'}" value="name">🔍 Tìm theo Tên</option>
+                <option th:selected="${searchType == 'id'}" value="id">🔍 Tìm theo ID</option>
+            </select>
+            <input class="form-control" id="searchInput" name="keyword" placeholder="Nhập từ khóa..."
+                   required th:value="${keyword}" type="text">
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-search"></i> Tìm Kiếm
+            </button>
+        </div>
+    </form>
+
+    <!-- Nút quay lại danh sách đầy đủ -->
+    <div class="text-center mb-3">
+        <a class="btn btn-secondary" th:href="@{/DanhSachGiaoVienCuaBan}">
+            <i class="fas fa-arrow-left"></i> Quay Lại Danh Sách Đầy Đủ
+        </a>
+    </div>
+
+    <!-- Kiểm tra nếu không có kết quả -->
+    <div class="alert alert-warning text-center" th:if="${teachers.isEmpty()}">
+        <i class="fas fa-exclamation-triangle"></i> Không tìm thấy giáo viên nào phù hợp với từ khóa "<span
+            th:text="${keyword}"></span>".
+    </div>
+
+    <!-- Hiển thị kết quả tìm kiếm -->
+    <div class="table-responsive" th:if="${!teachers.isEmpty()}">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark text-center">
+            <tr>
+                <th>ID</th>
+                <th>Họ và Tên</th>
+                <th>Email</th>
+                <th>Số Điện Thoại</th>
+                <th>Hành Động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="teacher : ${teachers}">
+                <td class="text-center" th:text="${teacher.id}"></td>
+                <td th:text="${teacher.firstName + ' ' + teacher.lastName}"></td>
+                <td th:text="${teacher.email}"></td>
+                <td class="text-center" th:text="${teacher.phoneNumber}"></td>
+                <td class="text-center">
+                    <a class="btn btn-warning btn-sm" th:href="@{/SuaGiaoVienCuaBan/{id}(id=${teacher.id})}">
+                        <i class="fas fa-edit"></i> Sửa
+                    </a>
+                    <a class="btn btn-danger btn-sm"
+                       onclick="return confirm('Bạn có chắc muốn xóa giáo viên này không?');"
+                       th:href="@{/XoaGiaoVienCuaBan/{id}(id=${teacher.id})}">
+                        <i class="fas fa-trash-alt"></i> Xóa
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
