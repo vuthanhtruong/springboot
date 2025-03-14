@@ -7,5 +7,8 @@ WORKDIR /app
 # Sao chép toàn bộ mã nguồn vào container
 COPY . .
 
+# Cấp quyền thực thi cho mvnw (nếu có)
+RUN chmod +x ./mvnw
+
 # Chạy Maven để build
-RUN chmod +x ./mvnw && ./mvnw -B -DskipTests clean install
+RUN ./mvnw -B -DskipTests clean install
