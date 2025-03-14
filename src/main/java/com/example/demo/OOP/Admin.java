@@ -3,6 +3,8 @@ package com.example.demo.OOP;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.Set;
 
@@ -11,6 +13,7 @@ import java.util.Set;
 @PrimaryKeyJoinColumn(name = "ID") // Liên kết với khóa chính của Person
 @Getter
 @Setter
+@OnDelete(action = OnDeleteAction.CASCADE)
 public class Admin extends Person {
 
     @Column(name = "Password", nullable = false, length = 255)
@@ -33,4 +36,5 @@ public class Admin extends Person {
     // Constructor không tham số (cần thiết cho JPA)
     public Admin() {
     }
+
 }

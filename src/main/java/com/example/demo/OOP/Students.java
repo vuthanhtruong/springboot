@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @PrimaryKeyJoinColumn(name = "ID") // Liên kết với khóa chính của Person
 @Getter
 @Setter
+@OnDelete(action = OnDeleteAction.CASCADE)
 public class Students extends Person {
 
     @Column(name = "Password", nullable = false, length = 255)
