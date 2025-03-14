@@ -7,9 +7,5 @@ WORKDIR /app
 # Sao chép toàn bộ mã nguồn vào container
 COPY . .
 
-# Đặt JAVA_HOME cho Maven
-ENV JAVA_HOME=/usr/local/openjdk-21
-ENV PATH="${JAVA_HOME}/bin:${PATH}"
-
-# Cấp quyền thực thi cho mvnw và chạy build
-RUN chmod +x ./mvnw && ./mvnw -DskipTests clean install
+# Chạy Maven để build
+RUN chmod +x ./mvnw && ./mvnw -B -DskipTests clean install
