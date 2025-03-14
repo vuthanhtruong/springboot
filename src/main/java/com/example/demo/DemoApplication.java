@@ -30,8 +30,8 @@ public class DemoApplication {
             // Bắt đầu transaction
             entityManager.getTransaction().begin();
 
-            // Mã hóa mật khẩu Admin nếu cần
-            processAdminPassword(entityManager, passwordEncoder);
+            // Thêm Admin mặc định nếu chưa tồn tại
+            addDefaultAdmin(entityManager, passwordEncoder);
 
             // Commit transaction
             entityManager.getTransaction().commit();
@@ -62,26 +62,19 @@ public class DemoApplication {
         }
     }
 
-    // Mã hóa mật khẩu admin nếu chưa mã hóa
-    private static void processAdminPassword(EntityManager entityManager, PasswordEncoder passwordEncoder) {
-        List<Admin> admins = entityManager.createQuery("SELECT a FROM Admin a", Admin.class)
-                .setMaxResults(1)
-                .getResultList();
-
-        if (!admins.isEmpty()) {
-            Admin firstAdmin = admins.get(0);
-            String currentPassword = firstAdmin.getPassword();
-
-            if (!isPasswordEncoded(currentPassword)) {
-                String encodedPassword = passwordEncoder.encode(currentPassword);
-                firstAdmin.setPassword(encodedPassword);
-                entityManager.merge(firstAdmin);
-                System.out.println("Mật khẩu của admin đầu tiên đã được mã hóa.");
-            } else {
-                System.out.println("Mật khẩu của admin đầu tiên đã được mã hóa sẵn.");
-            }
-        } else {
-            System.out.println("Không tìm thấy admin nào trong cơ sở dữ liệu.");
+    // Thêm Admin mặc định nếu chưa tồn tại
+    private static void addDefaultAdmin(EntityManager entityManager, PasswordEncoder passwordEncoder) {
+        try {
+            Admin existingAdmin = entityManager.createQuery("SELECT a FROM Admin a WHERE a.id = :id", Admin.class)
+                    .setParameter("id", "admin")
+                    .getSingleResult();
+            System.out.println("Admin mặc định đã tồn tại.");
+        } catch (NoResultException e) {
+            String encodedPassword = passwordEncoder.encode("Admin123");
+            Admin defaultAdmin = new Admin("admin", encodedPassword, "Default", "Admin", "admin@example.com", "+1234567890");
+            defaultAdmin.setBirthDate(LocalDateTime.of(1990, 1, 1, 0, 0).toLocalDate());
+            entityManager.persist(defaultAdmin);
+            System.out.println("Đã thêm Admin mặc định.");
         }
     }
 
@@ -109,11 +102,6 @@ public class DemoApplication {
                 System.out.println("Sự kiện đã tồn tại: " + event.getTitle());
             }
         }
-    }
-
-    // Kiểm tra xem mật khẩu đã được mã hóa hay chưa
-    private static boolean isPasswordEncoded(String password) {
-        return password.startsWith("$2a$") || password.startsWith("$2b$") || password.startsWith("$2y$");
     }
 
     // Kiểm tra xem sự kiện đã tồn tại trong cơ sở dữ liệu chưa
