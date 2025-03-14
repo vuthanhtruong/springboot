@@ -20,7 +20,8 @@ WORKDIR /usr/local/tomcat/webapps/
 COPY --from=build /app/target/*.war app.war
 
 # Mở cổng 8080
-EXPOSE 8080
+EXPOSE 8081
+
 
 # Chạy Tomcat
 CMD ["catalina.sh", "run"]
