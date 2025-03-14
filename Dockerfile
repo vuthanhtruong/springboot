@@ -1,5 +1,5 @@
 # Giai đoạn build
-FROM maven:3.9.9-openjdk-21 AS build
+FROM maven:3.9.9-jdk-21 AS build
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
