@@ -1,12 +1,11 @@
-# Giai đoạn build
-FROM maven:3.9.9-eclipse-temurin-21 AS build
-WORKDIR /app
-COPY . .
-RUN mvn clean package -DskipTests
+# Sử dụng OpenJDK 17 làm nền tảng
+FROM openjdk:17-jdk
 
-# Giai đoạn chạy ứng dụng
-FROM openjdk:21-jdk-slim
+# Đặt thư mục làm việc trong container
 WORKDIR /app
-COPY --from=build /app/target/demo-0.0.1-SNAPSHOT.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Sao chép file JAR đã build vào container
+COPY target/demo-0.0.1-SNAPSHOT.jar app.jar
+
+# Chạy ứng dụng
+CMD ["java", "-jar", "app.jar"]
