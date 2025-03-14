@@ -20,6 +20,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET,
+                             
                                 "/TrangChuAdmin",
                                 "/DanhSachGiaoVien",
                                 "/DanhSachNhanVien",
@@ -31,6 +32,7 @@ public class SecurityConfig {
                                 "/XoaNhanVien/**"
                         ).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST,
+
                                 "/ThemGiaoVien",
                                 "/ThemNhanVien",
                                 "/ThemHocSinh",
@@ -42,6 +44,7 @@ public class SecurityConfig {
                                 "/TimKiemNhanVien"
                         ).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,
+
                                 "/TrangChuNhanVien",
                                 "/DanhSachNhanVien",
                                 "/DanhSachGiaoVienCuaBan",
@@ -50,6 +53,7 @@ public class SecurityConfig {
                                 "/DanhSachPhongHoc"
                         ).hasRole("EMPLOYEE")
                         .requestMatchers(HttpMethod.POST,
+
                                 "/CapNhatEmployee",
                                 "/TimKiemNhanVien",
                                 "/ThemGiaoVienCuaBan",
@@ -76,6 +80,7 @@ public class SecurityConfig {
                                 "/DanhSachTimKiemPhongHoc"
                         ).hasRole("EMPLOYEE")
                         .requestMatchers(HttpMethod.GET,
+
                                 "/TrangChuGiaoVien",
                                 "/DanhSachLopHocGiaoVien",
                                 "/ChiTietLopHocGiaoVien/**",
@@ -87,11 +92,13 @@ public class SecurityConfig {
                                 "/TinNhanCuaGiaoVien"
                         ).hasRole("TEACHER")
                         .requestMatchers(HttpMethod.POST,
+
                                 "/BaiPostGiaoVien",
                                 "/LuuThongTinGiaoVien",
                                 "/BinhLuanGiaoVien"
                         ).hasRole("TEACHER")
                         .requestMatchers(HttpMethod.GET,
+
                                 "/TrangChuHocSinh",
                                 "/DangXuatHocSinh",
                                 "/DanhSachLopHocHocSinh",

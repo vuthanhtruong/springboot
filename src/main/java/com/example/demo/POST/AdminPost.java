@@ -33,25 +33,25 @@ public class AdminPost {
             @RequestParam("PhoneNumber") String phoneNumber,
             @RequestParam(value = "MisID", required = false) String misID,
             @RequestParam("Password") String password,
-            Model model) {
+            RedirectAttributes redirectAttributes) { // Sử dụng RedirectAttributes
 
         try {
-            // Kiểm tra đăng nhập Admin
             Admin admin = entityManager.createQuery("FROM Admin", Admin.class).setMaxResults(1).getSingleResult();
 
-            // Kiểm tra Employee có tồn tại không
             Employees employee = entityManager.find(Employees.class, employeeID);
             if (employee == null) {
-                return "redirect:/ThemGiaoVien?error=EmployeeNotFound";
+                redirectAttributes.addFlashAttribute("error", "Nhân viên không tồn tại!");
+                return "redirect:/ThemGiaoVien";
             }
 
-            // Kiểm tra trùng lặp TeacherID
+            // Kiểm tra trùng TeacherID
             Person existingTeacher = entityManager.find(Person.class, teacherID);
             if (existingTeacher != null) {
-                return "redirect:/ThemGiaoVien?error=TeacherIDExists";
+                redirectAttributes.addFlashAttribute("error", "ID giáo viên đã tồn tại!");
+                return "redirect:/ThemGiaoVien";
             }
 
-            // Kiểm tra trùng lặp email, số điện thoại và MIS ID
+            // Kiểm tra Email & SĐT
             boolean emailExists = !entityManager.createQuery("SELECT t FROM Person t WHERE t.email = :email", Person.class)
                     .setParameter("email", email)
                     .getResultList().isEmpty();
@@ -60,24 +60,14 @@ public class AdminPost {
                     .setParameter("phoneNumber", phoneNumber)
                     .getResultList().isEmpty();
 
-            boolean misIDExists = misID != null && !misID.isEmpty() &&
-                    !entityManager.createQuery("SELECT t FROM Teachers t WHERE t.misID = :misID", Teachers.class)
-                            .setParameter("misID", misID)
-                            .getResultList().isEmpty();
-
             if (emailExists) {
-                return "redirect:/ThemGiaoVien?error=EmailExists";
+                redirectAttributes.addFlashAttribute("error", "Email đã tồn tại!");
+                return "redirect:/ThemGiaoVien";
             }
             if (phoneExists) {
-                return "redirect:/ThemGiaoVien?error=PhoneExists";
+                redirectAttributes.addFlashAttribute("error", "Số điện thoại đã tồn tại!");
+                return "redirect:/ThemGiaoVien";
             }
-            if (misIDExists) {
-                return "redirect:/ThemGiaoVien?error=MISIDExists";
-            }
-
-            // Định dạng tên (nếu cần)
-            firstName = formatName(firstName);
-            lastName = formatName(lastName);
 
             // Tạo giáo viên mới
             Teachers newTeacher = new Teachers();
@@ -89,18 +79,17 @@ public class AdminPost {
             newTeacher.setEmail(email);
             newTeacher.setPhoneNumber(phoneNumber);
             newTeacher.setMisID(misID);
-            newTeacher.setPassword(password); // Không mã hóa mật khẩu
+            newTeacher.setPassword(password);
 
-            // Lưu giáo viên mới vào cơ sở dữ liệu
             entityManager.persist(newTeacher);
 
-            return "redirect:/DanhSachGiaoVien?success=added";
+            redirectAttributes.addFlashAttribute("successMessage", "Thêm giáo viên thành công!");
+            return "redirect:/DanhSachGiaoVien";
         } catch (Exception e) {
-            // In case of any unexpected error, you can redirect with a generic error message
-            return "redirect:/ThemGiaoVien?error=UnexpectedError";
+            redirectAttributes.addFlashAttribute("error", "Lỗi hệ thống! Vui lòng thử lại.");
+            return "redirect:/ThemGiaoVien";
         }
     }
-
 
     // Phương thức định dạng tên (nếu cần)
     private String formatName(String name) {

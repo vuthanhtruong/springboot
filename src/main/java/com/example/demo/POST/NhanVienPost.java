@@ -561,7 +561,6 @@ public class NhanVienPost {
     public String LuuPhongHocOnline(
             @RequestParam("roomId") String roomId,
             @RequestParam("roomName") String roomName,
-            @RequestParam("status") Boolean status,
             RedirectAttributes redirectAttributes) {
 
 
@@ -591,7 +590,6 @@ public class NhanVienPost {
         OnlineRooms newRoom = new OnlineRooms();
         newRoom.setRoomId(roomId);
         newRoom.setRoomName(roomName);
-        newRoom.setStatus(status);
         newRoom.setEmployee(employee);
         newRoom.setCreatedAt(LocalDateTime.now());
 

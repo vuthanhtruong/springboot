@@ -26,9 +26,6 @@ public abstract class Room {
     @Column(name = "RoomName", nullable = true, length = 255)
     private String roomName;
 
-    @Column(name = "Status", nullable = true)
-    private Boolean status; // true: hoạt động, false: không hoạt động
-
     @ManyToOne
     @JoinColumn(name = "EmployeeID", nullable = true, foreignKey = @ForeignKey(name = "FK_Room_Employee"))
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -52,7 +49,7 @@ public abstract class Room {
     public Room(String roomId, String roomName, Boolean status, Employees employee, LocalDateTime startTime, LocalDateTime endTime) {
         this.roomId = roomId;
         this.roomName = roomName;
-        this.status = status;
+
         this.employee = employee;
         this.startTime = startTime;
         this.endTime = endTime;

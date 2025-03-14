@@ -1,11 +1,12 @@
 package com.example.demo.OOP;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "OnlineRooms")
@@ -18,8 +19,5 @@ public class OnlineRooms extends Room {
     @Column(name = "Link", nullable = true, length = 500)
     private String link;
 
-    public OnlineRooms(String roomId, String roomName, String link, Boolean status, Employees employee, LocalDateTime startTime, LocalDateTime endTime) {
-        super(roomId, roomName, status, employee, startTime, endTime);
-        this.link = link;
-    }
+
 }
