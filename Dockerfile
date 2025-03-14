@@ -1,26 +1,26 @@
-# Sử dụng Maven với JDK 21 làm base image
+# Sử dụng Maven với JDK 21 để build
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 
 # Thiết lập thư mục làm việc
 WORKDIR /app
 
-# Sao chép toàn bộ mã nguồn vào container
+# Sao chép mã nguồn vào container
 COPY . .
 
-# Cấp quyền thực thi cho mvnw và chạy build
+# Build project, tạo WAR file
 RUN chmod +x ./mvnw && ./mvnw clean package -DskipTests
 
-# Tạo image runtime từ JDK 21
-FROM eclipse-temurin:21-jdk
+# Sử dụng Tomcat làm runtime để chạy WAR
+FROM tomcat:10.1-jdk21
 
 # Thiết lập thư mục làm việc
-WORKDIR /app
+WORKDIR /usr/local/tomcat/webapps/
 
-# Copy file JAR từ bước build trước
-COPY --from=build /app/target/*.jar app.jar
+# Copy WAR file từ build trước vào thư mục webapps của Tomcat
+COPY --from=build /app/target/*.war app.war
 
-# Expose cổng chạy web (thay đổi tùy app)
+# Mở cổng 8080
 EXPOSE 8080
 
-# Lệnh chạy ứng dụng
-CMD ["java", "-jar", "app.jar"]
+# Chạy Tomcat
+CMD ["catalina.sh", "run"]
