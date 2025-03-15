@@ -12,8 +12,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,51 +35,131 @@ public class GiaoVienGet {
     }
 
     @GetMapping("/TrangChuGiaoVien")
-    public String TrangChuGiaoVien(ModelMap model) {
-
+    public String TrangChuGiaoVien(
+            @RequestParam(defaultValue = "1") int pageDocs,
+            @RequestParam(defaultValue = "1") int pagePosts,
+            @RequestParam(defaultValue = "1") int pageMessages,
+            @RequestParam(defaultValue = "1") int pageBlogs,
+            @RequestParam(defaultValue = "5") int pageSize,
+            ModelMap model,
+            HttpSession session
+    ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String teacherId = authentication.getName();
         Person person = entityManager.find(Person.class, teacherId);
-        Teachers teachers = (Teachers) person;
-        // Lấy danh sách tài liệu từ cơ sở dữ liệu
+        Teachers teacher = (Teachers) person;
+
+        // Lưu pageSize vào session
+        session.setAttribute("pageSize", pageSize);
+
+        // Lấy danh sách phòng học của giáo viên
+        List<Room> teacherRooms = entityManager.createQuery(
+                        "SELECT cd.room FROM ClassroomDetails cd WHERE cd.member = :teacher", Room.class)
+                .setParameter("teacher", teacher)
+                .getResultList();
+
+        // 1. Phân trang cho Documents
+        Long totalDocs = (Long) entityManager.createQuery(
+                        "SELECT COUNT(d) FROM Documents d " +
+                                "WHERE d.creator != :teacher " + // Loại bỏ tài liệu do giáo viên tạo
+                                "AND d.post.room IN :teacherRooms") // Chỉ lấy từ các phòng của giáo viên
+                .setParameter("teacher", teacher)
+                .setParameter("teacherRooms", teacherRooms)
+                .getSingleResult();
+        int totalPagesDocs = Math.max(1, (int) Math.ceil((double) totalDocs / pageSize));
+        pageDocs = Math.max(1, Math.min(pageDocs, totalPagesDocs));
+        int firstResultDocs = (pageDocs - 1) * pageSize;
         List<Documents> documents = entityManager.createQuery(
                         "SELECT d FROM Documents d " +
-                                "WHERE d.creator != :teacher AND EXISTS ( " +
-                                "   SELECT 1 FROM ClassroomDetails cd " +
-                                "   WHERE cd.member = d.creator AND cd.room IN ( " +
-                                "       SELECT cd2.room FROM ClassroomDetails cd2 WHERE cd2.member = :teacher " +
-                                "   ) " +
-                                ")", Documents.class)
-                .setParameter("teacher", teachers)
+                                "WHERE d.creator != :teacher " +
+                                "AND d.post.room IN :teacherRooms " +
+                                "ORDER BY d.event.eventDate DESC", Documents.class) // Sắp xếp theo ngày sự kiện
+                .setParameter("teacher", teacher)
+                .setParameter("teacherRooms", teacherRooms)
+                .setFirstResult(firstResultDocs)
+                .setMaxResults(pageSize)
                 .getResultList();
-        Collections.reverse(documents);
+
+        // 2. Phân trang cho Posts
+        Long totalPosts = (Long) entityManager.createQuery(
+                        "SELECT COUNT(p) FROM Posts p " +
+                                "WHERE p.creator != :teacher " + // Loại bỏ bài đăng do giáo viên tạo
+                                "AND p.room IN :teacherRooms") // Chỉ lấy từ các phòng của giáo viên
+                .setParameter("teacher", teacher)
+                .setParameter("teacherRooms", teacherRooms)
+                .getSingleResult();
+        int totalPagesPosts = Math.max(1, (int) Math.ceil((double) totalPosts / pageSize));
+        pagePosts = Math.max(1, Math.min(pagePosts, totalPagesPosts));
+        int firstResultPosts = (pagePosts - 1) * pageSize;
         List<Posts> posts = entityManager.createQuery(
                         "SELECT p FROM Posts p " +
-                                "WHERE p.creator != :teacher AND EXISTS ( " +
-                                "   SELECT 1 FROM ClassroomDetails cd " +
-                                "   WHERE cd.member = p.creator AND cd.room IN ( " +
-                                "       SELECT cd2.room FROM ClassroomDetails cd2 WHERE cd2.member = :teacher " +
-                                "   ) " +
-                                ")", Posts.class)
-                .setParameter("teacher", teachers)
+                                "WHERE p.creator != :teacher " +
+                                "AND p.room IN :teacherRooms " +
+                                "ORDER BY p.event.eventDate DESC", Posts.class)
+                .setParameter("teacher", teacher)
+                .setParameter("teacherRooms", teacherRooms)
+                .setFirstResult(firstResultPosts)
+                .setMaxResults(pageSize)
                 .getResultList();
-        Collections.reverse(posts);
 
+        // 3. Phân trang cho Messages
+        Long totalMessages = (Long) entityManager.createQuery(
+                        "SELECT COUNT(m) FROM Messages m " +
+                                "WHERE m.sender != :teacher AND m.recipient = :teacher " + // Tin nhắn gửi đến giáo viên
+                                "AND m.event IN (SELECT cd.event FROM ClassroomDetails cd WHERE cd.member = :teacher)") // Chỉ từ sự kiện trong lớp
+                .setParameter("teacher", teacher)
+                .getSingleResult();
+        int totalPagesMessages = Math.max(1, (int) Math.ceil((double) totalMessages / pageSize));
+        pageMessages = Math.max(1, Math.min(pageMessages, totalPagesMessages));
+        int firstResultMessages = (pageMessages - 1) * pageSize;
         List<Messages> messagesList = entityManager.createQuery(
                         "SELECT m FROM Messages m " +
-                                "WHERE m.sender != :teacher AND m.recipient = :teacher", Messages.class)
-                .setParameter("teacher", teachers)
+                                "WHERE m.sender != :teacher AND m.recipient = :teacher " +
+                                "AND m.event IN (SELECT cd.event FROM ClassroomDetails cd WHERE cd.member = :teacher) " +
+                                "ORDER BY m.event.eventDate DESC", Messages.class)
+                .setParameter("teacher", teacher)
+                .setFirstResult(firstResultMessages)
+                .setMaxResults(pageSize)
                 .getResultList();
-        Collections.reverse(messagesList);
 
-        List<Blogs> blogs = entityManager.createQuery("from Blogs  b where b.creator!=:creator", Blogs.class).
-                setParameter("creator", teachers).getResultList();
-        Collections.reverse(blogs);
-        model.addAttribute("teacher", teachers);
+        // 4. Phân trang cho Blogs
+        Long totalBlogs = (Long) entityManager.createQuery(
+                        "SELECT COUNT(b) FROM Blogs b " +
+                                "WHERE b.creator != :teacher " + // Loại bỏ blog do giáo viên tạo
+                                "AND b.event IN (SELECT cd.event FROM ClassroomDetails cd WHERE cd.member = :teacher)") // Chỉ từ sự kiện trong lớp
+                .setParameter("teacher", teacher)
+                .getSingleResult();
+        int totalPagesBlogs = Math.max(1, (int) Math.ceil((double) totalBlogs / pageSize));
+        pageBlogs = Math.max(1, Math.min(pageBlogs, totalPagesBlogs));
+        int firstResultBlogs = (pageBlogs - 1) * pageSize;
+        List<Blogs> blogs = entityManager.createQuery(
+                        "SELECT b FROM Blogs b " +
+                                "WHERE b.creator != :teacher " +
+                                "AND b.event IN (SELECT cd.event FROM ClassroomDetails cd WHERE cd.member = :teacher) " +
+                                "ORDER BY b.event.eventDate DESC", Blogs.class)
+                .setParameter("teacher", teacher)
+                .setFirstResult(firstResultBlogs)
+                .setMaxResults(pageSize)
+                .getResultList();
+
+        // Truyền dữ liệu lên giao diện
+        model.addAttribute("teacher", teacher);
         model.addAttribute("documents", documents);
         model.addAttribute("posts", posts);
         model.addAttribute("messagesList", messagesList);
         model.addAttribute("blogs", blogs);
+
+        // Thông tin phân trang
+        model.addAttribute("currentPageDocs", pageDocs);
+        model.addAttribute("totalPagesDocs", totalPagesDocs);
+        model.addAttribute("currentPagePosts", pagePosts);
+        model.addAttribute("totalPagesPosts", totalPagesPosts);
+        model.addAttribute("currentPageMessages", pageMessages);
+        model.addAttribute("totalPagesMessages", totalPagesMessages);
+        model.addAttribute("currentPageBlogs", pageBlogs);
+        model.addAttribute("totalPagesBlogs", totalPagesBlogs);
+        model.addAttribute("pageSize", pageSize);
+
         return "TrangChuGiaoVien";
     }
 

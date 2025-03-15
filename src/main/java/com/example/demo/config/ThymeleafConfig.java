@@ -74,15 +74,13 @@ public class ThymeleafConfig {
     }
 
     @Bean
-    public SpringResourceTemplateResolver templateResolverDefault() {
+    public SpringResourceTemplateResolver templateResolver7() {
         SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
-        resolver.setPrefix("classpath:/templates/");
+        resolver.setPrefix("classpath:/templates/Messages/");
         resolver.setSuffix(".html");
         resolver.setTemplateMode("HTML");
-        resolver.setOrder(6); // Đặt thứ tự cao hơn nếu cần
+        resolver.setOrder(7);
         resolver.setCheckExistence(true);
         return resolver;
     }
-
-
 }

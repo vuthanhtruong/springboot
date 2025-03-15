@@ -34,7 +34,7 @@ public class BlogPost {
         }
         newBlog.setCreator(creator);
         newBlog.setCreatedAt(LocalDateTime.now());
-        Events events = entityManager.find(Events.class, 6);
+        Events events = entityManager.find(Events.class, 7);
         newBlog.setEvent(events);
         entityManager.persist(newBlog);
 

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Trang Chủ Giáo Viên</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/TrangChuGiaoVien.css" rel="stylesheet">
 </head>
 <body>
@@ -17,9 +18,9 @@
         </header>
 
         <nav>
-            <div class="nav-item"><a href="/TinNhanCuaGiaoVien"><i class="fas fa-comments"></i> Đoạn Chat</a></div>
+            <div class="nav-item"><a href="/TinNhanCuaBan"><i class="fas fa-comments"></i> Đoạn Chat</a></div>
             <div class="nav-item"><a href="/Blogs"><i class="fas fa-blog"></i> Mục Blog</a></div>
-            <div class="nav-item"><a href="/DanhSachLopHocGiaoVien"><i class="fas fa-chalkboard-teacher"></i> Lớp Học
+            <div class="nav-item"><a href="/DanhSachLopHoc"><i class="fas fa-chalkboard-teacher"></i> Lớp Học
                 Của Tôi</a></div>
             <div class="nav-item"><a href="/TrangCaNhan"><i class="fas fa-user"></i> Trang Cá Nhân</a></div>
             <div class="nav-item"><a class="text-danger" href="/DangXuat"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a>
@@ -30,114 +31,155 @@
     <div class="event-sidebar">
         <h3><i class="fas fa-bell"></i> Thông Báo Sự Kiện</h3>
 
+        <!-- Danh sách tài liệu -->
         <div class="document-list">
             <h3><i class="fas fa-file-alt"></i> Tài liệu</h3>
-            <ul id="document-list">
-                <li th:each="doc : ${documents}">
-                    <strong>ID Sự Kiện:</strong> <span th:text="${doc.event.eventId}"></span><br>
-                    <strong>Mô tả:</strong> <span th:text="${doc.event.description}"></span>
+            <ul class="list-unstyled" id="document-list">
+                <li class="mb-2" th:each="doc : ${documents}">
+                    <strong>ID Sự Kiện:</strong> <span th:text="${doc.event?.eventId ?: 'N/A'}"></span><br>
+                    <strong>Mô tả:</strong> <span th:text="${doc.event?.description ?: 'Không có mô tả'}"></span>
+                </li>
+                <li th:if="${#lists.isEmpty(documents)}">Không có tài liệu.</li>
+            </ul>
+            <ul class="pagination justify-content-center mt-3" th:unless="${#lists.isEmpty(documents)}">
+                <li class="page-item" th:classappend="${currentPageDocs == 1} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=1, pagePosts=${currentPagePosts}, pageMessages=${currentPageMessages}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}">Đầu</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPageDocs == 1} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs - 1}, pagePosts=${currentPagePosts}, pageMessages=${currentPageMessages}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}">«</a>
+                </li>
+                <th:block th:each="i : ${#numbers.sequence(1, totalPagesDocs)}">
+                    <li class="page-item" th:classappend="${i == currentPageDocs} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/TrangChuGiaoVien(pageDocs=${i}, pagePosts=${currentPagePosts}, pageMessages=${currentPageMessages}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}"
+                           th:text="${i}"></a>
+                    </li>
+                </th:block>
+                <li class="page-item" th:classappend="${currentPageDocs == totalPagesDocs} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs + 1}, pagePosts=${currentPagePosts}, pageMessages=${currentPageMessages}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}">»</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPageDocs == totalPagesDocs} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${totalPagesDocs}, pagePosts=${currentPagePosts}, pageMessages=${currentPageMessages}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}">Cuối</a>
                 </li>
             </ul>
-            <div class="pagination">
-                <button onclick="changePage('document', -1)">⬅ Trang Trước</button>
-                <span id="document-page-info"></span>
-                <button onclick="changePage('document', 1)">Trang Sau ➡</button>
-            </div>
         </div>
 
+        <!-- Danh sách bài đăng -->
         <div class="post-list">
             <h3><i class="fas fa-newspaper"></i> Bài đăng</h3>
-            <ul id="post-list">
-                <li th:each="post : ${posts}">
-                    <strong>ID Sự Kiện:</strong> <span th:text="${post.event.eventId}"></span><br>
-                    <strong>Mô tả:</strong> <span th:text="${post.event.description}"></span>
+            <ul class="list-unstyled" id="post-list">
+                <li class="mb-2" th:each="post : ${posts}">
+                    <strong>ID Sự Kiện:</strong> <span th:text="${post.event?.eventId ?: 'N/A'}"></span><br>
+                    <strong>Mô tả:</strong> <span th:text="${post.event?.description ?: 'Không có mô tả'}"></span>
+                </li>
+                <li th:if="${#lists.isEmpty(posts)}">Không có bài đăng.</li>
+            </ul>
+            <ul class="pagination justify-content-center mt-3" th:unless="${#lists.isEmpty(posts)}">
+                <li class="page-item" th:classappend="${currentPagePosts == 1} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=1, pageMessages=${currentPageMessages}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}">Đầu</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPagePosts == 1} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${currentPagePosts - 1}, pageMessages=${currentPageMessages}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}">«</a>
+                </li>
+                <th:block th:each="i : ${#numbers.sequence(1, totalPagesPosts)}">
+                    <li class="page-item" th:classappend="${i == currentPagePosts} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${i}, pageMessages=${currentPageMessages}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}"
+                           th:text="${i}"></a>
+                    </li>
+                </th:block>
+                <li class="page-item" th:classappend="${currentPagePosts == totalPagesPosts} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${currentPagePosts + 1}, pageMessages=${currentPageMessages}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}">»</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPagePosts == totalPagesPosts} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${totalPagesPosts}, pageMessages=${currentPageMessages}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}">Cuối</a>
                 </li>
             </ul>
-            <div class="pagination">
-                <button onclick="changePage('post', -1)">⬅ Trang Trước</button>
-                <span id="post-page-info"></span>
-                <button onclick="changePage('post', 1)">Trang Sau ➡</button>
-            </div>
         </div>
 
+        <!-- Danh sách tin nhắn -->
         <div class="message-list">
             <h3><i class="fas fa-comments"></i> Tin nhắn</h3>
-            <ul id="message-list">
-                <li th:each="msg : ${messages}">
-                    <strong>ID Sự Kiện:</strong> <span th:text="${msg.event.eventId}"></span><br>
-                    <strong>Mô tả:</strong> <span th:text="${msg.event.description}"></span>
+            <ul class="list-unstyled" id="message-list">
+                <li class="mb-2" th:each="msg : ${messagesList}">
+                    <strong>ID Sự Kiện:</strong> <span th:text="${msg.event?.eventId ?: 'N/A'}"></span><br>
+                    <strong>Mô tả:</strong> <span th:text="${msg.event?.description ?: 'Không có mô tả'}"></span>
+                </li>
+                <li th:if="${#lists.isEmpty(messagesList)}">Không có tin nhắn.</li>
+            </ul>
+            <ul class="pagination justify-content-center mt-3" th:unless="${#lists.isEmpty(messagesList)}">
+                <li class="page-item" th:classappend="${currentPageMessages == 1} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${currentPagePosts}, pageMessages=1, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}">Đầu</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPageMessages == 1} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${currentPagePosts}, pageMessages=${currentPageMessages - 1}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}">«</a>
+                </li>
+                <th:block th:each="i : ${#numbers.sequence(1, totalPagesMessages)}">
+                    <li class="page-item" th:classappend="${i == currentPageMessages} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${currentPagePosts}, pageMessages=${i}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}"
+                           th:text="${i}"></a>
+                    </li>
+                </th:block>
+                <li class="page-item" th:classappend="${currentPageMessages == totalPagesMessages} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${currentPagePosts}, pageMessages=${currentPageMessages + 1}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}">»</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPageMessages == totalPagesMessages} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${currentPagePosts}, pageMessages=${totalPagesMessages}, pageBlogs=${currentPageBlogs}, pageSize=${pageSize})}">Cuối</a>
                 </li>
             </ul>
-            <div class="pagination">
-                <button onclick="changePage('message', -1)">⬅ Trang Trước</button>
-                <span id="message-page-info"></span>
-                <button onclick="changePage('message', 1)">Trang Sau ➡</button>
-            </div>
         </div>
+
         <!-- Danh sách Blog -->
         <div class="blog-list">
             <h3><i class="fas fa-blog"></i> Bài Viết Blog</h3>
-            <ul id="blog-list">
-                <li th:each="blog : ${blogs}">
-                    <strong>ID Sự Kiện:</strong> <span th:text="${blog.event.eventId}"></span><br>
-                    <strong>Mô tả:</strong> <span th:text="${blog.event.description}"></span><br>
+            <ul class="list-unstyled" id="blog-list">
+                <li class="mb-2" th:each="blog : ${blogs}">
+                    <strong>ID Sự Kiện:</strong> <span th:text="${blog.event?.eventId ?: 'N/A'}"></span><br>
+                    <strong>Mô tả:</strong> <span th:text="${blog.event?.description ?: 'Không có mô tả'}"></span>
+                </li>
+                <li th:if="${#lists.isEmpty(blogs)}">Không có bài viết blog.</li>
+            </ul>
+            <ul class="pagination justify-content-center mt-3" th:unless="${#lists.isEmpty(blogs)}">
+                <li class="page-item" th:classappend="${currentPageBlogs == 1} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${currentPagePosts}, pageMessages=${currentPageMessages}, pageBlogs=1, pageSize=${pageSize})}">Đầu</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPageBlogs == 1} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${currentPagePosts}, pageMessages=${currentPageMessages}, pageBlogs=${currentPageBlogs - 1}, pageSize=${pageSize})}">«</a>
+                </li>
+                <th:block th:each="i : ${#numbers.sequence(1, totalPagesBlogs)}">
+                    <li class="page-item" th:classappend="${i == currentPageBlogs} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${currentPagePosts}, pageMessages=${currentPageMessages}, pageBlogs=${i}, pageSize=${pageSize})}"
+                           th:text="${i}"></a>
+                    </li>
+                </th:block>
+                <li class="page-item" th:classappend="${currentPageBlogs == totalPagesBlogs} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${currentPagePosts}, pageMessages=${currentPageMessages}, pageBlogs=${currentPageBlogs + 1}, pageSize=${pageSize})}">»</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPageBlogs == totalPagesBlogs} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/TrangChuGiaoVien(pageDocs=${currentPageDocs}, pagePosts=${currentPagePosts}, pageMessages=${currentPageMessages}, pageBlogs=${totalPagesBlogs}, pageSize=${pageSize})}">Cuối</a>
                 </li>
             </ul>
-            <div class="pagination">
-                <button onclick="changePage('blog', -1)">⬅ Trang Trước</button>
-                <span id="blog-page-info"></span>
-                <button onclick="changePage('blog', 1)">Trang Sau ➡</button>
-            </div>
         </div>
     </div>
 </div>
-
-<script>
-    let pagination = {
-        document: {currentPage: 1, perPage: 5, listId: "document-list", pageInfoId: "document-page-info"},
-        post: {currentPage: 1, perPage: 5, listId: "post-list", pageInfoId: "post-page-info"},
-        message: {currentPage: 1, perPage: 5, listId: "message-list", pageInfoId: "message-page-info"}
-    };
-
-    function showPage(type) {
-        let config = pagination[type];
-        let list = document.getElementById(config.listId);
-        let items = list.getElementsByTagName("li");
-        let totalItems = items.length;
-        let totalPages = Math.ceil(totalItems / config.perPage);
-
-        for (let i = 0; i < totalItems; i++) {
-            items[i].style.display = "none";
-        }
-
-        let start = (config.currentPage - 1) * config.perPage;
-        let end = start + config.perPage;
-        for (let i = start; i < end && i < totalItems; i++) {
-            items[i].style.display = "block";
-        }
-
-        document.getElementById(config.pageInfoId).textContent = `Trang ${config.currentPage} / ${totalPages}`;
-    }
-
-    function changePage(type, direction) {
-        let config = pagination[type];
-        let list = document.getElementById(config.listId);
-        let totalItems = list.getElementsByTagName("li").length;
-        let totalPages = Math.ceil(totalItems / config.perPage);
-
-        config.currentPage += direction;
-        if (config.currentPage < 1) config.currentPage = 1;
-        if (config.currentPage > totalPages) config.currentPage = totalPages;
-
-        showPage(type);
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        showPage("document");
-        showPage("post");
-        showPage("message");
-    });
-</script>
 
 </body>
 </html>

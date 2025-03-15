@@ -1,14 +1,16 @@
 <!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi Tiết Tin Nhắn Của Giáo Viên</title>
-    <link rel="stylesheet" href="/TinNhanCuaGiaoVien.css">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Chi Tiết Tin Nhắn Của Bạn</title>
+    <link href="/TinNhanCuaGiaoVien.css" rel="stylesheet">
 </head>
 <body>
 
 <div class="container">
+    <a th:href="@{/{trangchu}(trangchu=${trangchu})}">Quay về Trang Chủ</a>
     <h2>Danh Sách Những Người Đã Nhắn Tin</h2>
 
     <!-- Hiển thị danh sách người đã nhắn tin với giáo viên -->
@@ -21,13 +23,12 @@
                    th:text="${contact.getFirstName()}">Tên người liên lạc</a>
 
                 <!-- Nút gửi tin nhắn -->
-                <a th:href="@{/ChiTietTinNhanCuaGiaoVien/{recipientID}(recipientID=${contact.id})}"
-                   class="btn btn-primary" th:text="'Nhắn tin với ' + ${contact.getFirstName()}"></a>
+                <a class="btn btn-primary"
+                   th:href="@{/ChiTietTinNhan/{recipientID}(recipientID=${contact.id})}"
+                   th:text="'Nhắn tin với ' + ${contact.getFirstName()}"></a>
             </li>
         </ul>
     </div>
-
-    <a href="/TrangChuGiaoVien" class="btn btn-primary">Quay về Trang Chủ</a>
 
 </div>
 

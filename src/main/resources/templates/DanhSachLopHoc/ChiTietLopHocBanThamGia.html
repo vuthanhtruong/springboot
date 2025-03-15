@@ -11,6 +11,12 @@
 <body>
 <header>
     <h1>Chi Tiết Lớp Học</h1>
+    <div class="back-buttons">
+        <a class="btn btn-back" th:href="@{/DanhSachLopHoc}">🔙 Quay lại danh sách lớp học</a>
+        <a class="btn btn-home" th:href="@{${homePage}}">🏠 Quay lại trang chủ</a>
+    </div>
+    <a class="btn btn-members" th:href="@{'/ThanhVienTrongLopHocCuaBan/' + ${room?.roomId}}">👥 Thành viên trong
+        lớp</a>
 </header>
 
 <div class="container">
@@ -19,11 +25,8 @@
         <h2>Thông Tin Lớp Học</h2>
         <p><strong>Tên lớp học:</strong> <span th:text="${room?.roomName ?: 'Không xác định'}"></span></p>
         <p><strong>Địa chỉ/Link:</strong>
-        <p><strong>Địa chỉ/Link:</strong>
-            <span th:if="${isOfflineRoom}" th:text="${room?.address ?: 'Không có địa chỉ'}"></span>
-            <span th:if="${isOnlineRoom}" th:text="${room?.link ?: 'Không có link'}"></span>
-        </p>
-
+            <span th:if="${roomMode}" th:text="${room.link}"></span>
+            <span th:text="${room.address}" th:unless="${roomMode}"></span>
         </p>
         <p><strong>Thời gian bắt đầu:</strong>
             <span th:if="${room?.startTime != null}"
@@ -35,17 +38,6 @@
                   th:text="${#temporals.format(room.endTime, 'yyyy-MM-dd HH:mm')}"></span>
             <span th:if="${room?.endTime == null}">Chưa có</span>
         </p>
-    </div>
-
-    <!-- 🌟 Nút điều hướng -->
-    <div class="buttons">
-        <a class="btn btn-primary" th:href="${isTeacher ? '/TrangChuGiaoVien' : '/TrangChuHocSinh'}">🏠 Quay về Trang
-            Chủ</a>
-        <a class="btn btn-secondary" th:href="@{/DanhSachLopHoc}">📚 Danh Sách Lớp Học</a>
-        <button class="btn btn-members" th:data-room-id="${room?.roomId}"
-                th:onclick="|window.location.href='/ThanhVienTrongLopHocCuaBan/' + this.getAttribute('data-room-id')|">
-            👥 Thành Viên Trong Lớp
-        </button>
     </div>
 
     <!-- 📝 Đăng bài mới -->
@@ -101,7 +93,7 @@
                                     th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
                         </li>
                     </ul>
-                    <form method="POST" th:action="@{/BinhLuan}">
+                    <form action="/BinhLuan" method="POST">
                         <input name="postId" th:value="${post.postId}" type="hidden">
                         <textarea name="commentText" placeholder="Nhập bình luận..." required></textarea>
                         <button type="submit">💬 Gửi Bình Luận</button>
@@ -111,6 +103,43 @@
             </li>
         </ul>
     </div>
+
 </div>
+
+<style>
+    .back-buttons {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 15px;
+        margin: 10px;
+        font-size: 16px;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+
+    .btn-back {
+        background-color: #f39c12;
+        color: white;
+    }
+
+    .btn-home {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .btn-members {
+        background-color: #2ecc71;
+        color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.8;
+    }
+</style>
+
 </body>
 </html>

@@ -39,22 +39,22 @@
     </button>
 </form>
 
-<!-- Bộ lọc sắp xếp -->
+<!-- Bộ lọc sắp xếp và số lượng -->
 <div class="d-flex mb-3">
     <form action="/DanhSachPhongHoc" class="me-3" method="get">
         <label class="me-2">Sắp xếp:</label>
         <select class="form-select" name="sortOrder" onchange="this.form.submit()">
             <option selected value="">Thứ tự ban đầu</option>
-            <option value="asc">Thời gian tạo (Cũ → Mới)</option>
-            <option value="desc">Thời gian tạo (Mới → Cũ)</option>
+            <option th:selected="${sortOrder == 'asc'}" value="asc">Thời gian tạo (Cũ → Mới)</option>
+            <option th:selected="${sortOrder == 'desc'}" value="desc">Thời gian tạo (Mới → Cũ)</option>
         </select>
     </form>
     <form action="/DanhSachPhongHoc" method="get">
         <label class="me-2">Số lượng:</label>
         <select class="form-select" name="pageSize" onchange="this.form.submit()">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
+            <option th:selected="${pageSize == 5}" value="5">5</option>
+            <option th:selected="${pageSize == 10}" value="10">10</option>
+            <option th:selected="${pageSize == 20}" value="20">20</option>
         </select>
     </form>
 </div>
@@ -113,6 +113,33 @@
             </tr>
             </tbody>
         </table>
+
+        <!-- Phân trang Offline -->
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${currentPageOffline == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/DanhSachPhongHoc(pageOffline=1, pageOnline=${currentPageOnline}, pageSize=${pageSize}, sortOrder=${sortOrder})}">Đầu</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPageOffline == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/DanhSachPhongHoc(pageOffline=${currentPageOffline - 1}, pageOnline=${currentPageOnline}, pageSize=${pageSize}, sortOrder=${sortOrder})}">«</a>
+            </li>
+            <th:block th:each="i : ${#numbers.sequence(1, totalPagesOffline)}">
+                <li class="page-item" th:classappend="${i == currentPageOffline} ? 'active'">
+                    <a class="page-link"
+                       th:href="@{/DanhSachPhongHoc(pageOffline=${i}, pageOnline=${currentPageOnline}, pageSize=${pageSize}, sortOrder=${sortOrder})}"
+                       th:text="${i}"></a>
+                </li>
+            </th:block>
+            <li class="page-item" th:classappend="${currentPageOffline == totalPagesOffline} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/DanhSachPhongHoc(pageOffline=${currentPageOffline + 1}, pageOnline=${currentPageOnline}, pageSize=${pageSize}, sortOrder=${sortOrder})}">»</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPageOffline == totalPagesOffline} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/DanhSachPhongHoc(pageOffline=${totalPagesOffline}, pageOnline=${currentPageOnline}, pageSize=${pageSize}, sortOrder=${sortOrder})}">Cuối</a>
+            </li>
+        </ul>
     </div>
 
     <!-- Phòng Học Online -->
@@ -148,7 +175,42 @@
             </tr>
             </tbody>
         </table>
+
+        <!-- Phân trang Online -->
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${currentPageOnline == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/DanhSachPhongHoc(pageOffline=${currentPageOffline}, pageOnline=1, pageSize=${pageSize}, sortOrder=${sortOrder})}">Đầu</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPageOnline == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/DanhSachPhongHoc(pageOffline=${currentPageOffline}, pageOnline=${currentPageOnline - 1}, pageSize=${pageSize}, sortOrder=${sortOrder})}">«</a>
+            </li>
+            <th:block th:each="i : ${#numbers.sequence(1, totalPagesOnline)}">
+                <li class="page-item" th:classappend="${i == currentPageOnline} ? 'active'">
+                    <a class="page-link"
+                       th:href="@{/DanhSachPhongHoc(pageOffline=${currentPageOffline}, pageOnline=${i}, pageSize=${pageSize}, sortOrder=${sortOrder})}"
+                       th:text="${i}"></a>
+                </li>
+            </th:block>
+            <li class="page-item" th:classappend="${currentPageOnline == totalPagesOnline} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/DanhSachPhongHoc(pageOffline=${currentPageOffline}, pageOnline=${currentPageOnline + 1}, pageSize=${pageSize}, sortOrder=${sortOrder})}">»</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPageOnline == totalPagesOnline} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/DanhSachPhongHoc(pageOffline=${currentPageOffline}, pageOnline=${totalPagesOnline}, pageSize=${pageSize}, sortOrder=${sortOrder})}">Cuối</a>
+            </li>
+        </ul>
     </div>
 </div>
+
+<script>
+    function confirmDelete(type) {
+        let message = type === 'all' ? 'Bạn có chắc chắn muốn xóa tất cả phòng học?' :
+            'Bạn có chắc chắn muốn xóa tất cả phòng học ' + (type === 'offline' ? 'offline?' : 'online?');
+        return confirm(message);
+    }
+</script>
 </body>
 </html>

@@ -1,6 +1,9 @@
 package com.example.demo.POST;
 
-import com.example.demo.OOP.*;
+import com.example.demo.OOP.Comments;
+import com.example.demo.OOP.Events;
+import com.example.demo.OOP.Person;
+import com.example.demo.OOP.Posts;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpSession;
@@ -50,19 +53,12 @@ public class CommmentPost {
         Comments comment = new Comments(commenter, post, commentText);
 
         // Liên kết với sự kiện nếu cần
-        Events event = entityManager.find(Events.class, 5);
+        Events event = entityManager.find(Events.class, 6);
         comment.setEvent(event);
 
         // Lưu vào database
         entityManager.persist(comment);
 
-        // Xác định người dùng là Giáo viên hay Học sinh để chuyển hướng đúng trang
-        if (commenter instanceof Teachers) {
-            return "redirect:/ChiTietLopHocGiaoVien/" + post.getRoom().getRoomId();
-        } else if (commenter instanceof Students) {
-            return "redirect:/ChiTietLopHocHocSinh/" + post.getRoom().getRoomId();
-        } else {
-            return "redirect:/TrangChu";
-        }
+        return "redirect:/ChiTietLopHocBanThamGia/" + post.getRoom().getRoomId();
     }
 }

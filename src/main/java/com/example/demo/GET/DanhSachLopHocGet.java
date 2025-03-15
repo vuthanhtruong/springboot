@@ -58,6 +58,11 @@ public class DanhSachLopHocGet {
                 rooms.add((Rooms) room);
             }
         }
+        if (person instanceof Students) {
+            model.addAttribute("homePage", "/TrangChuHocSinh");
+        } else {
+            model.addAttribute("homePage", "/TrangChuGiaoVien");
+        }
 
         model.addAttribute("classroomDetails", classroomDetails);
         model.addAttribute("rooms", rooms);
@@ -67,48 +72,34 @@ public class DanhSachLopHocGet {
     }
 
     @GetMapping("ChiTietLopHocBanThamGia/{id}")
-    public String ChiTietLopHocBanThamGia(@PathVariable String id, Model model) {
-        Object room = entityManager.find(Rooms.class, id);
-        boolean isOfflineRoom = false;
-        boolean isOnlineRoom = false;
+    public String ChiTietLopHocBanThamGia(@PathVariable String id, Model model, Authentication authentication) {
+        String username = authentication.getName();
 
-        if (room == null) {
-            room = entityManager.find(OnlineRooms.class, id);
-            isOnlineRoom = (room != null);
+        Person member = entityManager.find(Person.class, username);
+        if (member instanceof Students) {
+            model.addAttribute("homePage", "/TrangChuHocSinh");
         } else {
-            isOfflineRoom = true;
+            model.addAttribute("homePage", "/TrangChuGiaoVien");
         }
 
-        if (room == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Lớp học không tồn tại!");
+        Room room = entityManager.find(Room.class, id);
+        Boolean roomMode = true;
+
+        if (room instanceof Rooms) {
+            roomMode = false;
         }
-
-        model.addAttribute("room", room);
-        model.addAttribute("isOfflineRoom", isOfflineRoom);
-        model.addAttribute("isOnlineRoom", isOnlineRoom);
-
-        String roomId = (room instanceof Rooms) ? ((Rooms) room).getRoomId() : ((OnlineRooms) room).getRoomId();
-        model.addAttribute("room", room);
-
-        List<Posts> posts = entityManager.createQuery("SELECT p FROM Posts p WHERE p.room.roomId = :roomId", Posts.class)
-                .setParameter("roomId", roomId)
+        List<Posts> posts = entityManager.createQuery(
+                        "SELECT p FROM Posts p WHERE p.room.roomId = :roomId", Posts.class)
+                .setParameter("roomId", room.getRoomId())
                 .getResultList();
 
-        for (Posts post : posts) {
-            List<Comments> comments = entityManager.createQuery("SELECT c FROM Comments c WHERE c.post.postId = :postId", Comments.class)
-                    .setParameter("postId", post.getPostId())
-                    .getResultList();
-            post.setComments(comments);
-        }
-
         model.addAttribute("posts", posts);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean isTeacher = authentication.getPrincipal() instanceof Teachers;
-        model.addAttribute("isTeacher", isTeacher);
+        model.addAttribute("room", room);
+        model.addAttribute("roomMode", roomMode);
 
         return "ChiTietLopHocBanThamGia";
     }
+
 
     @GetMapping("/ThanhVienTrongLopHocCuaBan/{id}")
     public String danhSachThanhVienTrongLop(
@@ -150,6 +141,7 @@ public class DanhSachLopHocGet {
         } else {
             model.addAttribute("homePage", "/TrangChuGiaoVien");
         }
+        model.addAttribute("roomId", room.getRoomId());
         return "ThanhVienTrongLopHocCuaBan";
     }
 

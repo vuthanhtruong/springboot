@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,21 +65,51 @@ public class AdminGet {
     @GetMapping("/DanhSachGiaoVien")
     public String danhSachGiaoVien(
             @RequestParam(value = "order", required = false) String sortOrder,
-            Model model) {
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(required = false) Integer pageSize,
+            Model model,
+            HttpSession session
+    ) {
+        // Xử lý pageSize
+        if (pageSize == null) {
+            pageSize = (Integer) session.getAttribute("pageSize");
+            if (pageSize == null) {
+                pageSize = 5; // Mặc định 5 nếu chưa có
+            }
+        }
+        session.setAttribute("pageSize", pageSize);
 
-        String jpql = "SELECT t FROM Teachers t"; // Mặc định không sắp xếp
+        // Đếm tổng số giáo viên
+        Long totalTeachers = (Long) entityManager.createQuery("SELECT COUNT(t) FROM Teachers t")
+                .getSingleResult();
 
+        // Tính tổng số trang
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalTeachers / pageSize));
+        page = Math.max(1, Math.min(page, totalPages));
+
+        // Tính vị trí bắt đầu
+        int firstResult = (page - 1) * pageSize;
+
+        // Xử lý sắp xếp
+        String jpql = "SELECT t FROM Teachers t";
         if ("asc".equalsIgnoreCase(sortOrder)) {
-            jpql += " ORDER BY t.birthDate ASC"; // Sắp xếp tăng dần
+            jpql += " ORDER BY t.birthDate ASC";
         } else if ("desc".equalsIgnoreCase(sortOrder)) {
-            jpql += " ORDER BY t.birthDate DESC"; // Sắp xếp giảm dần
+            jpql += " ORDER BY t.birthDate DESC";
         }
 
-        TypedQuery<Teachers> query = entityManager.createQuery(jpql, Teachers.class);
+        // Lấy danh sách giáo viên với phân trang
+        TypedQuery<Teachers> query = entityManager.createQuery(jpql, Teachers.class)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize);
         List<Teachers> teachers = query.getResultList();
 
+        // Truyền dữ liệu lên giao diện
         model.addAttribute("teachers", teachers);
         model.addAttribute("order", sortOrder);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("pageSize", pageSize);
 
         return "DanhSachGiaoVien";
     }
@@ -95,21 +126,51 @@ public class AdminGet {
     @GetMapping("/DanhSachHocSinh")
     public String danhSachHocSinh(
             @RequestParam(value = "order", required = false) String sortOrder,
-            Model model) {
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(required = false) Integer pageSize,
+            Model model,
+            HttpSession session
+    ) {
+        // Xử lý pageSize
+        if (pageSize == null) {
+            pageSize = (Integer) session.getAttribute("pageSize");
+            if (pageSize == null) {
+                pageSize = 5; // Mặc định 5 nếu chưa có
+            }
+        }
+        session.setAttribute("pageSize", pageSize);
 
-        String jpql = "SELECT s FROM Students s"; // Mặc định: không sắp xếp
+        // Đếm tổng số học sinh
+        Long totalStudents = (Long) entityManager.createQuery("SELECT COUNT(s) FROM Students s")
+                .getSingleResult();
 
+        // Tính tổng số trang
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalStudents / pageSize));
+        page = Math.max(1, Math.min(page, totalPages));
+
+        // Tính vị trí bắt đầu
+        int firstResult = (page - 1) * pageSize;
+
+        // Xử lý sắp xếp
+        String jpql = "SELECT s FROM Students s";
         if ("asc".equalsIgnoreCase(sortOrder)) {
-            jpql += " ORDER BY s.birthDate ASC"; // Sắp xếp tăng dần
+            jpql += " ORDER BY s.birthDate ASC";
         } else if ("desc".equalsIgnoreCase(sortOrder)) {
-            jpql += " ORDER BY s.birthDate DESC"; // Sắp xếp giảm dần
+            jpql += " ORDER BY s.birthDate DESC";
         }
 
-        TypedQuery<Students> query = entityManager.createQuery(jpql, Students.class);
+        // Lấy danh sách học sinh với phân trang
+        TypedQuery<Students> query = entityManager.createQuery(jpql, Students.class)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize);
         List<Students> students = query.getResultList();
 
+        // Truyền dữ liệu lên giao diện
         model.addAttribute("students", students);
         model.addAttribute("order", sortOrder);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("pageSize", pageSize);
 
         return "DanhSachHocSinh";
     }
@@ -125,21 +186,61 @@ public class AdminGet {
     @GetMapping("/DanhSachNhanVien")
     public String danhSachNhanVien(
             @RequestParam(value = "order", required = false) String sortOrder,
-            Model model) {
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(required = false) Integer pageSize,
+            Model model,
+            HttpSession session
+    ) {
+        // Xử lý pageSize
+        if (pageSize == null) {
+            pageSize = (Integer) session.getAttribute("pageSize");
+            if (pageSize == null) {
+                pageSize = 5; // Mặc định 5 nếu chưa có
+            }
+        }
+        session.setAttribute("pageSize", pageSize);
 
-        String jpql = "SELECT e FROM Employees e"; // Mặc định không sắp xếp
+        // Đếm tổng số nhân viên
+        Long totalEmployees = (Long) entityManager.createQuery("SELECT COUNT(e) FROM Employees e")
+                .getSingleResult();
 
-        if ("asc".equalsIgnoreCase(sortOrder)) {
-            jpql += " ORDER BY e.firstName ASC"; // Sắp xếp A → Z
-        } else if ("desc".equalsIgnoreCase(sortOrder)) {
-            jpql += " ORDER BY e.firstName DESC"; // Sắp xếp Z → A
+        // Xử lý trường hợp không có nhân viên
+        if (totalEmployees == 0) {
+            model.addAttribute("employees", new ArrayList<>());
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("totalPages", 1);
+            model.addAttribute("pageSize", pageSize);
+            model.addAttribute("order", sortOrder);
+            return "DanhSachNhanVien";
         }
 
-        TypedQuery<Employees> query = entityManager.createQuery(jpql, Employees.class);
+        // Tính tổng số trang
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalEmployees / pageSize));
+        page = Math.max(1, Math.min(page, totalPages));
+
+        // Tính vị trí bắt đầu
+        int firstResult = (page - 1) * pageSize;
+
+        // Xử lý sắp xếp
+        String jpql = "SELECT e FROM Employees e";
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            jpql += " ORDER BY e.firstName ASC";
+        } else if ("desc".equalsIgnoreCase(sortOrder)) {
+            jpql += " ORDER BY e.firstName DESC";
+        }
+
+        // Lấy danh sách nhân viên với phân trang
+        TypedQuery<Employees> query = entityManager.createQuery(jpql, Employees.class)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize);
         List<Employees> employees = query.getResultList();
 
+        // Truyền dữ liệu lên giao diện
         model.addAttribute("employees", employees);
         model.addAttribute("order", sortOrder);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("pageSize", pageSize);
 
         return "DanhSachNhanVien";
     }

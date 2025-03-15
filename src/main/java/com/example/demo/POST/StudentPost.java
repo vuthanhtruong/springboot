@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,8 +30,6 @@ public class StudentPost {
     private static final Logger log = LoggerFactory.getLogger(GiaoVienPost.class);
     @PersistenceContext
     private EntityManager entityManager;
-    @Value("${file.upload-dir:C:/uploads}")
-    private String uploadDir;
 
     @PostMapping("/DangKyHocSinh")
     public String DangKyHocSinh(
@@ -161,8 +158,6 @@ public class StudentPost {
             String studentId = authentication.getName();
             Person person = entityManager.find(Person.class, studentId);
             Students student = (Students) person; // Lấy ID học sinh từ session
-
-
             // Lấy thông tin giáo viên từ database
             Teachers teacher = entityManager.find(Teachers.class, teacherId);
             if (teacher == null) {
@@ -175,6 +170,9 @@ public class StudentPost {
             feedback.setReceiver(student.getEmployee());
             feedback.setText(text);
             feedback.setCreatedAt(LocalDateTime.now());
+
+            Events events = entityManager.find(Events.class, 3);
+            feedback.setEvent(events);
 
             // Lưu vào database
             entityManager.persist(feedback);

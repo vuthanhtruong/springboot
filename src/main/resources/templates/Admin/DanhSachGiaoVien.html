@@ -1,56 +1,76 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Danh Sách Giáo Viên</title>
     <link href="/DanhSachGiaoVien.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
-<div class="container">
+<div class="container mt-4">
     <!-- Tiêu đề trang và các nút điều hướng -->
     <div class="header">
-        <h1>📚 Danh Sách Giáo Viên</h1>
-        <div class="btn-group">
-            <a class="btn btn-home" href="/TrangChuAdmin">🏠 Quay lại Trang Chủ</a>
-            <a class="btn btn-add" href="/ThemGiaoVien">➕ Thêm Giáo Viên</a>
-            <a class="btn btn-danger" href="/XoaTatCaGiaoVien"
-               onclick="return confirm('Bạn có chắc chắn muốn xóa tất cả giáo viên?');">
-                🗑️ Xóa Tất Cả
+        <h1 class="text-center text-primary">
+            <i class="fas fa-user-tie"></i> Danh Sách Giáo Viên
+        </h1>
+        <div class="btn-group d-flex justify-content-between mb-3">
+            <div>
+                <a class="btn btn-primary me-2" th:href="@{/ThemGiaoVien}">
+                    <i class="fas fa-user-plus"></i> Thêm Giáo Viên
+                </a>
+                <a class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa tất cả giáo viên?');"
+                   th:href="@{/XoaTatCaGiaoVien}">
+                    <i class="fas fa-trash"></i> Xóa Tất Cả
+                </a>
+            </div>
+            <a class="btn btn-secondary" th:href="@{/TrangChuAdmin}">
+                <i class="fas fa-home"></i> Quay lại Trang Chủ
             </a>
         </div>
     </div>
 
     <!-- Form tìm kiếm giáo viên -->
-    <div class="search-section">
-        <form class="search-form" method="post" th:action="@{/TimKiemGiaoVien}">
-            <label for="searchType">🔍 Tìm kiếm theo:</label>
-            <select id="searchType" name="searchType">
+    <div class="search-section mb-3">
+        <form class="d-flex align-items-center" method="post" th:action="@{/TimKiemGiaoVien}">
+            <label class="me-2" for="searchType">🔍 Tìm kiếm theo:</label>
+            <select class="form-select me-2" id="searchType" name="searchType">
                 <option value="id">ID</option>
                 <option value="name">Họ & Tên</option>
             </select>
-            <input name="keyword" placeholder="Nhập từ khóa" required type="text">
-            <button class="btn-search" type="submit">Tìm Kiếm</button>
+            <input class="form-control me-2" name="keyword" placeholder="Nhập từ khóa" required type="text">
+            <button class="btn btn-info" type="submit">
+                <i class="fas fa-search"></i> Tìm Kiếm
+            </button>
         </form>
     </div>
 
-    <!-- Dropdown sắp xếp theo năm sinh -->
-    <div class="sort-section">
-        <form action="/DanhSachGiaoVien" method="GET">
-            <label for="sortOrder">📅 Sắp xếp theo năm sinh:</label>
-            <select id="sortOrder" name="order" onchange="this.form.submit()">
+    <!-- Bộ lọc sắp xếp và số lượng -->
+    <div class="d-flex mb-3">
+        <form action="/DanhSachGiaoVien" class="me-3" method="get">
+            <label class="me-2" for="sortOrder">📅 Sắp xếp theo năm sinh:</label>
+            <select class="form-select" id="sortOrder" name="order" onchange="this.form.submit()">
                 <option th:selected="${order == null or order == ''}" value="">Mặc định</option>
                 <option th:selected="${order == 'asc'}" value="asc">Tăng dần</option>
                 <option th:selected="${order == 'desc'}" value="desc">Giảm dần</option>
+            </select>
+        </form>
+        <form action="/DanhSachGiaoVien" method="get">
+            <label class="me-2" for="pageSize">Số lượng:</label>
+            <select class="form-select" id="pageSize" name="pageSize" onchange="this.form.submit()">
+                <option th:selected="${pageSize == 5}" value="5">5</option>
+                <option th:selected="${pageSize == 10}" value="10">10</option>
+                <option th:selected="${pageSize == 20}" value="20">20</option>
             </select>
         </form>
     </div>
 
     <!-- Bảng danh sách giáo viên -->
     <div class="table-section">
-        <table class="teacher-table">
-            <thead>
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
             <tr>
                 <th>ID</th>
                 <th>Họ</th>
@@ -74,15 +94,53 @@
                 <td th:text="${teacher.misID}"></td>
                 <td th:text="${teacher.employee != null ? teacher.employee.firstName + ' ' + teacher.employee.lastName : 'Không có'}"></td>
                 <td class="action-buttons">
-                    <a class="btn btn-edit" th:href="@{'/SuaGiaoVien/' + ${teacher.id}}">✏️ Sửa</a>
-                    <a class="btn btn-delete"
-                       onclick="return confirm('Bạn có chắc chắn muốn xóa?')" th:href="@{'/XoaGiaoVien/' + ${teacher.id}}">🗑️ Xóa</a>
+                    <a class="btn btn-warning btn-sm" th:href="@{/SuaGiaoVien/{id}(id=${teacher.id})}">
+                        <i class="fas fa-edit"></i> Sửa
+                    </a>
+                    <a class="btn btn-danger btn-sm"
+                       onclick="return confirm('Bạn có chắc chắn muốn xóa?')"
+                       th:href="@{/XoaGiaoVien/{id}(id=${teacher.id})}">
+                        <i class="fas fa-trash-alt"></i> Xóa
+                    </a>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
 
+    <!-- Phân trang -->
+    <ul class="pagination justify-content-center mt-3">
+        <!-- Nút "Đầu" -->
+        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+            <a class="page-link" th:href="@{/DanhSachGiaoVien(page=1, pageSize=${pageSize}, order=${order})}">Đầu</a>
+        </li>
+
+        <!-- Nút "Trước" -->
+        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{/DanhSachGiaoVien(page=${currentPage - 1}, pageSize=${pageSize}, order=${order})}">«</a>
+        </li>
+
+        <!-- Danh sách số trang -->
+        <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
+            <li class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link" th:href="@{/DanhSachGiaoVien(page=${i}, pageSize=${pageSize}, order=${order})}"
+                   th:text="${i}"></a>
+            </li>
+        </th:block>
+
+        <!-- Nút "Sau" -->
+        <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{/DanhSachGiaoVien(page=${currentPage + 1}, pageSize=${pageSize}, order=${order})}">»</a>
+        </li>
+
+        <!-- Nút "Cuối" -->
+        <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+            <a class="page-link"
+               th:href="@{/DanhSachGiaoVien(page=${totalPages}, pageSize=${pageSize}, order=${order})}">Cuối</a>
+        </li>
+    </ul>
 </div>
 
 </body>

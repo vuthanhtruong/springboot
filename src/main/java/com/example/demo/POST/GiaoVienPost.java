@@ -4,18 +4,10 @@ import com.example.demo.OOP.Admin;
 import com.example.demo.OOP.Employees;
 import com.example.demo.OOP.Person;
 import com.example.demo.OOP.Teachers;
-import com.example.demo.Repository.DocumentsRepository;
-import com.example.demo.Repository.PersonRepository;
-import com.example.demo.Repository.PostsRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,19 +22,8 @@ import java.util.List;
 @Transactional
 public class GiaoVienPost {
 
-
-    private static final Logger log = LoggerFactory.getLogger(GiaoVienPost.class);
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @PersistenceContext
     private EntityManager entityManager;
-    @Autowired
-    private PersonRepository personRepository;
-    @Autowired
-    private PostsRepository postsRepository;
-    @Autowired
-    private DocumentsRepository documentsRepository;
-    @Value("${file.upload-dir:C:/uploads}")
-    private String uploadDir;
 
     @Transactional
     @PostMapping("/DangKyGiaoVien")

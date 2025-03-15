@@ -343,8 +343,9 @@ public class NhanVienGet {
             @RequestParam(defaultValue = "1") int pageOffline,
             @RequestParam(defaultValue = "1") int pageOnline,
             @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) String sortOrder // NULL nếu không chọn
+            @RequestParam(required = false) String sortOrder
     ) {
+        // Xử lý pageSize
         if (pageSize == null) {
             pageSize = (Integer) session.getAttribute("pageSize3");
             if (pageSize == null) {
@@ -389,7 +390,7 @@ public class NhanVienGet {
         model.addAttribute("currentPageOnline", pageOnline);
         model.addAttribute("totalPagesOnline", totalOnlinePages);
         model.addAttribute("pageSize", pageSize);
-        model.addAttribute("sortOrder", sortOrder); // Truyền sortOrder lên giao diện
+        model.addAttribute("sortOrder", sortOrder);
 
         return "DanhSachPhongHoc";
     }
