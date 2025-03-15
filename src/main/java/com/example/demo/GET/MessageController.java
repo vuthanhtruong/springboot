@@ -42,6 +42,7 @@ public class MessageController {
     @MessageMapping("/chat")
     @Transactional
     public void sendMessage(ChatMessage chatMessage) {
+        System.out.println("📥 Nhận tin nhắn từ client: " + chatMessage.getSenderId() + " -> " + chatMessage.getRecipientId() + ": " + chatMessage.getContent());
         try {
             Optional<Person> sender = personRepository.findById(chatMessage.getSenderId());
             Optional<Person> recipient = personRepository.findById(chatMessage.getRecipientId());
@@ -53,22 +54,38 @@ public class MessageController {
                 message.setDatetime(LocalDateTime.now());
                 message.setText(chatMessage.getContent());
 
-                // Tìm sự kiện với ID=1, nếu không có thì tạo mới
                 Events event = entityManager.find(Events.class, 2);
-
                 message.setEvent(event);
+
                 entityManager.persist(message);
                 entityManager.flush();
 
                 System.out.println("✅ Tin nhắn đã lưu với ID: " + message.getMessagesID());
 
-                messagingTemplate.convertAndSendToUser(
-                        String.valueOf(chatMessage.getRecipientId()),
-                        "/queue/messages",
-                        chatMessage
+                ChatMessage response = new ChatMessage(
+                        chatMessage.getSenderId(),
+                        chatMessage.getRecipientId(),
+                        chatMessage.getContent(),
+                        message.getDatetime().toString()
                 );
+
+                // Gửi tới người nhận
+                messagingTemplate.convertAndSendToUser(
+                        chatMessage.getRecipientId(),
+                        "/queue/messages",
+                        response
+                );
+                System.out.println("📤 Đã gửi tin nhắn tới /user/" + chatMessage.getRecipientId() + "/queue/messages");
+
+                // Gửi lại cho người gửi
+                messagingTemplate.convertAndSendToUser(
+                        chatMessage.getSenderId(),
+                        "/queue/messages",
+                        response
+                );
+                System.out.println("📤 Đã gửi tin nhắn tới /user/" + chatMessage.getSenderId() + "/queue/messages");
             } else {
-                System.out.println("⚠ Người gửi hoặc người nhận không tồn tại");
+                System.out.println("⚠️ Người gửi hoặc người nhận không tồn tại");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,38 +98,36 @@ public class MessageController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         Person person = entityManager.find(Person.class, userId);
-        // Truy vấn tin nhắn của người dùng
+
+        if (person == null) {
+            return "redirect:/login";
+        }
+
         List<Messages> messages = entityManager.createQuery(
                         "FROM Messages m WHERE m.sender = :user OR m.recipient = :user", Messages.class)
                 .setParameter("user", person)
                 .getResultList();
 
-        // Tập hợp các liên hệ mà người dùng đã nhắn tin
         Set<Person> contacts = new HashSet<>();
         for (Messages message : messages) {
             if (!message.getSender().equals(person)) {
-                contacts.add(message.getSender());  // Người gửi khác user
+                contacts.add(message.getSender());
             }
             if (!message.getRecipient().equals(person)) {
-                contacts.add(message.getRecipient());  // Người nhận khác user
+                contacts.add(message.getRecipient());
             }
         }
-        if (person instanceof Students) {
-            model.addAttribute("trangchu", "TrangChuHocSinh");
-        } else {
-            model.addAttribute("trangchu", "TrangChuGiaoVien");
-        }
 
-        model.addAttribute("contacts", contacts);  // Danh sách các liên hệ đã trò chuyện
+        model.addAttribute("trangchu", person instanceof Students ? "TrangChuHocSinh" : "TrangChuGiaoVien");
+        model.addAttribute("contacts", contacts);
 
-        return "TinNhanCuaBan";  // Trả về view chung
+        return "TinNhanCuaBan";
     }
 
     @GetMapping("/ChiTietTinNhan/{id}")
     public String ChiTietTinNhan(HttpSession session, ModelMap model, @PathVariable("id") String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        Person person = entityManager.find(Person.class, userId);
         Person currentUser = entityManager.find(Person.class, userId);
         Person chatPartner = entityManager.find(Person.class, id);
 
@@ -120,7 +135,6 @@ public class MessageController {
             return "redirect:/TinNhanCuaBan?error=UserNotFound";
         }
 
-        // Truy vấn tin nhắn giữa currentUser và chatPartner
         List<Messages> messages = entityManager.createQuery(
                         "FROM Messages m WHERE " +
                                 "(m.sender = :currentUser AND m.recipient = :chatPartner) " +
@@ -133,12 +147,8 @@ public class MessageController {
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("chatPartner", chatPartner);
         model.addAttribute("messages", messages);
-        if (person instanceof Students) {
-            model.addAttribute("trangchu", "TrangChuHocSinh");
-        } else {
-            model.addAttribute("trangchu", "TrangChuGiaoVien");
-        }
+        model.addAttribute("trangchu", currentUser instanceof Students ? "TrangChuHocSinh" : "TrangChuGiaoVien");
 
-        return "ChiTietTinNhan";  // Trả về view chung
+        return "ChiTietTinNhan";
     }
 }

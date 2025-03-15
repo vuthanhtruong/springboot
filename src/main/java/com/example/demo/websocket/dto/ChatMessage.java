@@ -4,7 +4,18 @@ public class ChatMessage {
     private String senderId;
     private String recipientId;
     private String content;
-    private String timestamp; // Thời gian gửi
+    private String timestamp;
+
+    // Constructors
+    public ChatMessage() {
+    }
+
+    public ChatMessage(String senderId, String recipientId, String content, String timestamp) {
+        this.senderId = senderId;
+        this.recipientId = recipientId;
+        this.content = content;
+        this.timestamp = timestamp;
+    }
 
     // Getters và Setters
     public String getSenderId() {

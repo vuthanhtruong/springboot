@@ -41,48 +41,34 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Kéo xuống cuối danh sách tin nhắn khi trang tải xong
-        scrollToBottom();
-
-        var socket = new SockJS("/ws");
-        var stompClient = Stomp.over(socket);
+        const socket = new SockJS("/ws");
+        const stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function (frame) {
-            console.log("✅ Kết nối WebSocket thành công:", frame);
-            var currentUserId = document.getElementById("currentUserId").value;
-            var subscriptionPath = "/user/" + currentUserId + "/queue/messages";
+            console.log("🟢 WebSocket kết nối thành công: " + frame);
 
-            stompClient.subscribe(subscriptionPath, function (message) {
-                var receivedMessage = JSON.parse(message.body);
-                console.log("📩 Nhận tin nhắn:", receivedMessage);
-                appendMessage(receivedMessage.senderId, receivedMessage.content, receivedMessage.timestamp);
+            stompClient.subscribe("/user/queue/messages", function (message) {
+                const content = JSON.parse(message.body);
+                appendMessage(content.senderId, content.content, content.timestamp);
             });
-        }, function (error) {
-            console.error("❌ Lỗi kết nối WebSocket:", error);
-            // Thử kết nối lại sau 5 giây
-            setTimeout(function () {
-                location.reload();
-            }, 5000);
         });
 
         document.getElementById("messageForm").addEventListener("submit", function (event) {
             event.preventDefault();
-            var senderId = document.getElementById("currentUserId").value;
-            var recipientId = document.getElementById("chatPartnerId").value;
-            var messageContent = document.getElementById("messageText").value.trim();
 
-            if (!messageContent) return;
+            const messageInput = document.getElementById("messageText").value;
+            const recipientId = document.getElementById("chatPartnerId").value;
+            const senderId = document.getElementById("currentUserId").value;
 
-            var message = {
-                senderId: senderId,
-                recipientId: recipientId,
-                content: messageContent,
-                timestamp: new Date().toISOString()
-            };
+            if (messageInput.trim() !== "") {
+                stompClient.send("/app/chat", {}, JSON.stringify({
+                    senderId: senderId,
+                    recipientId: recipientId,
+                    content: messageInput
+                }));
 
-            stompClient.send("/app/chat", {}, JSON.stringify(message));
-            appendMessage(senderId, messageContent, message.timestamp);
-            document.getElementById("messageText").value = "";
+                document.getElementById("messageText").value = "";
+            }
         });
 
         function appendMessage(senderId, content, timestamp) {
