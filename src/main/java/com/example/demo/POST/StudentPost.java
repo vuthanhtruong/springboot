@@ -18,12 +18,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -150,101 +146,6 @@ public class StudentPost {
             model.addAttribute("error", "Mã học sinh không tồn tại!");
             return "redirect:/DangNhapHocSinh";
         }
-    }
-
-    @Transactional
-    @PostMapping("/BinhLuanHocSinh")
-    public String themBinhLuan(@RequestParam("postId") Long postId,
-                               @RequestParam("commentText") String commentText, SessionStatus sessionStatus, HttpSession session) {
-        // Lấy thông tin người bình luận
-        Person commenter = entityManager.find(Person.class, session.getAttribute("StudentID"));
-
-        // Lấy thông tin bài đăng
-        Posts post = entityManager.find(Posts.class, postId);
-        if (post == null) {
-            throw new IllegalArgumentException("Không tìm thấy bài đăng với ID: " + postId);
-        }
-
-        // Tạo mới bình luận
-        Comments comment = new Comments(commenter, post, commentText);
-        Events event = entityManager.find(Events.class, 5);
-        comment.setEvent(event);
-
-        // Lưu vào database
-        entityManager.persist(comment);
-        return "redirect:/ChiTietLopHocHocSinh/" + post.getRoom().getRoomId();
-    }
-
-    @Transactional
-    @PostMapping("/BaiPostHocSinh")
-    public String handleStudentPost(@RequestParam("postContent") String postContent,
-                                    @RequestParam(value = "file", required = false) MultipartFile file,
-                                    @RequestParam("roomId") String roomId,
-                                    RedirectAttributes redirectAttributes,
-                                    HttpSession session) {
-        try {
-            log.info("🔍 Xử lý bài đăng của học sinh. Nội dung: {}", postContent);
-
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String studentId = authentication.getName();
-            Person person = entityManager.find(Person.class, studentId);
-            Students student = (Students) person;
-
-            // 📝 Tạo bài đăng mới
-            Posts newPost = new Posts();
-            newPost.setContent(postContent);
-            newPost.setCreator(student);
-            newPost.setCreatedAt(LocalDateTime.now());
-
-            // 🏫 Lấy phòng học
-            Rooms room = entityManager.find(Rooms.class, roomId);
-            if (room == null) {
-                throw new IllegalArgumentException("Không tìm thấy phòng học với ID: " + roomId);
-            }
-            newPost.setRoom(room);
-
-            // 💾 Lưu bài post vào DB
-            Events event1 = entityManager.find(Events.class, 3);
-            newPost.setEvent(event1);
-            entityManager.persist(newPost);
-            log.info("✅ Bài đăng đã được lưu với ID: {}", newPost.getPostId());
-
-            // 📂 Xử lý tệp đính kèm (nếu có)
-            if (file != null && !file.isEmpty()) {
-                byte[] fileData = file.getBytes();
-                log.info("📏 Kích thước tệp (bytes): {}", fileData.length);
-
-                if (fileData.length == 0) {
-                    throw new IOException("❌ Tệp rỗng hoặc không đọc được.");
-                }
-
-                // Lưu tệp vào DB
-                Documents document = new Documents();
-                document.setDocumentTitle(file.getOriginalFilename());
-                document.setFileData(fileData);  // 🟢 Lưu byte[] vào DB
-                document.setFilePath(uploadDir + File.separator + file.getOriginalFilename());
-                document.setCreator(student);
-                document.setPost(newPost);
-                Events event = entityManager.find(Events.class, 4);
-                document.setEvent(event);
-
-                entityManager.persist(document);
-                log.info("✅ Document đã lưu với ID: {}", document.getDocumentId());
-            }
-
-            redirectAttributes.addFlashAttribute("message", "Bài đăng đã được tạo thành công!");
-
-        } catch (IOException e) {
-            log.error("❌ Lỗi khi xử lý tệp: {}", e.getMessage(), e);
-            redirectAttributes.addFlashAttribute("error", "Lỗi khi xử lý tệp: " + e.getMessage());
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-        } catch (Exception e) {
-            log.error("🚫 Lỗi không mong muốn: {}", e.getMessage(), e);
-            redirectAttributes.addFlashAttribute("error", "Lỗi hệ thống: " + e.getMessage());
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-        }
-
-        return "redirect:/ChiTietLopHocHocSinh/" + roomId;
     }
 
     @PostMapping("/GuiNhanXetGiaoVien")

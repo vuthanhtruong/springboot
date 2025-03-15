@@ -2,9 +2,9 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Danh Sách Lớp Học</title>
-    <link rel="stylesheet" href="DanhSachLopHocGiaoVien.css">
+    <link href="DanhSachLopHocGiaoVien.css" rel="stylesheet">
 </head>
 <body>
 <header>
@@ -20,7 +20,8 @@
         <ul>
             <th:block th:each="room : ${rooms}">
                 <li>
-                    <a th:href="@{'/ChiTietLopHocHocSinh/' + ${room.roomId}}" th:text="${room.roomName} + ' - ' + ${room.address}"></a>
+                    <a th:href="@{'/ChiTietLopHocBanThamGia/' + ${room.roomId}}"
+                       th:text="${room.roomName} + ' - ' + ${room.address}"></a>
                 </li>
             </th:block>
         </ul>
@@ -30,7 +31,8 @@
         <ul>
             <th:block th:each="onlineRoom : ${onlineRooms}">
                 <li>
-                    <a th:href="@{'/ChiTietLopHocHocSinh/' + ${onlineRoom.roomId}}" th:text="${onlineRoom.roomName}"></a>
+                    <a th:href="@{'/ChiTietLopHocBanThamGia/' + ${onlineRoom.roomId}}"
+                       th:text="${onlineRoom.roomName}"></a>
                 </li>
             </th:block>
         </ul>

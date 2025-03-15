@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Thành Viên Trong Lớp</title>
+    <link href="/ThanhVienTrongLopGiaoVien.css" rel="stylesheet">
+</head>
+
+<body>
+
+<header>
+    <h1>Danh Sách Thành Viên Trong Lớp</h1>
+
+    <!-- Back Button Section -->
+    <div class="buttons">
+        <a class="btn btn-primary" th:href="${homePage}">Quay về Trang Chủ</a>
+        <a class="btn btn-secondary" href="/DanhSachLopHoc">Quay về Danh Sách Lớp Học</a>
+    </div>
+
+</header>
+
+<!-- Phân chia màn hình thành 2 phần -->
+<div class="container">
+    <!-- Section for Teachers -->
+    <div class="section left">
+        <h2>Danh Sách Giáo Viên</h2>
+        <ul>
+            <th:block th:each="teacher : ${teachers}">
+                <li>
+                    <div class="member-info">
+                        <strong th:text="${teacher.firstName} + ' ' + ${teacher.lastName}">Tên Giáo Viên</strong><br>
+                        <span th:text="${teacher.email}">Email</span><br>
+                        <span th:text="${teacher.phoneNumber}">Số điện thoại</span>
+                        <!-- Message Button -->
+                        <a class="btn btn-message"
+                           th:href="@{/ChiTietTinNhanCuaHocSinh/{id}(id=${teacher.id})}">Gửi Tin Nhắn</a>
+                    </div>
+                </li>
+            </th:block>
+        </ul>
+    </div>
+
+    <!-- Section for Students -->
+    <div class="section right">
+        <h2>Danh Sách Học Sinh</h2>
+        <ul>
+            <th:block th:each="student : ${students}">
+                <li>
+                    <div class="member-info">
+                        <strong th:text="${student.firstName} + ' ' + ${student.lastName}">Tên Học Sinh</strong><br>
+                        <span th:text="${student.email}">Email</span><br>
+                        <span th:text="${student.phoneNumber}">Số điện thoại</span>
+                    </div>
+                </li>
+            </th:block>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>
