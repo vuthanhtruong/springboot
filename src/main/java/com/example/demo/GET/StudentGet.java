@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -126,13 +127,12 @@ public class StudentGet {
         int firstResultMessages = (pageMessages - 1) * pageSize;
         List<Messages> messagesList = entityManager.createQuery(
                         "SELECT m FROM Messages m " +
-                                "WHERE m.sender != :student AND m.recipient = :student " +
-                                "AND m.event IN (SELECT cd.event FROM ClassroomDetails cd WHERE cd.member = :student) " +
-                                "ORDER BY m.event.eventDate DESC", Messages.class)
+                                "WHERE m.sender != :student AND m.recipient = :student ", Messages.class)
                 .setParameter("student", student)
                 .setFirstResult(firstResultMessages)
                 .setMaxResults(pageSize)
                 .getResultList();
+        Collections.reverse(messagesList);
 
         // 4. Phân trang cho Blogs
         Long totalBlogs = (Long) entityManager.createQuery(
@@ -146,13 +146,12 @@ public class StudentGet {
         int firstResultBlogs = (pageBlogs - 1) * pageSize;
         List<Blogs> blogs = entityManager.createQuery(
                         "SELECT b FROM Blogs b " +
-                                "WHERE b.creator != :student " +
-                                "AND b.event IN (SELECT cd.event FROM ClassroomDetails cd WHERE cd.member = :student) " +
-                                "ORDER BY b.event.eventDate DESC", Blogs.class)
+                                "WHERE b.creator != :student ", Blogs.class)
                 .setParameter("student", student)
                 .setFirstResult(firstResultBlogs)
                 .setMaxResults(pageSize)
                 .getResultList();
+        Collections.reverse(blogs);
 
         // Truyền dữ liệu lên giao diện
         model.addAttribute("documents", documents);

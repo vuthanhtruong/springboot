@@ -36,8 +36,9 @@
             <h3><i class="fas fa-file-alt"></i> Tài liệu</h3>
             <ul class="list-unstyled" id="document-list">
                 <li class="mb-2" th:each="doc : ${documents}">
-                    <strong>ID Sự Kiện:</strong> <span th:text="${doc.event?.eventId ?: 'N/A'}"></span><br>
                     <strong>Mô tả:</strong> <span th:text="${doc.event?.description ?: 'Không có mô tả'}"></span>
+                    <strong>Thời Gian</strong> <span
+                        th:text="${doc.getPost().getCreatedAt() ?: 'Không có mô tả'}"></span>
                 </li>
                 <li th:if="${#lists.isEmpty(documents)}">Không có tài liệu.</li>
             </ul>
@@ -73,8 +74,9 @@
             <h3><i class="fas fa-newspaper"></i> Bài đăng</h3>
             <ul class="list-unstyled" id="post-list">
                 <li class="mb-2" th:each="post : ${posts}">
-                    <strong>ID Sự Kiện:</strong> <span th:text="${post.event?.eventId ?: 'N/A'}"></span><br>
                     <strong>Mô tả:</strong> <span th:text="${post.event?.description ?: 'Không có mô tả'}"></span>
+                    <strong>Thời Gian</strong> <span th:text="${post.getCreator() ?: 'Không có mô tả'}"></span>
+                    <strong>Thời Gian</strong> <span th:text="${post.getCreatedAt() ?: 'Không có mô tả'}"></span>
                 </li>
                 <li th:if="${#lists.isEmpty(posts)}">Không có bài đăng.</li>
             </ul>
@@ -110,8 +112,8 @@
             <h3><i class="fas fa-comments"></i> Tin nhắn</h3>
             <ul class="list-unstyled" id="message-list">
                 <li class="mb-2" th:each="msg : ${messagesList}">
-                    <strong>ID Sự Kiện:</strong> <span th:text="${msg.event?.eventId ?: 'N/A'}"></span><br>
                     <strong>Mô tả:</strong> <span th:text="${msg.event?.description ?: 'Không có mô tả'}"></span>
+                    <strong>Thời Gian</strong> <span th:text="${msg.getDatetime() ?: 'Không có mô tả'}"></span>
                 </li>
                 <li th:if="${#lists.isEmpty(messagesList)}">Không có tin nhắn.</li>
             </ul>
@@ -147,8 +149,8 @@
             <h3><i class="fas fa-blog"></i> Bài Viết Blog</h3>
             <ul class="list-unstyled" id="blog-list">
                 <li class="mb-2" th:each="blog : ${blogs}">
-                    <strong>ID Sự Kiện:</strong> <span th:text="${blog.event?.eventId ?: 'N/A'}"></span><br>
                     <strong>Mô tả:</strong> <span th:text="${blog.event?.description ?: 'Không có mô tả'}"></span>
+                    <strong>Thời Gian</strong> <span th:text="${blog.getCreatedAt() ?: 'Không có mô tả'}"></span>
                 </li>
                 <li th:if="${#lists.isEmpty(blogs)}">Không có bài viết blog.</li>
             </ul>
