@@ -646,12 +646,12 @@ public class NhanVienGet {
                 String messageContent;
                 if (room instanceof OnlineRooms onlineRoom) {
                     messageContent = "Lịch trình học Online của bạn bắt đầu từ " +
-                            onlineRoom.getStartTime() + " đến hết " + onlineRoom.getEndTime();
+                            onlineRoom.getStartTime() + " đến hết " + onlineRoom.getEndTime() + "tại đường Link " + onlineRoom.getLink();
                 } else {
+                    Rooms rooms = (Rooms) room;
                     messageContent = "Lịch trình học của bạn bắt đầu từ " +
-                            room.getStartTime() + " đến hết " + room.getEndTime();
+                            room.getStartTime() + " đến hết " + room.getEndTime() + "tại địa chỉ " + rooms.getAddress();
                 }
-
                 // Gửi thông báo
                 sendNotification(member.getId(), room.getRoomId(), messageContent, employee, recipientEmail);
             }
