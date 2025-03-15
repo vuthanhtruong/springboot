@@ -68,7 +68,7 @@ public class DanhSachLopHocGet {
         model.addAttribute("rooms", rooms);
         model.addAttribute("onlineRooms", onlineRooms);
 
-        return "/DanhSachLopHoc";
+        return "DanhSachLopHoc";
     }
 
     @GetMapping("ChiTietLopHocBanThamGia/{id}")
