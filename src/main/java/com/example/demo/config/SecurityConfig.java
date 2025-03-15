@@ -20,7 +20,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET,
-                             
+
                                 "/TrangChuAdmin",
                                 "/DanhSachGiaoVien",
                                 "/DanhSachNhanVien",
@@ -79,6 +79,13 @@ public class SecurityConfig {
                                 "/TimKiemHocSinhCuaBan",
                                 "/DanhSachTimKiemPhongHoc"
                         ).hasRole("EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET,
+                                "/TinNhanCuaBan",
+                                "/ChiTietTinNhan/**"
+                        ).hasAnyRole("TEACHER", "STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/BaiPost",
+                                "/BinhLuan")
+                        .hasAnyRole("TEACHER", "STUDENT")
                         .requestMatchers(HttpMethod.GET,
 
                                 "/TrangChuGiaoVien",
