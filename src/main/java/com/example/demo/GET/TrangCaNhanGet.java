@@ -56,4 +56,5 @@ public class TrangCaNhanGet {
             return "redirect:/TrangChuAdmin";
         }
     }
+
 }

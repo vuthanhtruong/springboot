@@ -25,6 +25,110 @@
             <button class="btn btn-primary" type="submit">Đăng Nhập</button>
         </form>
 
+        <!-- Nút Đăng Nhập Bằng Khuôn Mặt -->
+        <div class="face-login">
+            <button class="btn btn-secondary" onclick="startFaceRecognition()">Đăng nhập bằng khuôn mặt</button>
+        </div>
+
+        <script>
+            function startFaceRecognition() {
+                alert("Đang bắt đầu nhận diện khuôn mặt. Vui lòng bật webcam!");
+
+                const video = document.createElement('video');
+
+                // Kiểm tra hỗ trợ của trình duyệt
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    alert("Trình duyệt của bạn không hỗ trợ truy cập webcam!");
+                    return;
+                }
+
+                navigator.mediaDevices.getUserMedia({video: true})
+                    .then((stream) => {
+                        video.srcObject = stream;
+                        video.play();
+
+                        // Hiển thị hình ảnh từ webcam cho người dùng
+                        const previewElement = document.createElement('div');
+                        previewElement.innerHTML = '<p>Đang chụp hình...</p>';
+                        previewElement.style.position = 'fixed';
+                        previewElement.style.top = '50%';
+                        previewElement.style.left = '50%';
+                        previewElement.style.transform = 'translate(-50%, -50%)';
+                        previewElement.style.padding = '20px';
+                        previewElement.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                        previewElement.style.color = 'white';
+                        previewElement.style.borderRadius = '5px';
+                        previewElement.style.zIndex = '9999';
+                        document.body.appendChild(previewElement);
+
+                        // Chụp ảnh sau 2 giây
+                        setTimeout(() => {
+                            try {
+                                const canvas = document.createElement('canvas');
+                                canvas.width = video.videoWidth;
+                                canvas.height = video.videoHeight;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(video, 0, 0);
+
+                                // Chuyển ảnh thành base64, có thể cần giảm kích thước
+                                const faceImageData = canvas.toDataURL('image/jpeg', 0.8); // Giảm chất lượng xuống 80%
+
+                                // Dừng video stream
+                                stream.getTracks().forEach(track => track.stop());
+                                document.body.removeChild(previewElement);
+
+                                // Hiển thị thông báo đang xử lý
+                                const loadingElement = document.createElement('div');
+                                loadingElement.innerHTML = '<p>Đang xử lý khuôn mặt...</p>';
+                                loadingElement.style.position = 'fixed';
+                                loadingElement.style.top = '50%';
+                                loadingElement.style.left = '50%';
+                                loadingElement.style.transform = 'translate(-50%, -50%)';
+                                loadingElement.style.padding = '20px';
+                                loadingElement.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                                loadingElement.style.color = 'white';
+                                loadingElement.style.borderRadius = '5px';
+                                loadingElement.style.zIndex = '9999';
+                                document.body.appendChild(loadingElement);
+
+                                // Gửi yêu cầu nhận diện khuôn mặt
+                                fetch('/auth/verify-face-login', {
+                                    method: 'POST',
+                                    body: JSON.stringify({image: faceImageData}),
+                                    headers: {'Content-Type': 'application/json'}
+                                })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error('Lỗi từ server: ' + response.statusText);
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        document.body.removeChild(loadingElement);
+                                        if (data.success) {
+                                            window.location.href = data.redirectUrl;
+                                        } else {
+                                            alert("Không thể nhận diện khuôn mặt: " + (data.message || "Vui lòng thử lại."));
+                                        }
+                                    })
+                                    .catch(error => {
+                                        document.body.removeChild(loadingElement);
+                                        console.error('Error:', error);
+                                        alert("Lỗi kết nối: " + error.message);
+                                    });
+                            } catch (err) {
+                                console.error('Error capturing image:', err);
+                                alert("Lỗi khi chụp ảnh: " + err.message);
+                            }
+                        }, 2000);
+                    })
+                    .catch(error => {
+                        console.error('Error accessing webcam:', error);
+                        alert("Không thể truy cập webcam của bạn: " + error.message);
+                    });
+            }
+        </script>
+
         <!-- Link Quên Mật Khẩu -->
         <div class="forgot-password">
             <a href="/auth/QuenMatKhau">Quên mật khẩu?</a>

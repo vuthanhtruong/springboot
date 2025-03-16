@@ -21,10 +21,6 @@ public class AdminUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String adminId) throws UsernameNotFoundException {
         Admin admin = entityManager.find(Admin.class, adminId);
 
-        if (admin == null) {
-            throw new UsernameNotFoundException("Admin không tồn tại với ID: " + adminId);
-        }
-
         return new org.springframework.security.core.userdetails.User(
                 admin.getId(),
                 admin.getPassword(),

@@ -21,7 +21,7 @@ public class LoginController {
     public String redirectAfterLogin(Authentication authentication, HttpServletRequest request) throws ServletException, IOException {
         if (authentication == null) {
             System.out.println("🔴 Authentication null, chuyển về /DangNhap");
-            return "redirect:/DangNhap?error";
+            return "redirect:/TrangChu?error";
         }
 
         System.out.println("✅ Đăng nhập: " + authentication.getName());

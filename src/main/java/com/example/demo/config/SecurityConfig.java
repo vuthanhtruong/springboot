@@ -84,8 +84,8 @@ public class SecurityConfig {
                                         "/ChiTietTinNhan/**"
                                 ).hasAnyRole("TEACHER", "STUDENT")
                                 .requestMatchers(HttpMethod.POST, "/BaiPost",
-                                        "/BinhLuan")
-                                .hasAnyRole("TEACHER", "STUDENT")
+                                        "/BinhLuan", "/register-face")
+                                .hasAnyRole("TEACHER", "STUDENT", "ADMIN", "EMPLOYEE")
                                 .requestMatchers(HttpMethod.GET,
 
                                         "/TrangChuGiaoVien",
@@ -134,8 +134,10 @@ public class SecurityConfig {
                                         "/auth/verify-otp",
                                         "/auth/DatLaiMatKhau",
                                         "/Blogs",
-                                        "/XoaTatCaHocSinh"
+                                        "/XoaTatCaHocSinh",
+                                        "/auth/verify-face-login"
                                 ).permitAll()
+                                .requestMatchers(HttpMethod.POST, "/auth/verify-face-login").permitAll()
                                 .requestMatchers(HttpMethod.POST,
                                         "/DangKyGiaoVien",
                                         "/DangKyNhanVien",
@@ -148,7 +150,6 @@ public class SecurityConfig {
                                         "/XuLyThemBlog"
                                 ).permitAll()
                                 .requestMatchers("/ws/**").permitAll()
-
                                 // Mở API public cho AJAX requests
                                 .requestMatchers("/api/**").permitAll()
                                 .anyRequest().authenticated()

@@ -13,9 +13,22 @@
 </header>
 
 <main>
+    <!-- Hiển thị thông báo thành công/lỗi -->
+    <div class="alert alert-success" th:if="${param.success}">
+        Cập nhật thông tin thành công!
+    </div>
+    <div class="alert alert-danger" th:if="${param.error}">
+        <span th:switch="${param.error}">
+            <span th:case="'not_logged_in'">Vui lòng đăng nhập để tiếp tục.</span>
+            <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
+            <span th:case="'save_failed'">Lưu thông tin thất bại. Vui lòng thử lại.</span>
+            <span th:case="*">Đã có lỗi xảy ra: <span th:text="${param.error}"></span></span>
+        </span>
+    </div>
+
     <section class="profile-section">
         <h2><i class="fas fa-user"></i> Hồ Sơ Cá Nhân</h2>
-        <form action="/LuuThongTinCaNhan" method="post">
+        <form th:action="@{/LuuThongTinCaNhan}" th:method="post">
             <div class="form-group">
                 <label><strong>ID:</strong></label>
                 <span th:text="${user.id}"></span>
@@ -41,6 +54,14 @@
                        th:value="${user.phoneNumber}" type="text">
             </div>
 
+            <div class="form-group">
+                <label><strong>Đăng Ký Khuôn Mặt:</strong></label>
+                <video autoplay height="240" id="video" width="320"></video>
+                <button onclick="captureFace()" type="button">Chụp Khuôn Mặt</button>
+                <input id="faceData" name="faceData" type="hidden">
+                <span id="captureStatus" style="color: green; display: none;">Đã chụp khuôn mặt!</span>
+            </div>
+
             <button type="submit"><i class="fas fa-save"></i> Lưu</button>
         </form>
     </section>
@@ -51,10 +72,56 @@
     </section>
 
     <section class="navigation-section">
-        <a class="btn" href="/QuayVeTrangChu"><i class="fas fa-home"></i> Quay về Trang Chủ</a>
+        <a class="btn" th:href="@{/redirect}"><i class="fas fa-home"></i> Quay về Trang Chủ</a>
         <a class="btn btn-danger" href="/DangXuat"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
     </section>
 </main>
+
+<script>
+    let video = document.getElementById('video');
+    let captureStatus = document.getElementById('captureStatus');
+
+    // Bắt đầu thu thập video từ webcam
+    navigator.mediaDevices.getUserMedia({video: true})
+        .then(function (stream) {
+            video.srcObject = stream;
+        })
+        .catch(function (err) {
+            console.log("Lỗi webcam: " + err);
+            alert("Không thể truy cập webcam: " + err.message);
+        });
+
+    // Chụp hình khuôn mặt khi nhấn nút
+    function captureFace() {
+        let canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        let context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        let faceData = canvas.toDataURL('image/png');
+        document.getElementById('faceData').value = faceData;
+        captureStatus.style.display = 'inline'; // Hiển thị thông báo đã chụp
+        setTimeout(() => captureStatus.style.display = 'none', 2000); // Ẩn sau 2 giây
+    }
+</script>
+
+<style>
+    .alert {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+</style>
 
 </body>
 </html>
