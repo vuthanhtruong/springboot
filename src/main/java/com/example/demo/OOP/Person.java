@@ -35,15 +35,7 @@ public class Person {
 
     @Column(name = "BirthDate", nullable = true)
     @Past(message = "Ngày sinh phải là một ngày trong quá khứ")
-    private LocalDate birthDate;
-
-    @Lob
-    @Column(name = "FaceData", columnDefinition = "LONGTEXT", nullable = true)
-    private String faceData;
-
-    @Lob
-    @Column(name = "VoiceData", columnDefinition = "LONGTEXT", nullable = true)
-    private String voiceData;
+    private LocalDate birthDate; // Ngày sinh (yyyy-MM-dd)
 
     public String getFullName() {
         return firstName + " " + lastName;

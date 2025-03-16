@@ -1,12 +1,14 @@
 package com.example.demo.POST;
 
-import com.example.demo.OOP.Person;
+import com.example.demo.OOP.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/")
 @Transactional
+
 public class TrangCaNhanPost {
 
     @PersistenceContext
@@ -24,31 +27,49 @@ public class TrangCaNhanPost {
             @RequestParam String firstName,
             @RequestParam String lastName,
             @RequestParam String email,
-            @RequestParam String phoneNumber) {
+            @RequestParam String phoneNumber,
+            HttpSession session,
+            ModelMap model) {
 
+        // Lấy ID từ Authentication
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return "redirect:/TrangChu?error=not_logged_in";
-        }
-
         String userId = authentication.getName();
+
+        // Lấy thông tin từ database
         Person person = entityManager.find(Person.class, userId);
-        if (person == null) {
-            return "redirect:/TrangChu?error=user_not_found";
+
+        // Kiểm tra và cập nhật thông tin theo loại tài khoản cụ thể
+        if (person instanceof Teachers teacher) {
+            teacher.setFirstName(firstName);
+            teacher.setLastName(lastName);
+            teacher.setEmail(email);
+            teacher.setPhoneNumber(phoneNumber);
+            entityManager.merge(teacher);
+            return "redirect:/TrangChuGiaoVien";
+        } else if (person instanceof Students student) {
+            student.setFirstName(firstName);
+            student.setLastName(lastName);
+            student.setEmail(email);
+            student.setPhoneNumber(phoneNumber);
+            entityManager.merge(student);
+            return "redirect:/TrangChuHocSinh";
+        } else if (person instanceof Admin admin) {
+            admin.setFirstName(firstName);
+            admin.setLastName(lastName);
+            admin.setEmail(email);
+            admin.setPhoneNumber(phoneNumber);
+            entityManager.merge(admin);
+            return "redirect:/TrangChuAdmin";
+        } else if (person instanceof Employees employee) {
+            employee.setFirstName(firstName);
+            employee.setLastName(lastName);
+            employee.setEmail(email);
+            employee.setPhoneNumber(phoneNumber);
+            entityManager.merge(employee);
+            return "redirect:/TrangChuNhanVien";
         }
 
-        person.setFirstName(firstName);
-        person.setLastName(lastName);
-        person.setEmail(email);
-        person.setPhoneNumber(phoneNumber);
-
-        try {
-            entityManager.merge(person);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "redirect:/TrangCaNhan?error=save_failed";
-        }
-
-        return "redirect:/TrangCaNhan?success";
+        return "redirect:/TrangChu";
     }
+
 }
