@@ -26,6 +26,7 @@
         </span>
     </div>
 
+    <!-- Mục Hồ Sơ Cá Nhân -->
     <section class="profile-section">
         <h2><i class="fas fa-user"></i> Hồ Sơ Cá Nhân</h2>
         <form th:action="@{/LuuThongTinCaNhan}" th:method="post">
@@ -54,23 +55,30 @@
                        th:value="${user.phoneNumber}" type="text">
             </div>
 
-            <div class="form-group">
-                <label><strong>Đăng Ký Khuôn Mặt:</strong></label>
-                <video autoplay height="240" id="video" width="320"></video>
-                <button onclick="captureFace()" type="button">Chụp Khuôn Mặt</button>
-                <input id="faceData" name="faceData" type="hidden">
-                <span id="captureStatus" style="color: green; display: none;">Đã chụp khuôn mặt!</span>
-            </div>
-
             <button type="submit"><i class="fas fa-save"></i> Lưu</button>
         </form>
     </section>
 
+    <!-- Mục Đăng Ký Khuôn Mặt -->
+    <section class="face-registration-section">
+        <h2><i class="fas fa-camera"></i> Đăng Ký Khuôn Mặt</h2>
+        <form th:action="@{/DangKyKhuonMat}" th:method="post">
+            <video autoplay height="240" id="video" style="transform: scaleX(-1);" width="320"></video>
+            <button onclick="toggleCamera()" type="button">Bật/Tắt Camera</button>
+            <button onclick="captureFace()" type="button">Chụp Khuôn Mặt</button>
+            <input id="faceData" name="faceData" type="hidden">
+            <span id="captureStatus" style="color: green; display: none;">Đã chụp khuôn mặt!</span>
+            <button type="submit"><i class="fas fa-upload"></i> Đăng Ký</button>
+        </form>
+    </section>
+
+    <!-- Mục Bảo Mật -->
     <section class="password-section">
         <h2><i class="fas fa-key"></i> Bảo Mật</h2>
         <a class="btn btn-warning" href="/DoiMatKhau"><i class="fas fa-lock"></i> Đổi Mật Khẩu</a>
     </section>
 
+    <!-- Điều Hướng -->
     <section class="navigation-section">
         <a class="btn" th:href="@{/redirect}"><i class="fas fa-home"></i> Quay về Trang Chủ</a>
         <a class="btn btn-danger" href="/DangXuat"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
@@ -80,18 +88,35 @@
 <script>
     let video = document.getElementById('video');
     let captureStatus = document.getElementById('captureStatus');
+    let stream = null;
 
-    // Bắt đầu thu thập video từ webcam
-    navigator.mediaDevices.getUserMedia({video: true})
-        .then(function (stream) {
-            video.srcObject = stream;
-        })
-        .catch(function (err) {
-            console.log("Lỗi webcam: " + err);
-            alert("Không thể truy cập webcam: " + err.message);
-        });
+    function startCamera() {
+        navigator.mediaDevices.getUserMedia({video: {facingMode: 'user'}})
+            .then(function (videoStream) {
+                stream = videoStream;
+                video.srcObject = stream;
+            })
+            .catch(function (err) {
+                console.log("Lỗi webcam: " + err);
+                alert("Không thể truy cập webcam: " + err.message);
+            });
+    }
 
-    // Chụp hình khuôn mặt khi nhấn nút
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            video.srcObject = null;
+        }
+    }
+
+    function toggleCamera() {
+        if (video.srcObject) {
+            stopCamera();
+        } else {
+            startCamera();
+        }
+    }
+
     function captureFace() {
         let canvas = document.createElement('canvas');
         canvas.width = video.videoWidth;
@@ -100,8 +125,8 @@
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         let faceData = canvas.toDataURL('image/png');
         document.getElementById('faceData').value = faceData;
-        captureStatus.style.display = 'inline'; // Hiển thị thông báo đã chụp
-        setTimeout(() => captureStatus.style.display = 'none', 2000); // Ẩn sau 2 giây
+        captureStatus.style.display = 'inline';
+        setTimeout(() => captureStatus.style.display = 'none', 2000);
     }
 </script>
 

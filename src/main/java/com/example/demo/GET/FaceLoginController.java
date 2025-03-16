@@ -1,7 +1,6 @@
 package com.example.demo.GET;
 
 import com.example.demo.OOP.FaceImageDTO;
-import com.example.demo.OOP.Person;
 import com.example.demo.POST.FaceRecognitionService;
 import com.example.demo.Repository.PersonRepository;
 import com.example.demo.config.CommonUserDetailsService;
@@ -43,13 +42,7 @@ public class FaceLoginController {
                 return ResponseEntity.status(401)
                         .body(new LoginResponse(false, "Không nhận diện được khuôn mặt"));
             }
-            System.out.println("Recognized Person ID: " + personId);
 
-            // 3. Find Person from Database
-            Person person = personRepository.findById(personId)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng: " + personId));
-
-            // 4. Load UserDetails using CommonUserDetailsService
             UserDetails userDetails = commonUserDetailsService.loadUserByUsername(personId);
 
             // 5. Create Authentication and Store in Security Context
@@ -86,32 +79,5 @@ public class FaceLoginController {
         }
         System.err.println("No valid role found for user, defaulting to /TrangChu");
         return "/TrangChu";
-    }
-
-    public static class LoginResponse {
-        private final boolean success;
-        private String redirectUrl;
-        private String message;
-
-        public LoginResponse(boolean success, String messageOrUrl) {
-            this.success = success;
-            if (success) {
-                this.redirectUrl = messageOrUrl;
-            } else {
-                this.message = messageOrUrl;
-            }
-        }
-
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public String getRedirectUrl() {
-            return redirectUrl;
-        }
-
-        public String getMessage() {
-            return message;
-        }
     }
 }
