@@ -10,6 +10,16 @@
 <div class="container text-center">
     <h1>Chào mừng đến với Trang Chủ</h1>
 
+    <!-- Hiển thị thông báo lỗi nếu có -->
+    <div class="alert alert-danger" th:if="${param.error}">
+        <span th:switch="${param.error}">
+            <span th:case="'invalid_face'">Ảnh khuôn mặt không hợp lệ.</span>
+            <span th:case="'face_not_recognized'">Không nhận diện được khuôn mặt.</span>
+            <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
+            <span th:case="*">Lỗi: <span th:text="${param.error}"></span></span>
+        </span>
+    </div>
+
     <!-- Form Đăng Nhập -->
     <div class="login-form">
         <h2>Đăng Nhập</h2>
@@ -25,9 +35,14 @@
             <button class="btn btn-primary" type="submit">Đăng Nhập</button>
         </form>
 
-        <!-- Nút Đăng Nhập Bằng Khuôn Mặt -->
+        <!-- Form Đăng Nhập Bằng Khuôn Mặt -->
         <div class="face-login">
-            <button class="btn btn-secondary" onclick="startFaceRecognition()">Đăng nhập bằng khuôn mặt</button>
+            <form action="/auth/verify-face-login" id="faceLoginForm" method="POST">
+                <input id="faceData" name="image" type="hidden">
+                <button class="btn btn-secondary" onclick="startFaceRecognition()" type="button">Đăng nhập bằng khuôn
+                    mặt
+                </button>
+            </form>
         </div>
 
         <script>
@@ -35,6 +50,8 @@
                 alert("Đang bắt đầu nhận diện khuôn mặt. Vui lòng bật webcam!");
 
                 const video = document.createElement('video');
+                const faceDataInput = document.getElementById('faceData');
+                const form = document.getElementById('faceLoginForm');
 
                 // Kiểm tra hỗ trợ của trình duyệt
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -47,7 +64,7 @@
                         video.srcObject = stream;
                         video.play();
 
-                        // Hiển thị hình ảnh từ webcam cho người dùng
+                        // Hiển thị preview
                         const previewElement = document.createElement('div');
                         previewElement.innerHTML = '<p>Đang chụp hình...</p>';
                         previewElement.style.position = 'fixed';
@@ -70,52 +87,16 @@
                                 const ctx = canvas.getContext('2d');
                                 ctx.drawImage(video, 0, 0);
 
-                                // Chuyển ảnh thành base64, có thể cần giảm kích thước
-                                const faceImageData = canvas.toDataURL('image/jpeg', 0.8); // Giảm chất lượng xuống 80%
+                                // Chuyển ảnh thành base64
+                                const faceImageData = canvas.toDataURL('image/jpeg', 0.8);
+                                faceDataInput.value = faceImageData;
 
                                 // Dừng video stream
                                 stream.getTracks().forEach(track => track.stop());
                                 document.body.removeChild(previewElement);
 
-                                // Hiển thị thông báo đang xử lý
-                                const loadingElement = document.createElement('div');
-                                loadingElement.innerHTML = '<p>Đang xử lý khuôn mặt...</p>';
-                                loadingElement.style.position = 'fixed';
-                                loadingElement.style.top = '50%';
-                                loadingElement.style.left = '50%';
-                                loadingElement.style.transform = 'translate(-50%, -50%)';
-                                loadingElement.style.padding = '20px';
-                                loadingElement.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                                loadingElement.style.color = 'white';
-                                loadingElement.style.borderRadius = '5px';
-                                loadingElement.style.zIndex = '9999';
-                                document.body.appendChild(loadingElement);
-
-                                // Gửi yêu cầu nhận diện khuôn mặt
-                                fetch('/auth/verify-face-login', {
-                                    method: 'POST',
-                                    body: JSON.stringify({image: faceImageData}),
-                                    headers: {'Content-Type': 'application/json'}
-                                })
-                                    .then(response => {
-                                        if (!response.ok) {
-                                            throw new Error('Lỗi từ server: ' + response.statusText);
-                                        }
-                                        return response.json();
-                                    })
-                                    .then(data => {
-                                        document.body.removeChild(loadingElement);
-                                        if (data.success) {
-                                            window.location.href = data.redirectUrl;
-                                        } else {
-                                            alert("Không thể nhận diện khuôn mặt: " + (data.message || "Vui lòng thử lại."));
-                                        }
-                                    })
-                                    .catch(error => {
-                                        document.body.removeChild(loadingElement);
-                                        console.error('Error:', error);
-                                        alert("Lỗi kết nối: " + error.message);
-                                    });
+                                // Gửi form
+                                form.submit();
                             } catch (err) {
                                 console.error('Error capturing image:', err);
                                 alert("Lỗi khi chụp ảnh: " + err.message);
@@ -142,5 +123,15 @@
         <a class="btn btn-warning" href="/DangKyNhanVien">Đăng ký nhân viên</a>
     </div>
 </div>
+
+<style>
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+</style>
 </body>
 </html>

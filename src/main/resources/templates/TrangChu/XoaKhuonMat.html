@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Xóa Khuôn Mặt</title>
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <h1>Xóa Khuôn Mặt Hiện Có</h1>
+</header>
+
+<main>
+    <!-- Hiển thị thông báo thành công/lỗi -->
+    <div class="alert alert-danger" th:if="${error}">
+        <span th:switch="${error}">
+            <span th:case="'not_logged_in'">Vui lòng đăng nhập để tiếp tục.</span>
+            <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
+            <span th:case="'invalid_face'">Ảnh khuôn mặt không hợp lệ.</span>
+            <span th:case="'no_face_to_delete'">Bạn chưa đăng ký khuôn mặt nào.</span>
+            <span th:case="'face_not_matched'">Khuôn mặt không khớp. Vui lòng xác thực bằng khuôn mặt đã đăng ký.</span>
+            <span th:case="'delete_failed'">Xóa khuôn mặt thất bại. Vui lòng thử lại.</span>
+            <span th:case="*">Đã có lỗi xảy ra: <span th:text="${error}"></span></span>
+        </span>
+    </div>
+
+    <!-- Form Xóa Khuôn Mặt -->
+    <section class="face-delete-section">
+        <p>Vui lòng xác thực khuôn mặt của bạn để xóa.</p>
+        <form th:action="@{/XoaKhuonMat}" th:method="post">
+            <video autoplay height="240" id="videoDelete" style="transform: scaleX(-1);" width="320"></video>
+            <button onclick="toggleCameraDelete()" type="button">Bật/Tắt Camera</button>
+            <button onclick="captureFace('faceDataDelete')" type="button">Chụp Khuôn Mặt Để Xác Thực</button>
+            <input id="faceDataDelete" name="faceData" type="hidden">
+            <span id="captureStatusDelete" style="color: green; display: none;">Đã chụp khuôn mặt!</span>
+            <button type="submit"><i class="fas fa-trash-alt"></i> Xóa Khuôn Mặt</button>
+        </form>
+        <a class="btn btn-secondary" th:href="@{/TrangCaNhan}"><i class="fas fa-arrow-left"></i> Quay lại Trang Cá Nhân</a>
+    </section>
+</main>
+
+<script>
+    let videoDelete = document.getElementById('videoDelete');
+    let captureStatusDelete = document.getElementById('captureStatusDelete');
+    let streamDelete = null;
+
+    window.onload = function () {
+        startCameraDelete();
+    };
+
+    function startCameraDelete() {
+        navigator.mediaDevices.getUserMedia({video: {facingMode: 'user'}})
+            .then(function (videoStream) {
+                streamDelete = videoStream;
+                videoDelete.srcObject = streamDelete;
+            })
+            .catch(function (err) {
+                console.log("Lỗi webcam xóa: " + err);
+                alert("Không thể truy cập webcam cho xóa: " + err.message);
+            });
+    }
+
+    function stopCameraDelete() {
+        if (streamDelete) {
+            streamDelete.getTracks().forEach(track => track.stop());
+            videoDelete.srcObject = null;
+            streamDelete = null;
+        }
+    }
+
+    function toggleCameraDelete() {
+        if (videoDelete.srcObject) {
+            stopCameraDelete();
+        } else {
+            startCameraDelete();
+        }
+    }
+
+    function captureFace(inputId) {
+        let targetVideo = videoDelete;
+        let targetStatus = captureStatusDelete;
+
+        if (!targetVideo.srcObject) {
+            alert("Vui lòng bật camera trước khi chụp!");
+            return;
+        }
+        let canvas = document.createElement('canvas');
+        canvas.width = targetVideo.videoWidth;
+        canvas.height = targetVideo.videoHeight;
+        let context = canvas.getContext('2d');
+        context.drawImage(targetVideo, 0, 0, canvas.width, canvas.height);
+        let faceData = canvas.toDataURL('image/png');
+        document.getElementById(inputId).value = faceData;
+        targetStatus.style.display = 'inline';
+        setTimeout(() => targetStatus.style.display = 'none', 2000);
+    }
+</script>
+
+<style>
+    .alert {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 10px;
+        display: inline-block;
+    }
+</style>
+
+</body>
+</html>

@@ -51,27 +51,4 @@ public class TrangCaNhanPost {
 
         return "redirect:/TrangCaNhan?success";
     }
-
-    @PostMapping("/DangKyKhuonMat")
-    public String dangKyKhuonMat(@RequestParam String faceData) {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return "redirect:/TrangChu?error=not_logged_in";
-        }
-
-        String userId = authentication.getName();
-        Person person = entityManager.find(Person.class, userId);
-
-        person.setFaceData(faceData);
-
-        try {
-            entityManager.merge(person);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "redirect:/TrangCaNhan?error=save_failed";
-        }
-
-        return "redirect:/TrangCaNhan?success";
-    }
 }

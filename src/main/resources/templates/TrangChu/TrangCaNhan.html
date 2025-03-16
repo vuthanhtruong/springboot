@@ -14,15 +14,25 @@
 
 <main>
     <!-- Hiển thị thông báo thành công/lỗi -->
-    <div class="alert alert-success" th:if="${param.success}">
-        Cập nhật thông tin thành công!
+    <div class="alert alert-success" th:if="${success}">
+        Đăng ký khuôn mặt thành công!
     </div>
-    <div class="alert alert-danger" th:if="${param.error}">
-        <span th:switch="${param.error}">
+    <div class="alert alert-success" th:if="${successDelete}">
+        Xóa khuôn mặt thành công!
+    </div>
+    <div class="alert alert-danger" th:if="${error}">
+        <span th:switch="${error}">
             <span th:case="'not_logged_in'">Vui lòng đăng nhập để tiếp tục.</span>
             <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
             <span th:case="'save_failed'">Lưu thông tin thất bại. Vui lòng thử lại.</span>
-            <span th:case="*">Đã có lỗi xảy ra: <span th:text="${param.error}"></span></span>
+            <span th:case="'invalid_face'">Ảnh khuôn mặt không hợp lệ.</span>
+            <span th:case="*">Đã có lỗi xảy ra: <span th:text="${error}"></span></span>
+        </span>
+    </div>
+    <div class="alert alert-warning" th:if="${noteFace}">
+        <span th:switch="${noteFace}">
+            <span th:case="'face_already_registered'">Đã có người đăng ký khuôn mặt này rồi.</span>
+            <span th:case="*"><span th:text="${noteFace}"></span></span>
         </span>
     </div>
 
@@ -34,7 +44,6 @@
                 <label><strong>ID:</strong></label>
                 <span th:text="${user.id}"></span>
             </div>
-
             <div class="form-group">
                 <label><strong>Họ và Tên:</strong></label>
                 <input autocomplete="off" name="firstName" placeholder="Nhập Họ" required th:value="${user.firstName}"
@@ -42,19 +51,16 @@
                 <input autocomplete="off" name="lastName" placeholder="Nhập Tên" required th:value="${user.lastName}"
                        type="text">
             </div>
-
             <div class="form-group">
                 <label><strong>Email:</strong></label>
                 <input autocomplete="off" name="email" placeholder="Nhập Email" required th:value="${user.email}"
                        type="email">
             </div>
-
             <div class="form-group">
                 <label><strong>Số Điện Thoại:</strong></label>
                 <input autocomplete="off" name="phoneNumber" placeholder="Nhập Số Điện Thoại" required
                        th:value="${user.phoneNumber}" type="text">
             </div>
-
             <button type="submit"><i class="fas fa-save"></i> Lưu</button>
         </form>
     </section>
@@ -62,14 +68,22 @@
     <!-- Mục Đăng Ký Khuôn Mặt -->
     <section class="face-registration-section">
         <h2><i class="fas fa-camera"></i> Đăng Ký Khuôn Mặt</h2>
+        <p th:if="${user.faceData != null && !user.faceData.isEmpty()}">Bạn đã đăng ký khuôn mặt.</p>
+        <p th:unless="${user.faceData != null && !user.faceData.isEmpty()}">Bạn chưa đăng ký khuôn mặt.</p>
         <form th:action="@{/DangKyKhuonMat}" th:method="post">
             <video autoplay height="240" id="video" style="transform: scaleX(-1);" width="320"></video>
             <button onclick="toggleCamera()" type="button">Bật/Tắt Camera</button>
-            <button onclick="captureFace()" type="button">Chụp Khuôn Mặt</button>
+            <button onclick="captureFace('faceData')" type="button">Chụp Khuôn Mặt</button>
             <input id="faceData" name="faceData" type="hidden">
             <span id="captureStatus" style="color: green; display: none;">Đã chụp khuôn mặt!</span>
             <button type="submit"><i class="fas fa-upload"></i> Đăng Ký</button>
         </form>
+    </section>
+
+    <!-- Nút Xóa Khuôn Mặt -->
+    <section class="face-delete-section">
+        <h2><i class="fas fa-trash"></i> Xóa Khuôn Mặt</h2>
+        <a class="btn btn-danger" th:href="@{/XoaKhuonMat}"><i class="fas fa-trash-alt"></i> Xóa Khuôn Mặt Hiện Có</a>
     </section>
 
     <!-- Mục Bảo Mật -->
@@ -90,6 +104,10 @@
     let captureStatus = document.getElementById('captureStatus');
     let stream = null;
 
+    window.onload = function () {
+        startCamera();
+    };
+
     function startCamera() {
         navigator.mediaDevices.getUserMedia({video: {facingMode: 'user'}})
             .then(function (videoStream) {
@@ -97,8 +115,8 @@
                 video.srcObject = stream;
             })
             .catch(function (err) {
-                console.log("Lỗi webcam: " + err);
-                alert("Không thể truy cập webcam: " + err.message);
+                console.log("Lỗi webcam đăng ký: " + err);
+                alert("Không thể truy cập webcam cho đăng ký: " + err.message);
             });
     }
 
@@ -106,6 +124,7 @@
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
             video.srcObject = null;
+            stream = null;
         }
     }
 
@@ -117,16 +136,23 @@
         }
     }
 
-    function captureFace() {
+    function captureFace(inputId) {
+        let targetVideo = document.getElementById('video');
+        let targetStatus = captureStatus;
+
+        if (!targetVideo.srcObject) {
+            alert("Vui lòng bật camera trước khi chụp!");
+            return;
+        }
         let canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        canvas.width = targetVideo.videoWidth;
+        canvas.height = targetVideo.videoHeight;
         let context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        context.drawImage(targetVideo, 0, 0, canvas.width, canvas.height);
         let faceData = canvas.toDataURL('image/png');
-        document.getElementById('faceData').value = faceData;
-        captureStatus.style.display = 'inline';
-        setTimeout(() => captureStatus.style.display = 'none', 2000);
+        document.getElementById(inputId).value = faceData;
+        targetStatus.style.display = 'inline';
+        setTimeout(() => targetStatus.style.display = 'none', 2000);
     }
 </script>
 
@@ -145,6 +171,19 @@
     .alert-danger {
         background-color: #f8d7da;
         color: #721c24;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
     }
 </style>
 

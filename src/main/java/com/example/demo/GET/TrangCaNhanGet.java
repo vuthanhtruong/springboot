@@ -33,7 +33,6 @@ public class TrangCaNhanGet {
         if (user == null) {
             throw new IllegalStateException("Người dùng không tồn tại");
         }
-
         model.addAttribute("user", user);
         return "TrangCaNhan";
     }

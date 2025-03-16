@@ -1,4 +1,4 @@
-package com.example.demo.POST;
+package com.example.demo.FaceController;
 
 import com.example.demo.OOP.Person;
 import com.example.demo.Repository.PersonRepository;
