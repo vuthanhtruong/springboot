@@ -37,7 +37,8 @@ public class Person {
     @Past(message = "Ngày sinh phải là một ngày trong quá khứ")
     private LocalDate birthDate;
 
-    @Column(name = "FaceData", columnDefinition = "TEXT") // TEXT để lưu base64 dài
+    @Lob
+    @Column(name = "FaceData", columnDefinition = "LONGTEXT")
     private String faceData;
 
     public String getFullName() {
