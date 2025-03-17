@@ -147,7 +147,8 @@ public class SecurityConfig {
                                         "/auth/reset-password",
                                         "/auth/DatLaiMatKhau",
                                         "/auth/resend-otp",
-                                        "/XuLyThemBlog"
+                                        "/XuLyThemBlog",
+                                        "/DangNhapBangGiongNoi"
                                 ).permitAll()
                                 .requestMatchers("/ws/**").permitAll()
                                 // Mở API public cho AJAX requests

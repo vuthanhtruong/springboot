@@ -16,6 +16,8 @@
             <span th:case="'invalid_face'">Ảnh khuôn mặt không hợp lệ.</span>
             <span th:case="'face_not_recognized'">Không nhận diện được khuôn mặt.</span>
             <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
+            <span th:case="'invalid_voice'">Giọng nói không hợp lệ.</span>
+            <span th:case="'voice_not_matched'">Giọng nói không khớp với bất kỳ tài khoản nào.</span>
             <span th:case="*">Lỗi: <span th:text="${param.error}"></span></span>
         </span>
     </div>
@@ -45,70 +47,14 @@
             </form>
         </div>
 
-        <script>
-            function startFaceRecognition() {
-                alert("Đang bắt đầu nhận diện khuôn mặt. Vui lòng bật webcam!");
-
-                const video = document.createElement('video');
-                const faceDataInput = document.getElementById('faceData');
-                const form = document.getElementById('faceLoginForm');
-
-                // Kiểm tra hỗ trợ của trình duyệt
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    alert("Trình duyệt của bạn không hỗ trợ truy cập webcam!");
-                    return;
-                }
-
-                navigator.mediaDevices.getUserMedia({video: true})
-                    .then((stream) => {
-                        video.srcObject = stream;
-                        video.play();
-
-                        // Hiển thị preview
-                        const previewElement = document.createElement('div');
-                        previewElement.innerHTML = '<p>Đang chụp hình...</p>';
-                        previewElement.style.position = 'fixed';
-                        previewElement.style.top = '50%';
-                        previewElement.style.left = '50%';
-                        previewElement.style.transform = 'translate(-50%, -50%)';
-                        previewElement.style.padding = '20px';
-                        previewElement.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                        previewElement.style.color = 'white';
-                        previewElement.style.borderRadius = '5px';
-                        previewElement.style.zIndex = '9999';
-                        document.body.appendChild(previewElement);
-
-                        // Chụp ảnh sau 2 giây
-                        setTimeout(() => {
-                            try {
-                                const canvas = document.createElement('canvas');
-                                canvas.width = video.videoWidth;
-                                canvas.height = video.videoHeight;
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(video, 0, 0);
-
-                                // Chuyển ảnh thành base64
-                                const faceImageData = canvas.toDataURL('image/jpeg', 0.8);
-                                faceDataInput.value = faceImageData;
-
-                                // Dừng video stream
-                                stream.getTracks().forEach(track => track.stop());
-                                document.body.removeChild(previewElement);
-
-                                // Gửi form
-                                form.submit();
-                            } catch (err) {
-                                console.error('Error capturing image:', err);
-                                alert("Lỗi khi chụp ảnh: " + err.message);
-                            }
-                        }, 2000);
-                    })
-                    .catch(error => {
-                        console.error('Error accessing webcam:', error);
-                        alert("Không thể truy cập webcam của bạn: " + error.message);
-                    });
-            }
-        </script>
+        <!-- Form Đăng Nhập Bằng Giọng Nói -->
+        <div class="voice-login">
+            <form action="/DangNhapBangGiongNoi" id="voiceLoginForm" method="POST">
+                <input id="voiceData" name="voiceData" type="hidden">
+                <button class="btn btn-info" onclick="startVoiceRecognition()" type="button">Đăng nhập bằng giọng nói
+                </button>
+            </form>
+        </div>
 
         <!-- Link Quên Mật Khẩu -->
         <div class="forgot-password">
@@ -124,6 +70,127 @@
     </div>
 </div>
 
+<!-- Thêm file JS riêng -->
+<script>
+
+    function startFaceRecognition() {
+        alert("Đang bắt đầu nhận diện khuôn mặt. Vui lòng bật webcam!");
+
+        const video = document.createElement('video');
+        const faceDataInput = document.getElementById('faceData');
+        const form = document.getElementById('faceLoginForm');
+
+        // Kiểm tra hỗ trợ của trình duyệt
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert("Trình duyệt của bạn không hỗ trợ truy cập webcam!");
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({video: true})
+            .then((stream) => {
+                video.srcObject = stream;
+                video.play();
+
+                // Hiển thị preview
+                const previewElement = document.createElement('div');
+                previewElement.innerHTML = '<p>Đang chụp hình...</p>';
+                previewElement.style.position = 'fixed';
+                previewElement.style.top = '50%';
+                previewElement.style.left = '50%';
+                previewElement.style.transform = 'translate(-50%, -50%)';
+                previewElement.style.padding = '20px';
+                previewElement.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                previewElement.style.color = 'white';
+                previewElement.style.borderRadius = '5px';
+                previewElement.style.zIndex = '9999';
+                document.body.appendChild(previewElement);
+
+                // Chụp ảnh sau 2 giây
+                setTimeout(() => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0);
+
+                        // Chuyển ảnh thành base64
+                        const faceImageData = canvas.toDataURL('image/jpeg', 0.8);
+                        faceDataInput.value = faceImageData;
+
+                        // Dừng video stream
+                        stream.getTracks().forEach(track => track.stop());
+                        document.body.removeChild(previewElement);
+
+                        // Gửi form
+                        form.submit();
+                    } catch (err) {
+                        console.error('Error capturing image:', err);
+                        alert("Lỗi khi chụp ảnh: " + err.message);
+                    }
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Error accessing webcam:', error);
+                alert("Không thể truy cập webcam của bạn: " + error.message);
+            });
+    }
+</script>
+
+<script>function startVoiceRecognition() {
+    alert("Đang bắt đầu nhận diện giọng nói. Vui lòng bật microphone và nói 'Tôi là [Tên của bạn]'!");
+
+    const voiceDataInput = document.getElementById('voiceData');
+    const form = document.getElementById('voiceLoginForm');
+    let mediaRecorder;
+    let audioChunks = [];
+
+    navigator.mediaDevices.getUserMedia({audio: true})
+        .then(stream => {
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, {type: 'audio/wav'});
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = () => {
+                    voiceDataInput.value = reader.result;
+                    stream.getTracks().forEach(track => track.stop());
+                    form.submit();
+                };
+                audioChunks = [];
+            };
+
+            // Hiển thị thông báo đang ghi âm
+            const previewElement = document.createElement('div');
+            previewElement.innerHTML = '<p>Đang ghi âm... (5 giây)</p>';
+            previewElement.style.position = 'fixed';
+            previewElement.style.top = '50%';
+            previewElement.style.left = '50%';
+            previewElement.style.transform = 'translate(-50%, -50%)';
+            previewElement.style.padding = '20px';
+            previewElement.style.backgroundColor = 'rgba(0,0,0,0.7)';
+            previewElement.style.color = 'white';
+            previewElement.style.borderRadius = '5px';
+            previewElement.style.zIndex = '9999';
+            document.body.appendChild(previewElement);
+
+            mediaRecorder.start();
+
+            // Dừng ghi âm sau 5 giây
+            setTimeout(() => {
+                mediaRecorder.stop();
+                document.body.removeChild(previewElement);
+            }, 5000);
+        })
+        .catch(err => {
+            console.error('Error accessing microphone:', err);
+            alert("Không thể truy cập microphone: " + err.message);
+        });
+}</script>
+
 <style>
     .alert-danger {
         background-color: #f8d7da;
@@ -131,6 +198,14 @@
         padding: 10px;
         margin: 10px 0;
         border-radius: 5px;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin-top: 10px;
     }
 </style>
 </body>
