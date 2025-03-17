@@ -5,6 +5,7 @@
     <title>Trang Cá Nhân</title>
     <link href="/css/style.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
@@ -13,22 +14,48 @@
 </header>
 
 <main>
-    <!-- Hiển thị thông báo thành công/lỗi -->
+    <!-- Hiển thị thông báo thành công -->
     <div class="alert alert-success" th:if="${success}">
-        Đăng ký khuôn mặt thành công!
+        <span th:switch="${success}">
+            <span th:case="'Đăng ký giọng nói thành công!'">Đăng ký giọng nói thành công!</span>
+            <span th:case="'Xóa giọng nói thành công!'">Xóa giọng nói thành công!</span>
+            <span th:case="*">Đăng ký khuôn mặt thành công!</span>
+        </span>
     </div>
     <div class="alert alert-success" th:if="${successDelete}">
         Xóa khuôn mặt thành công!
     </div>
+
+    <!-- Hiển thị lỗi từ Model (FaceLoginController) -->
     <div class="alert alert-danger" th:if="${error}">
         <span th:switch="${error}">
             <span th:case="'not_logged_in'">Vui lòng đăng nhập để tiếp tục.</span>
             <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
             <span th:case="'save_failed'">Lưu thông tin thất bại. Vui lòng thử lại.</span>
             <span th:case="'invalid_face'">Ảnh khuôn mặt không hợp lệ.</span>
+            <span th:case="'face_not_matched'">Khuôn mặt không khớp với tài khoản.</span>
+            <span th:case="'no_face_to_delete'">Chưa có khuôn mặt để xóa.</span>
+            <span th:case="'delete_failed'">Xóa thất bại. Vui lòng thử lại.</span>
+            <span th:case="'invalid_voice'">Giọng nói không hợp lệ.</span>
+            <span th:case="'no_voice_to_delete'">Chưa có giọng nói để xóa.</span>
             <span th:case="*">Đã có lỗi xảy ra: <span th:text="${error}"></span></span>
         </span>
     </div>
+
+    <!-- Hiển thị lỗi từ RedirectAttributes qua param.error (VoiceAuthController) -->
+    <div class="alert alert-danger" th:if="${param.error}">
+        <span th:switch="${param.error}">
+            <span th:case="'not_logged_in'">Vui lòng đăng nhập để tiếp tục.</span>
+            <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
+            <span th:case="'save_failed'">Lưu thông tin thất bại. Vui lòng thử lại.</span>
+            <span th:case="'invalid_voice'">Giọng nói không hợp lệ.</span>
+            <span th:case="'no_voice_to_delete'">Chưa có giọng nói để xóa.</span>
+            <span th:case="'delete_failed'">Xóa thất bại. Vui lòng thử lại.</span>
+            <span th:case="*">Đã có lỗi xảy ra: <span th:text="${param.error}"></span></span>
+        </span>
+    </div>
+
+    <!-- Hiển thị cảnh báo từ noteFace -->
     <div class="alert alert-warning" th:if="${noteFace}">
         <span th:switch="${noteFace}">
             <span th:case="'face_already_registered'">Đã có người đăng ký khuôn mặt này rồi.</span>
@@ -46,22 +73,24 @@
             </div>
             <div class="form-group">
                 <label><strong>Họ và Tên:</strong></label>
-                <input autocomplete="off" name="firstName" placeholder="Nhập Họ" required th:value="${user.firstName}"
-                       type="text">
-                <input autocomplete="off" name="lastName" placeholder="Nhập Tên" required th:value="${user.lastName}"
-                       type="text">
+                <input autocomplete="off" class="form-control d-inline-block w-auto" name="firstName"
+                       placeholder="Nhập Họ" required
+                       th:value="${user.firstName}" type="text">
+                <input autocomplete="off" class="form-control d-inline-block w-auto" name="lastName"
+                       placeholder="Nhập Tên" required
+                       th:value="${user.lastName}" type="text">
             </div>
             <div class="form-group">
                 <label><strong>Email:</strong></label>
-                <input autocomplete="off" name="email" placeholder="Nhập Email" required th:value="${user.email}"
-                       type="email">
+                <input autocomplete="off" class="form-control" name="email" placeholder="Nhập Email" required
+                       th:value="${user.email}" type="email">
             </div>
             <div class="form-group">
                 <label><strong>Số Điện Thoại:</strong></label>
-                <input autocomplete="off" name="phoneNumber" placeholder="Nhập Số Điện Thoại" required
-                       th:value="${user.phoneNumber}" type="text">
+                <input autocomplete="off" class="form-control" name="phoneNumber" placeholder="Nhập Số Điện Thoại"
+                       required th:value="${user.phoneNumber}" type="text">
             </div>
-            <button type="submit"><i class="fas fa-save"></i> Lưu</button>
+            <button class="btn btn-primary" type="submit"><i class="fas fa-save"></i> Lưu</button>
         </form>
     </section>
 
@@ -72,23 +101,13 @@
         <p th:unless="${user.faceData != null && !user.faceData.isEmpty()}">Bạn chưa đăng ký khuôn mặt.</p>
         <form th:action="@{/DangKyKhuonMat}" th:method="post">
             <video autoplay height="240" id="video" style="transform: scaleX(-1);" width="320"></video>
-            <button onclick="toggleCamera()" type="button">Bật/Tắt Camera</button>
-            <button onclick="captureFace('faceData')" type="button">Chụp Khuôn Mặt</button>
+            <div class="mt-2">
+                <button class="btn btn-info" onclick="toggleCamera()" type="button">Bật/Tắt Camera</button>
+                <button class="btn btn-success" onclick="captureFace('faceData')" type="button">Chụp Khuôn Mặt</button>
+            </div>
             <input id="faceData" name="faceData" type="hidden">
-            <span id="captureStatus" style="color: green; display: none;">Đã chụp khuôn mặt!</span>
-            <button type="submit"><i class="fas fa-upload"></i> Đăng Ký</button>
-        </form>
-    </section>
-    <section class="voice-registration-section">
-        <h2><i class="fas fa-microphone"></i> Đăng Ký Giọng Nói</h2>
-        <p th:if="${user.voiceData != null && !user.voiceData.isEmpty()}">Bạn đã đăng ký giọng nói: <span
-                th:text="${user.voiceData}"></span></p>
-        <p th:unless="${user.voiceData != null && !user.voiceData.isEmpty()}">Bạn chưa đăng ký giọng nói.</p>
-        <form th:action="@{/DangKyGiongNoi}" th:method="post">
-            <button onclick="startVoiceRecording('voiceData')" type="button">Bắt Đầu Ghi Âm</button>
-            <input id="voiceData" name="voiceData" type="hidden">
-            <span id="recordStatus" style="color: green; display: none;">Đã ghi âm!</span>
-            <button type="submit"><i class="fas fa-upload"></i> Đăng Ký</button>
+            <span class="text-success mt-2" id="captureStatus" style="display: none;">Đã chụp khuôn mặt!</span>
+            <button class="btn btn-primary mt-2" type="submit"><i class="fas fa-upload"></i> Đăng Ký</button>
         </form>
     </section>
 
@@ -96,6 +115,27 @@
     <section class="face-delete-section">
         <h2><i class="fas fa-trash"></i> Xóa Khuôn Mặt</h2>
         <a class="btn btn-danger" th:href="@{/XoaKhuonMat}"><i class="fas fa-trash-alt"></i> Xóa Khuôn Mặt Hiện Có</a>
+    </section>
+
+    <!-- Mục Đăng Ký Giọng Nói -->
+    <section class="voice-registration-section">
+        <h2><i class="fas fa-microphone"></i> Đăng Ký Giọng Nói</h2>
+        <p th:if="${user.voiceData != null && !user.voiceData.isEmpty()}">Bạn đã đăng ký giọng nói: <span
+                th:text="${user.voiceData}"></span></p>
+        <p th:unless="${user.voiceData != null && !user.voiceData.isEmpty()}">Bạn chưa đăng ký giọng nói.</p>
+        <form th:action="@{/DangKyGiongNoi}" th:method="post">
+            <button class="btn btn-info" onclick="startVoiceRecording('voiceData')" type="button">Bắt Đầu Ghi Âm
+            </button>
+            <input id="voiceData" name="voiceData" type="hidden">
+            <span class="text-success mt-2" id="recordStatus" style="display: none;">Đã ghi âm!</span>
+            <button class="btn btn-primary mt-2" type="submit"><i class="fas fa-upload"></i> Đăng Ký</button>
+        </form>
+    </section>
+
+    <!-- Nút Xóa Giọng Nói -->
+    <section class="voice-delete-section">
+        <h2><i class="fas fa-trash"></i> Xóa Giọng Nói</h2>
+        <a class="btn btn-danger" th:href="@{/XoaGiongNoi}"><i class="fas fa-trash-alt"></i> Xóa Giọng Nói Hiện Có</a>
     </section>
 
     <!-- Mục Bảo Mật -->
@@ -106,7 +146,7 @@
 
     <!-- Điều Hướng -->
     <section class="navigation-section">
-        <a class="btn" th:href="@{/redirect}"><i class="fas fa-home"></i> Quay về Trang Chủ</a>
+        <a class="btn btn-primary" th:href="@{/redirect}"><i class="fas fa-home"></i> Quay về Trang Chủ</a>
         <a class="btn btn-danger" href="/DangXuat"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
     </section>
 </main>
@@ -163,8 +203,8 @@
         context.drawImage(targetVideo, 0, 0, canvas.width, canvas.height);
         let faceData = canvas.toDataURL('image/png');
         document.getElementById(inputId).value = faceData;
-        targetStatus.style.display = 'inline';
-        setTimeout(() => targetStatus.style.display = 'none', 2000);
+        targetStatus.style.display = 'block';
+        setTimeout(() => targetStatus.style.display = 'none', 3000);
     }
 </script>
 
@@ -173,17 +213,16 @@
         let audioInput = document.getElementById(inputId);
         let recordStatus = document.getElementById('recordStatus');
 
-        // Khởi tạo Web Speech API
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'vi-VN'; // Ngôn ngữ tiếng Việt
+        recognition.lang = 'vi-VN';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
         recognition.onresult = function (event) {
             const transcript = event.results[0][0].transcript;
-            audioInput.value = transcript; // Lưu văn bản giọng nói
-            recordStatus.style.display = 'inline';
-            setTimeout(() => recordStatus.style.display = 'none', 2000);
+            audioInput.value = transcript;
+            recordStatus.style.display = 'block';
+            setTimeout(() => recordStatus.style.display = 'none', 3000);
         };
 
         recognition.onerror = function (event) {
@@ -196,7 +235,7 @@
         };
 
         recognition.start();
-        setTimeout(() => recognition.stop(), 10000); // Ghi âm 10 giây
+        setTimeout(() => recognition.stop(), 10000);
     }
 </script>
 
@@ -222,12 +261,12 @@
         color: #856404;
     }
 
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 5px;
+    .text-success {
+        color: #28a745;
+    }
+
+    section {
+        margin-bottom: 20px;
     }
 </style>
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -10,7 +10,20 @@
 <div class="container text-center">
     <h1>Chào mừng đến với Trang Chủ</h1>
 
-    <!-- Hiển thị thông báo lỗi nếu có -->
+    <!-- Hiển thị thông báo lỗi từ Model (error) -->
+    <div class="alert alert-danger" th:if="${error}">
+        <span th:switch="${error}">
+            <span th:case="'invalid_face'">Ảnh khuôn mặt không hợp lệ.</span>
+            <span th:case="'face_not_recognized'">Không nhận diện được khuôn mặt.</span>
+            <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
+            <span th:case="'invalid_voice'">Giọng nói không hợp lệ.</span>
+            <span th:case="'voice_not_matched'">Giọng nói không khớp với bất kỳ tài khoản nào.</span>
+            <span th:case="'Tài khoản hoặc mật khẩu không chính xác'">Tài khoản hoặc mật khẩu không chính xác.</span>
+            <span th:case="*">Lỗi: <span th:text="${error}"></span></span>
+        </span>
+    </div>
+
+    <!-- Hiển thị thông báo lỗi từ tham số URL (param.error) -->
     <div class="alert alert-danger" th:if="${param.error}">
         <span th:switch="${param.error}">
             <span th:case="'invalid_face'">Ảnh khuôn mặt không hợp lệ.</span>
@@ -19,6 +32,14 @@
             <span th:case="'invalid_voice'">Giọng nói không hợp lệ.</span>
             <span th:case="'voice_not_matched'">Giọng nói không khớp với bất kỳ tài khoản nào.</span>
             <span th:case="*">Lỗi: <span th:text="${param.error}"></span></span>
+        </span>
+    </div>
+
+    <!-- Hiển thị thông báo thành công nếu có -->
+    <div class="alert alert-success" th:if="${success}">
+        <span th:switch="${success}">
+            <span th:case="'Đăng nhập bằng giọng nói thành công!'">Đăng nhập bằng giọng nói thành công!</span>
+            <span th:case="*">Đăng nhập thành công!</span>
         </span>
     </div>
 
@@ -38,7 +59,7 @@
         </form>
 
         <!-- Form Đăng Nhập Bằng Khuôn Mặt -->
-        <div class="face-login">
+        <div class="face-login mt-3">
             <form action="/auth/verify-face-login" id="faceLoginForm" method="POST">
                 <input id="faceData" name="image" type="hidden">
                 <button class="btn btn-secondary" onclick="startFaceRecognition()" type="button">Đăng nhập bằng khuôn
@@ -48,7 +69,7 @@
         </div>
 
         <!-- Form Đăng Nhập Bằng Giọng Nói -->
-        <div class="voice-login">
+        <div class="voice-login mt-3">
             <form action="/DangNhapBangGiongNoi" id="voiceLoginForm" method="POST">
                 <input id="voiceData" name="voiceData" type="hidden">
                 <button class="btn btn-info" onclick="startVoiceRecognition()" type="button">Đăng nhập bằng giọng nói
@@ -57,13 +78,13 @@
         </div>
 
         <!-- Link Quên Mật Khẩu -->
-        <div class="forgot-password">
+        <div class="forgot-password mt-3">
             <a href="/auth/QuenMatKhau">Quên mật khẩu?</a>
         </div>
     </div>
 
     <!-- Các liên kết đăng ký -->
-    <div class="d-grid">
+    <div class="d-grid gap-2 mt-4">
         <a class="btn btn-primary" href="/DangKyHocSinh">Đăng ký học sinh</a>
         <a class="btn btn-success" href="/DangKyGiaoVien">Đăng ký giáo viên</a>
         <a class="btn btn-warning" href="/DangKyNhanVien">Đăng ký nhân viên</a>
@@ -137,13 +158,13 @@
         const form = document.getElementById('voiceLoginForm');
 
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'vi-VN'; // Ngôn ngữ tiếng Việt
+        recognition.lang = 'vi-VN';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
         recognition.onresult = function (event) {
             const transcript = event.results[0][0].transcript;
-            voiceDataInput.value = transcript; // Lưu văn bản giọng nói
+            voiceDataInput.value = transcript;
             form.submit();
         };
 
@@ -181,6 +202,14 @@
     .alert-danger {
         background-color: #f8d7da;
         color: #721c24;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
         padding: 10px;
         margin: 10px 0;
         border-radius: 5px;

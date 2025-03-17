@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.IOException;
@@ -18,9 +19,9 @@ public class LoginController {
     }
 
     @GetMapping("/redirect")
-    public String redirectAfterLogin(Authentication authentication, HttpServletRequest request) throws ServletException, IOException {
+    public String redirectAfterLogin(Authentication authentication, HttpServletRequest request, Model model) throws ServletException, IOException {
         if (authentication == null) {
-            System.out.println("🔴 Authentication null, chuyển về /DangNhap");
+            model.addAttribute("NOTE", "Tài khoản hoặc mật khẩu không chính xác");
             return "redirect:/TrangChu?error";
         }
 
