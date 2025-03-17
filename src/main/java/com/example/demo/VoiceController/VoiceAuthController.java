@@ -69,7 +69,7 @@ public class VoiceAuthController {
         }
     }
 
-    // Hàm xác định URL chuyển hướng dựa trên vai trò
+    // Hàm xác định URL chuyển hướng dựa trên vai trò từ UserDetails
     private String determineRedirectUrl(UserDetails userDetails) {
         for (var authority : userDetails.getAuthorities()) {
             System.out.println("User authority: " + authority.getAuthority());

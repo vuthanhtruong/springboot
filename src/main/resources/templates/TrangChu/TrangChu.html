@@ -70,9 +70,8 @@
     </div>
 </div>
 
-<!-- Thêm file JS riêng -->
+<!-- JavaScript cho khuôn mặt -->
 <script>
-
     function startFaceRecognition() {
         alert("Đang bắt đầu nhận diện khuôn mặt. Vui lòng bật webcam!");
 
@@ -80,7 +79,6 @@
         const faceDataInput = document.getElementById('faceData');
         const form = document.getElementById('faceLoginForm');
 
-        // Kiểm tra hỗ trợ của trình duyệt
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             alert("Trình duyệt của bạn không hỗ trợ truy cập webcam!");
             return;
@@ -91,7 +89,6 @@
                 video.srcObject = stream;
                 video.play();
 
-                // Hiển thị preview
                 const previewElement = document.createElement('div');
                 previewElement.innerHTML = '<p>Đang chụp hình...</p>';
                 previewElement.style.position = 'fixed';
@@ -105,7 +102,6 @@
                 previewElement.style.zIndex = '9999';
                 document.body.appendChild(previewElement);
 
-                // Chụp ảnh sau 2 giây
                 setTimeout(() => {
                     try {
                         const canvas = document.createElement('canvas');
@@ -113,16 +109,11 @@
                         canvas.height = video.videoHeight;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(video, 0, 0);
-
-                        // Chuyển ảnh thành base64
                         const faceImageData = canvas.toDataURL('image/jpeg', 0.8);
                         faceDataInput.value = faceImageData;
 
-                        // Dừng video stream
                         stream.getTracks().forEach(track => track.stop());
                         document.body.removeChild(previewElement);
-
-                        // Gửi form
                         form.submit();
                     } catch (err) {
                         console.error('Error capturing image:', err);
@@ -137,59 +128,54 @@
     }
 </script>
 
-<script>function startVoiceRecognition() {
-    alert("Đang bắt đầu nhận diện giọng nói. Vui lòng bật microphone và nói 'Tôi là [Tên của bạn]'!");
+<!-- JavaScript cho giọng nói -->
+<script>
+    function startVoiceRecognition() {
+        alert("Đang bắt đầu nhận diện giọng nói. Vui lòng nói 'Tôi là [Tên của bạn]' trong 5 giây!");
 
-    const voiceDataInput = document.getElementById('voiceData');
-    const form = document.getElementById('voiceLoginForm');
-    let mediaRecorder;
-    let audioChunks = [];
+        const voiceDataInput = document.getElementById('voiceData');
+        const form = document.getElementById('voiceLoginForm');
 
-    navigator.mediaDevices.getUserMedia({audio: true})
-        .then(stream => {
-            mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.ondataavailable = event => {
-                audioChunks.push(event.data);
-            };
-            mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, {type: 'audio/wav'});
-                const reader = new FileReader();
-                reader.readAsDataURL(audioBlob);
-                reader.onloadend = () => {
-                    voiceDataInput.value = reader.result;
-                    stream.getTracks().forEach(track => track.stop());
-                    form.submit();
-                };
-                audioChunks = [];
-            };
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'vi-VN'; // Ngôn ngữ tiếng Việt
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
 
-            // Hiển thị thông báo đang ghi âm
-            const previewElement = document.createElement('div');
-            previewElement.innerHTML = '<p>Đang ghi âm... (5 giây)</p>';
-            previewElement.style.position = 'fixed';
-            previewElement.style.top = '50%';
-            previewElement.style.left = '50%';
-            previewElement.style.transform = 'translate(-50%, -50%)';
-            previewElement.style.padding = '20px';
-            previewElement.style.backgroundColor = 'rgba(0,0,0,0.7)';
-            previewElement.style.color = 'white';
-            previewElement.style.borderRadius = '5px';
-            previewElement.style.zIndex = '9999';
-            document.body.appendChild(previewElement);
+        recognition.onresult = function (event) {
+            const transcript = event.results[0][0].transcript;
+            voiceDataInput.value = transcript; // Lưu văn bản giọng nói
+            form.submit();
+        };
 
-            mediaRecorder.start();
+        recognition.onerror = function (event) {
+            console.error('Lỗi ghi âm: ', event.error);
+            alert("Không thể ghi âm: " + event.error);
+        };
 
-            // Dừng ghi âm sau 5 giây
-            setTimeout(() => {
-                mediaRecorder.stop();
-                document.body.removeChild(previewElement);
-            }, 5000);
-        })
-        .catch(err => {
-            console.error('Error accessing microphone:', err);
-            alert("Không thể truy cập microphone: " + err.message);
-        });
-}</script>
+        recognition.onend = function () {
+            console.log('Ghi âm kết thúc');
+        };
+
+        const previewElement = document.createElement('div');
+        previewElement.innerHTML = '<p>Đang ghi âm... (5 giây)</p>';
+        previewElement.style.position = 'fixed';
+        previewElement.style.top = '50%';
+        previewElement.style.left = '50%';
+        previewElement.style.transform = 'translate(-50%, -50%)';
+        previewElement.style.padding = '20px';
+        previewElement.style.backgroundColor = 'rgba(0,0,0,0.7)';
+        previewElement.style.color = 'white';
+        previewElement.style.borderRadius = '5px';
+        previewElement.style.zIndex = '9999';
+        document.body.appendChild(previewElement);
+
+        recognition.start();
+        setTimeout(() => {
+            recognition.stop();
+            document.body.removeChild(previewElement);
+        }, 5000);
+    }
+</script>
 
 <style>
     .alert-danger {

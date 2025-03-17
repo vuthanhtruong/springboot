@@ -79,6 +79,18 @@
             <button type="submit"><i class="fas fa-upload"></i> Đăng Ký</button>
         </form>
     </section>
+    <section class="voice-registration-section">
+        <h2><i class="fas fa-microphone"></i> Đăng Ký Giọng Nói</h2>
+        <p th:if="${user.voiceData != null && !user.voiceData.isEmpty()}">Bạn đã đăng ký giọng nói: <span
+                th:text="${user.voiceData}"></span></p>
+        <p th:unless="${user.voiceData != null && !user.voiceData.isEmpty()}">Bạn chưa đăng ký giọng nói.</p>
+        <form th:action="@{/DangKyGiongNoi}" th:method="post">
+            <button onclick="startVoiceRecording('voiceData')" type="button">Bắt Đầu Ghi Âm</button>
+            <input id="voiceData" name="voiceData" type="hidden">
+            <span id="recordStatus" style="color: green; display: none;">Đã ghi âm!</span>
+            <button type="submit"><i class="fas fa-upload"></i> Đăng Ký</button>
+        </form>
+    </section>
 
     <!-- Nút Xóa Khuôn Mặt -->
     <section class="face-delete-section">
@@ -153,6 +165,38 @@
         document.getElementById(inputId).value = faceData;
         targetStatus.style.display = 'inline';
         setTimeout(() => targetStatus.style.display = 'none', 2000);
+    }
+</script>
+
+<script>
+    function startVoiceRecording(inputId) {
+        let audioInput = document.getElementById(inputId);
+        let recordStatus = document.getElementById('recordStatus');
+
+        // Khởi tạo Web Speech API
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'vi-VN'; // Ngôn ngữ tiếng Việt
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = function (event) {
+            const transcript = event.results[0][0].transcript;
+            audioInput.value = transcript; // Lưu văn bản giọng nói
+            recordStatus.style.display = 'inline';
+            setTimeout(() => recordStatus.style.display = 'none', 2000);
+        };
+
+        recognition.onerror = function (event) {
+            console.error('Lỗi ghi âm: ', event.error);
+            alert("Không thể ghi âm: " + event.error);
+        };
+
+        recognition.onend = function () {
+            console.log('Ghi âm kết thúc');
+        };
+
+        recognition.start();
+        setTimeout(() => recognition.stop(), 10000); // Ghi âm 10 giây
     }
 </script>
 
