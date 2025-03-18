@@ -1,15 +1,12 @@
 package com.example.demo.FaceController;
 
 import com.example.demo.OOP.Person;
-import com.example.demo.config.CommonUserDetailsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,68 +19,9 @@ public class FaceLoginController {
     @Autowired
     private FaceRecognitionService faceRecognitionService;
 
-    @Autowired
-    private CommonUserDetailsService commonUserDetailsService;
-
     @PersistenceContext
     private EntityManager entityManager;
 
-    @PostMapping("/auth/verify-face-login")
-    public String verifyFaceLogin(@RequestParam("image") String faceData, Model model) {
-        // 1. Validate Face Image Input
-        if (faceData == null || faceData.isEmpty()) {
-            model.addAttribute("error", "invalid_face");
-            return "redirect:/TrangChu";
-        }
-        System.out.println("Received face data length: " + faceData.length());
-
-        // 2. Face Recognition - Retrieve Person ID
-        String personId = faceRecognitionService.findPersonIdByFace(faceData);
-        if (personId == null) {
-            model.addAttribute("error", "face_not_recognized");
-            return "redirect:/TrangChu";
-        }
-        System.out.println("Recognized Person ID: " + personId);
-
-        // 3. Load UserDetails
-        UserDetails userDetails;
-        try {
-            userDetails = commonUserDetailsService.loadUserByUsername(personId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("error", "user_not_found");
-            return "redirect:/TrangChu";
-        }
-
-        // 4. Create Authentication and Store in Security Context
-        Authentication auth = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        // 5. Determine Redirect URL Based on User Role
-        String redirectUrl = determineRedirectUrl(userDetails);
-        return "redirect:" + redirectUrl;
-    }
-
-    private String determineRedirectUrl(UserDetails userDetails) {
-        for (var authority : userDetails.getAuthorities()) {
-            System.out.println("User authority: " + authority.getAuthority());
-            switch (authority.getAuthority()) {
-                case "ROLE_ADMIN":
-                    return "/TrangChuAdmin";
-                case "ROLE_EMPLOYEE":
-                    return "/TrangChuNhanVien";
-                case "ROLE_TEACHER":
-                    return "/TrangChuGiaoVien";
-                case "ROLE_STUDENT":
-                    return "/TrangChuHocSinh";
-                default:
-                    return "/TrangChu";
-            }
-        }
-        System.err.println("No valid role found for user, defaulting to /TrangChu");
-        return "/TrangChu";
-    }
 
     @PostMapping("/DangKyKhuonMat")
     @Transactional
