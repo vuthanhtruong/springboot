@@ -10,37 +10,28 @@
 <div class="container text-center">
     <h1>Chào mừng đến với Trang Chủ</h1>
 
-    <!-- Hiển thị thông báo lỗi từ Model (error) -->
-    <div class="alert alert-danger" th:if="${error}">
-        <span th:switch="${error}">
-            <span th:case="'invalid_face'">Ảnh khuôn mặt không hợp lệ.</span>
-            <span th:case="'face_not_recognized'">Không nhận diện được khuôn mặt.</span>
-            <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
-            <span th:case="'invalid_voice'">Giọng nói không hợp lệ.</span>
-            <span th:case="'voice_not_matched'">Giọng nói không khớp với bất kỳ tài khoản nào.</span>
-            <span th:case="'Tài khoản hoặc mật khẩu không chính xác'">Tài khoản hoặc mật khẩu không chính xác.</span>
-            <span th:case="*">Lỗi: <span th:text="${error}"></span></span>
-        </span>
+    <!-- Hiển thị thông báo lỗi từ Model -->
+    <div class="alert alert-danger" th:if="${usernamePasswordError}">
+        <span th:text="${usernamePasswordError}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${faceError}">
+        <span th:text="${faceError}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${voiceError}">
+        <span th:text="${voiceError}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${roleError}">
+        <span th:text="${roleError}"></span>
     </div>
 
-    <!-- Hiển thị thông báo lỗi từ tham số URL (param.error) -->
+    <!-- Hiển thị thông báo lỗi từ tham số URL (nếu có) -->
     <div class="alert alert-danger" th:if="${param.error}">
-        <span th:switch="${param.error}">
-            <span th:case="'invalid_face'">Ảnh khuôn mặt không hợp lệ.</span>
-            <span th:case="'face_not_recognized'">Không nhận diện được khuôn mặt.</span>
-            <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
-            <span th:case="'invalid_voice'">Giọng nói không hợp lệ.</span>
-            <span th:case="'voice_not_matched'">Giọng nói không khớp với bất kỳ tài khoản nào.</span>
-            <span th:case="*">Lỗi: <span th:text="${param.error}"></span></span>
-        </span>
+        <span th:text="${param.error[0]}"></span>
     </div>
 
     <!-- Hiển thị thông báo thành công nếu có -->
     <div class="alert alert-success" th:if="${success}">
-        <span th:switch="${success}">
-            <span th:case="'Đăng nhập bằng giọng nói thành công!'">Đăng nhập bằng giọng nói thành công!</span>
-            <span th:case="*">Đăng nhập thành công!</span>
-        </span>
+        <span th:text="${success}"></span>
     </div>
 
     <!-- Form Đăng Nhập -->
@@ -95,7 +86,6 @@
 <script>
     function startFaceRecognition() {
         alert("Đang bắt đầu nhận diện khuôn mặt. Vui lòng bật webcam!");
-
         const video = document.createElement('video');
         const faceDataInput = document.getElementById('faceData');
         const form = document.getElementById('faceLoginForm');
@@ -109,7 +99,6 @@
             .then((stream) => {
                 video.srcObject = stream;
                 video.play();
-
                 const previewElement = document.createElement('div');
                 previewElement.innerHTML = '<p>Đang chụp hình...</p>';
                 previewElement.style.position = 'fixed';
@@ -132,7 +121,6 @@
                         ctx.drawImage(video, 0, 0);
                         const faceImageData = canvas.toDataURL('image/jpeg', 0.8);
                         faceDataInput.value = faceImageData;
-
                         stream.getTracks().forEach(track => track.stop());
                         document.body.removeChild(previewElement);
                         form.submit();
@@ -153,7 +141,6 @@
 <script>
     function startVoiceRecognition() {
         alert("Đang bắt đầu nhận diện giọng nói. Vui lòng nói 'Tôi là [Tên của bạn]' trong 5 giây!");
-
         const voiceDataInput = document.getElementById('voiceData');
         const form = document.getElementById('voiceLoginForm');
 
@@ -198,30 +185,5 @@
     }
 </script>
 
-<style>
-    .alert-danger {
-        background-color: #f8d7da;
-        color: #721c24;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 5px;
-    }
-
-    .alert-success {
-        background-color: #d4edda;
-        color: #155724;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 5px;
-    }
-
-    .btn-info {
-        background-color: #17a2b8;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        margin-top: 10px;
-    }
-</style>
 </body>
 </html>

@@ -13,17 +13,24 @@
 </header>
 
 <main>
-    <!-- Hiển thị thông báo thành công/lỗi -->
-    <div class="alert alert-danger" th:if="${error}">
-        <span th:switch="${error}">
-            <span th:case="'not_logged_in'">Vui lòng đăng nhập để tiếp tục.</span>
-            <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
-            <span th:case="'invalid_face'">Ảnh khuôn mặt không hợp lệ.</span>
-            <span th:case="'no_face_to_delete'">Bạn chưa đăng ký khuôn mặt nào.</span>
-            <span th:case="'face_not_matched'">Khuôn mặt không khớp. Vui lòng xác thực bằng khuôn mặt đã đăng ký.</span>
-            <span th:case="'delete_failed'">Xóa khuôn mặt thất bại. Vui lòng thử lại.</span>
-            <span th:case="*">Đã có lỗi xảy ra: <span th:text="${error}"></span></span>
-        </span>
+    <!-- Thông báo lỗi từ FaceLoginController -->
+    <div class="alert alert-danger" th:if="${faceDataInvalid}">
+        <span th:text="${faceDataInvalid}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${notLoggedIn}">
+        <span th:text="${notLoggedIn}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${userNotFound}">
+        <span th:text="${userNotFound}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${noFaceToDelete}">
+        <span th:text="${noFaceToDelete}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${faceNotMatched}">
+        <span th:text="${faceNotMatched}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${faceDeleteFailed}">
+        <span th:text="${faceDeleteFailed}"></span>
     </div>
 
     <!-- Form Xóa Khuôn Mặt -->
@@ -31,13 +38,18 @@
         <p>Vui lòng xác thực khuôn mặt của bạn để xóa.</p>
         <form th:action="@{/XoaKhuonMat}" th:method="post">
             <video autoplay height="240" id="videoDelete" style="transform: scaleX(-1);" width="320"></video>
-            <button onclick="toggleCameraDelete()" type="button">Bật/Tắt Camera</button>
-            <button onclick="captureFace('faceDataDelete')" type="button">Chụp Khuôn Mặt Để Xác Thực</button>
+            <div class="mt-2">
+                <button class="btn btn-info" onclick="toggleCameraDelete()" type="button">Bật/Tắt Camera</button>
+                <button class="btn btn-success" onclick="captureFace('faceDataDelete')" type="button">Chụp Khuôn Mặt Để
+                    Xác Thực
+                </button>
+            </div>
             <input id="faceDataDelete" name="faceData" type="hidden">
-            <span id="captureStatusDelete" style="color: green; display: none;">Đã chụp khuôn mặt!</span>
-            <button type="submit"><i class="fas fa-trash-alt"></i> Xóa Khuôn Mặt</button>
+            <span class="text-success" id="captureStatusDelete" style="display: none;">Đã chụp khuôn mặt!</span>
+            <button class="btn btn-danger mt-2" type="submit"><i class="fas fa-trash-alt"></i> Xóa Khuôn Mặt</button>
         </form>
-        <a class="btn btn-secondary" th:href="@{/TrangCaNhan}"><i class="fas fa-arrow-left"></i> Quay lại Trang Cá Nhân</a>
+        <a class="btn btn-secondary mt-2" th:href="@{/TrangCaNhan}"><i class="fas fa-arrow-left"></i> Quay lại Trang Cá
+            Nhân</a>
     </section>
 </main>
 
@@ -110,14 +122,39 @@
         color: #721c24;
     }
 
+    .btn {
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-right: 10px;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
     .btn-secondary {
         background-color: #6c757d;
         color: white;
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 5px;
+    }
+
+    .text-success {
+        color: #28a745;
+    }
+
+    .mt-2 {
         margin-top: 10px;
-        display: inline-block;
     }
 </style>
 

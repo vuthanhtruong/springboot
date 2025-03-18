@@ -14,53 +14,85 @@
 </header>
 
 <main>
-    <!-- Hiển thị thông báo thành công -->
-    <div class="alert alert-success" th:if="${success}">
-        <span th:switch="${success}">
-            <span th:case="'Đăng ký giọng nói thành công!'">Đăng ký giọng nói thành công!</span>
-            <span th:case="'Xóa giọng nói thành công!'">Xóa giọng nói thành công!</span>
-            <span th:case="*">Đăng ký khuôn mặt thành công!</span>
-        </span>
+    <!-- Thông báo lỗi -->
+    <div class="alert alert-danger" th:if="${firstNameInvalid}">
+        <span th:text="${firstNameInvalid}"></span>
     </div>
-    <div class="alert alert-success" th:if="${successDelete}">
-        Xóa khuôn mặt thành công!
+    <div class="alert alert-danger" th:if="${lastNameInvalid}">
+        <span th:text="${lastNameInvalid}"></span>
     </div>
-
-    <!-- Hiển thị lỗi từ Model (FaceLoginController) -->
-    <div class="alert alert-danger" th:if="${error}">
-        <span th:switch="${error}">
-            <span th:case="'not_logged_in'">Vui lòng đăng nhập để tiếp tục.</span>
-            <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
-            <span th:case="'save_failed'">Lưu thông tin thất bại. Vui lòng thử lại.</span>
-            <span th:case="'invalid_face'">Ảnh khuôn mặt không hợp lệ.</span>
-            <span th:case="'face_not_matched'">Khuôn mặt không khớp với tài khoản.</span>
-            <span th:case="'no_face_to_delete'">Chưa có khuôn mặt để xóa.</span>
-            <span th:case="'delete_failed'">Xóa thất bại. Vui lòng thử lại.</span>
-            <span th:case="'invalid_voice'">Giọng nói không hợp lệ.</span>
-            <span th:case="'no_voice_to_delete'">Chưa có giọng nói để xóa.</span>
-            <span th:case="*">Đã có lỗi xảy ra: <span th:text="${error}"></span></span>
-        </span>
+    <div class="alert alert-danger" th:if="${emailInvalid}">
+        <span th:text="${emailInvalid}"></span>
     </div>
-
-    <!-- Hiển thị lỗi từ RedirectAttributes qua param.error (VoiceAuthController) -->
-    <div class="alert alert-danger" th:if="${param.error}">
-        <span th:switch="${param.error}">
-            <span th:case="'not_logged_in'">Vui lòng đăng nhập để tiếp tục.</span>
-            <span th:case="'user_not_found'">Không tìm thấy người dùng.</span>
-            <span th:case="'save_failed'">Lưu thông tin thất bại. Vui lòng thử lại.</span>
-            <span th:case="'invalid_voice'">Giọng nói không hợp lệ.</span>
-            <span th:case="'no_voice_to_delete'">Chưa có giọng nói để xóa.</span>
-            <span th:case="'delete_failed'">Xóa thất bại. Vui lòng thử lại.</span>
-            <span th:case="*">Đã có lỗi xảy ra: <span th:text="${param.error}"></span></span>
-        </span>
+    <div class="alert alert-danger" th:if="${phoneNumberInvalid}">
+        <span th:text="${phoneNumberInvalid}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${emailDuplicate}">
+        <span th:text="${emailDuplicate}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${phoneNumberDuplicate}">
+        <span th:text="${phoneNumberDuplicate}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${userNotFound}">
+        <span th:text="${userNotFound}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${updateFailed}">
+        <span th:text="${updateFailed}"></span>
+    </div>
+    <!-- Thông báo thành công từ FaceLoginController -->
+    <div class="alert alert-success" th:if="${faceRegisterSuccess}">
+        <span th:text="${faceRegisterSuccess}"></span>
+    </div>
+    <div class="alert alert-success" th:if="${faceDeleteSuccess}">
+        <span th:text="${faceDeleteSuccess}"></span>
     </div>
 
-    <!-- Hiển thị cảnh báo từ noteFace -->
-    <div class="alert alert-warning" th:if="${noteFace}">
-        <span th:switch="${noteFace}">
-            <span th:case="'face_already_registered'">Đã có người đăng ký khuôn mặt này rồi.</span>
-            <span th:case="*"><span th:text="${noteFace}"></span></span>
-        </span>
+    <!-- Thông báo thành công từ VoiceAuthController -->
+    <div class="alert alert-success" th:if="${voiceRegisterSuccess}">
+        <span th:text="${voiceRegisterSuccess}"></span>
+    </div>
+    <div class="alert alert-success" th:if="${voiceDeleteSuccess}">
+        <span th:text="${voiceDeleteSuccess}"></span>
+    </div>
+
+    <!-- Thông báo lỗi từ FaceLoginController -->
+    <div class="alert alert-danger" th:if="${faceDataInvalid}">
+        <span th:text="${faceDataInvalid}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${faceAlreadyRegistered}">
+        <span th:text="${faceAlreadyRegistered}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${notLoggedIn}">
+        <span th:text="${notLoggedIn}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${userNotFound}">
+        <span th:text="${userNotFound}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${faceSaveFailed}">
+        <span th:text="${faceSaveFailed}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${noFaceToDelete}">
+        <span th:text="${noFaceToDelete}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${faceNotMatched}">
+        <span th:text="${faceNotMatched}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${faceDeleteFailed}">
+        <span th:text="${faceDeleteFailed}"></span>
+    </div>
+
+    <!-- Thông báo lỗi từ VoiceAuthController -->
+    <div class="alert alert-danger" th:if="${voiceDataInvalid}">
+        <span th:text="${voiceDataInvalid}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${voiceSaveFailed}">
+        <span th:text="${voiceSaveFailed}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${noVoiceToDelete}">
+        <span th:text="${noVoiceToDelete}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${voiceDeleteFailed}">
+        <span th:text="${voiceDeleteFailed}"></span>
     </div>
 
     <!-- Mục Hồ Sơ Cá Nhân -->
@@ -74,11 +106,9 @@
             <div class="form-group">
                 <label><strong>Họ và Tên:</strong></label>
                 <input autocomplete="off" class="form-control d-inline-block w-auto" name="firstName"
-                       placeholder="Nhập Họ" required
-                       th:value="${user.firstName}" type="text">
+                       placeholder="Nhập Họ" required th:value="${user.firstName}" type="text">
                 <input autocomplete="off" class="form-control d-inline-block w-auto" name="lastName"
-                       placeholder="Nhập Tên" required
-                       th:value="${user.lastName}" type="text">
+                       placeholder="Nhập Tên" required th:value="${user.lastName}" type="text">
             </div>
             <div class="form-group">
                 <label><strong>Email:</strong></label>
@@ -267,6 +297,14 @@
 
     section {
         margin-bottom: 20px;
+    }
+
+    .form-control {
+        max-width: 300px;
+    }
+
+    .btn {
+        margin-right: 10px;
     }
 </style>
 

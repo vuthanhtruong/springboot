@@ -81,10 +81,12 @@ public class SecurityConfig {
                                 ).hasRole("EMPLOYEE")
                                 .requestMatchers(HttpMethod.GET,
                                         "/TinNhanCuaBan",
-                                        "/ChiTietTinNhan/**"
-                                ).hasAnyRole("TEACHER", "STUDENT")
+                                        "/ChiTietTinNhan/**",
+                                        "/XoaKhuonMat",
+                                        "/XoaGiongNoi"
+                                ).hasAnyRole("TEACHER", "STUDENT", "ADMIN", "EMPLOYEE")
                                 .requestMatchers(HttpMethod.POST, "/BaiPost",
-                                        "/BinhLuan", "/register-face")
+                                        "/BinhLuan", "/register-face", "/XoaKhuonMat", "/DangKyKhuonMat", "/DangKyGiongNoi", "/LuuThongTinCaNhan")
                                 .hasAnyRole("TEACHER", "STUDENT", "ADMIN", "EMPLOYEE")
                                 .requestMatchers(HttpMethod.GET,
 

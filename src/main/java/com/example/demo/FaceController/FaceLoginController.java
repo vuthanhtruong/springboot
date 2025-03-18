@@ -22,32 +22,31 @@ public class FaceLoginController {
     @PersistenceContext
     private EntityManager entityManager;
 
-
     @PostMapping("/DangKyKhuonMat")
     @Transactional
     public String dangKyKhuonMat(@RequestParam("faceData") String faceData, Model model) {
         if (faceData == null || faceData.isEmpty()) {
-            model.addAttribute("error", "invalid_face");
+            model.addAttribute("faceDataInvalid", "Ảnh khuôn mặt không hợp lệ");
             return "redirect:/TrangCaNhan";
         }
         System.out.println("Received face data length: " + faceData.length());
 
         String personId = faceRecognitionService.findPersonIdByFace(faceData);
         if (personId != null) {
-            model.addAttribute("noteFace", "face_already_registered");
+            model.addAttribute("faceAlreadyRegistered", "Khuôn mặt đã được đăng ký trước đó");
             return "redirect:/TrangCaNhan";
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
-            model.addAttribute("error", "not_logged_in");
+            model.addAttribute("notLoggedIn", "Bạn cần đăng nhập để thực hiện thao tác này");
             return "redirect:/TrangChu";
         }
 
         String userId = authentication.getName();
         Person person = entityManager.find(Person.class, userId);
         if (person == null) {
-            model.addAttribute("error", "user_not_found");
+            model.addAttribute("userNotFound", "Không tìm thấy thông tin người dùng");
             return "redirect:/TrangCaNhan";
         }
 
@@ -56,18 +55,17 @@ public class FaceLoginController {
             entityManager.merge(person);
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", "save_failed");
+            model.addAttribute("faceSaveFailed", "Lưu dữ liệu khuôn mặt thất bại");
             return "redirect:/TrangCaNhan";
         }
 
-        model.addAttribute("success", true);
+        model.addAttribute("faceRegisterSuccess", "Đăng ký khuôn mặt thành công");
         return "redirect:/TrangCaNhan";
     }
 
     @GetMapping("/XoaKhuonMat")
     public String showXoaKhuonMat(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         String userId = authentication.getName();
         Person person = entityManager.find(Person.class, userId);
 
@@ -79,33 +77,33 @@ public class FaceLoginController {
     @Transactional
     public String xoaKhuonMat(@RequestParam("faceData") String faceData, Model model) {
         if (faceData == null || faceData.isEmpty()) {
-            model.addAttribute("error", "invalid_face");
+            model.addAttribute("faceDataInvalid", "Ảnh khuôn mặt không hợp lệ");
             return "redirect:/XoaKhuonMat";
         }
         System.out.println("Received face data length for deletion: " + faceData.length());
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
-            model.addAttribute("error", "not_logged_in");
+            model.addAttribute("notLoggedIn", "Bạn cần đăng nhập để thực hiện thao tác này");
             return "redirect:/TrangChu";
         }
 
         String userId = authentication.getName();
         Person person = entityManager.find(Person.class, userId);
         if (person == null) {
-            model.addAttribute("error", "user_not_found");
+            model.addAttribute("userNotFound", "Không tìm thấy thông tin người dùng");
             return "redirect:/XoaKhuonMat";
         }
 
         String currentFaceData = person.getFaceData();
         if (currentFaceData == null || currentFaceData.isEmpty()) {
-            model.addAttribute("error", "no_face_to_delete");
+            model.addAttribute("noFaceToDelete", "Không có dữ liệu khuôn mặt để xóa");
             return "redirect:/XoaKhuonMat";
         }
 
         String matchedPersonId = faceRecognitionService.findPersonIdByFace(faceData);
         if (!userId.equals(matchedPersonId)) {
-            model.addAttribute("error", "face_not_matched");
+            model.addAttribute("faceNotMatched", "Khuôn mặt không khớp với dữ liệu hiện tại");
             return "redirect:/XoaKhuonMat";
         }
 
@@ -114,11 +112,11 @@ public class FaceLoginController {
             entityManager.merge(person);
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", "delete_failed");
+            model.addAttribute("faceDeleteFailed", "Xóa dữ liệu khuôn mặt thất bại");
             return "redirect:/XoaKhuonMat";
         }
 
-        model.addAttribute("successDelete", true);
+        model.addAttribute("faceDeleteSuccess", "Xóa khuôn mặt thành công");
         return "redirect:/TrangCaNhan";
     }
 }

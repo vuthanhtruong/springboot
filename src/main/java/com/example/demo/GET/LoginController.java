@@ -32,8 +32,8 @@ public class LoginController {
     public String redirectAfterLogin(Authentication authentication, HttpServletRequest request, Model model)
             throws ServletException {
         if (authentication == null || !authentication.isAuthenticated()) {
-            model.addAttribute("NOTE", "Tài khoản hoặc mật khẩu không chính xác");
-            return "redirect:/TrangChu?error";
+            model.addAttribute("usernamePasswordError", "Tài khoản hoặc mật khẩu không chính xác");
+            return "redirect:/TrangChu";
         }
 
         System.out.println("✅ Đăng nhập: " + authentication.getName());
@@ -45,7 +45,8 @@ public class LoginController {
         if (redirectUrl == null) {
             System.out.println("❌ Không tìm thấy quyền hợp lệ, đăng xuất...");
             request.logout();
-            return "redirect:/DangNhap?error";
+            model.addAttribute("roleError", "Không tìm thấy quyền hợp lệ");
+            return "redirect:/DangNhap";
         }
 
         return "redirect:" + redirectUrl;
@@ -55,7 +56,7 @@ public class LoginController {
     @PostMapping("/auth/verify-face-login")
     public String verifyFaceLogin(@RequestParam("image") String faceData, Model model) {
         if (faceData == null || faceData.isEmpty()) {
-            model.addAttribute("error", "invalid_face");
+            model.addAttribute("faceError", "Ảnh khuôn mặt không hợp lệ");
             return "redirect:/TrangChu";
         }
         System.out.println("Received face data length: " + faceData.length());
@@ -70,7 +71,7 @@ public class LoginController {
             return "redirect:" + (redirectUrl != null ? redirectUrl : "/TrangChu");
         } catch (AuthenticationException e) {
             e.printStackTrace();
-            model.addAttribute("error", "face_not_recognized_or_user_not_found");
+            model.addAttribute("faceError", "Không nhận diện được khuôn mặt hoặc không tìm thấy người dùng");
             return "redirect:/TrangChu";
         }
     }
@@ -79,7 +80,7 @@ public class LoginController {
     @PostMapping("/DangNhapBangGiongNoi")
     public String dangNhapBangGiongNoi(@RequestParam("voiceData") String voiceData, Model model) {
         if (voiceData == null || voiceData.isEmpty()) {
-            model.addAttribute("error", "invalid_voice");
+            model.addAttribute("voiceError", "Giọng nói không hợp lệ");
             return "redirect:/TrangChu";
         }
         System.out.println("Received voice data length: " + voiceData.length());
@@ -94,7 +95,7 @@ public class LoginController {
             return "redirect:" + (redirectUrl != null ? redirectUrl : "/TrangChu");
         } catch (AuthenticationException e) {
             e.printStackTrace();
-            model.addAttribute("error", "voice_not_matched_or_user_not_found");
+            model.addAttribute("voiceError", "Giọng nói không khớp hoặc không tìm thấy người dùng");
             return "redirect:/TrangChu";
         }
     }
@@ -102,20 +103,17 @@ public class LoginController {
     // Phương thức chung để xác định URL chuyển hướng dựa trên role
     private String determineRedirectUrl(Iterable<? extends GrantedAuthority> authorities) {
         for (GrantedAuthority authority : authorities) {
-            switch (authority.getAuthority()) {
-                case "ROLE_ADMIN":
-                    return "/TrangChuAdmin";
-                case "ROLE_EMPLOYEE":
-                    return "/TrangChuNhanVien";
-                case "ROLE_TEACHER":
-                    return "/TrangChuGiaoVien";
-                case "ROLE_STUDENT":
-                    return "/TrangChuHocSinh";
-                default:
-                    System.err.println("No valid role found, defaulting to /TrangChu");
-                    return null;
+            if (authority.getAuthority().equals("ROLE_ADMIN")) {
+                return "/TrangChuAdmin";
+            } else if (authority.getAuthority().equals("ROLE_EMPLOYEE")) {
+                return "/TrangChuNhanVien";
+            } else if (authority.getAuthority().equals("ROLE_TEACHER")) {
+                return "/TrangChuGiaoVien";
+            } else if (authority.getAuthority().equals("ROLE_STUDENT")) {
+                return "/TrangChuHocSinh";
             }
         }
+        System.err.println("No valid role found, defaulting to /TrangChu");
         return null;
     }
 }

@@ -22,20 +22,20 @@ public class VoiceAuthController {
     @Transactional
     public String dangKyGiongNoi(@RequestParam("voiceData") String voiceData, RedirectAttributes redirectAttributes) {
         if (voiceData == null || voiceData.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "invalid_voice");
+            redirectAttributes.addFlashAttribute("voiceDataInvalid", "Giọng nói không hợp lệ");
             return "redirect:/TrangCaNhan";
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
-            redirectAttributes.addFlashAttribute("error", "not_logged_in");
+            redirectAttributes.addFlashAttribute("notLoggedIn", "Bạn cần đăng nhập để thực hiện thao tác này");
             return "redirect:/TrangChu";
         }
 
         String userId = authentication.getName();
         Person person = entityManager.find(Person.class, userId);
         if (person == null) {
-            redirectAttributes.addFlashAttribute("error", "user_not_found");
+            redirectAttributes.addFlashAttribute("userNotFound", "Không tìm thấy thông tin người dùng");
             return "redirect:/TrangCaNhan";
         }
 
@@ -44,11 +44,11 @@ public class VoiceAuthController {
             entityManager.merge(person);
         } catch (Exception e) {
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("error", "save_failed");
+            redirectAttributes.addFlashAttribute("voiceSaveFailed", "Lưu dữ liệu giọng nói thất bại");
             return "redirect:/TrangCaNhan";
         }
 
-        redirectAttributes.addFlashAttribute("success", "Đăng ký giọng nói thành công!");
+        redirectAttributes.addFlashAttribute("voiceRegisterSuccess", "Đăng ký giọng nói thành công");
         return "redirect:/TrangCaNhan";
     }
 
@@ -57,19 +57,19 @@ public class VoiceAuthController {
     public String xoaGiongNoi(RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
-            redirectAttributes.addFlashAttribute("error", "not_logged_in");
+            redirectAttributes.addFlashAttribute("notLoggedIn", "Bạn cần đăng nhập để thực hiện thao tác này");
             return "redirect:/TrangChu";
         }
 
         String userId = authentication.getName();
         Person person = entityManager.find(Person.class, userId);
         if (person == null) {
-            redirectAttributes.addFlashAttribute("error", "user_not_found");
+            redirectAttributes.addFlashAttribute("userNotFound", "Không tìm thấy thông tin người dùng");
             return "redirect:/TrangCaNhan";
         }
 
         if (person.getVoiceData() == null || person.getVoiceData().isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "no_voice_to_delete");
+            redirectAttributes.addFlashAttribute("noVoiceToDelete", "Không có dữ liệu giọng nói để xóa");
             return "redirect:/TrangCaNhan";
         }
 
@@ -78,11 +78,11 @@ public class VoiceAuthController {
             entityManager.merge(person);
         } catch (Exception e) {
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("error", "delete_failed");
+            redirectAttributes.addFlashAttribute("voiceDeleteFailed", "Xóa dữ liệu giọng nói thất bại");
             return "redirect:/TrangCaNhan";
         }
 
-        redirectAttributes.addFlashAttribute("success", "Xóa giọng nói thành công!");
+        redirectAttributes.addFlashAttribute("voiceDeleteSuccess", "Xóa giọng nói thành công");
         return "redirect:/TrangCaNhan";
     }
 }
