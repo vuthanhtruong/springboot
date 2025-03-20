@@ -85,34 +85,37 @@
         <h3 class="text-center text-primary">
             <i class="fas fa-chalkboard"></i> Phòng Học Offline
         </h3>
-        <table class="table table-striped">
-            <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Tên Phòng</th>
-                <th>Nhân Viên Tạo</th>
-                <th>Thời Gian Tạo</th>
-                <th>Thao Tác</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="room : ${rooms}">
-                <td th:text="${room.roomId}"></td>
-                <td th:text="${room.roomName}"></td>
-                <td th:text="${room.employee.firstName + ' ' + room.employee.lastName}"></td>
-                <td th:text="${#temporals.format(room.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
-                <td>
-                    <a class="btn btn-warning btn-sm" th:href="@{/SuaPhongHocOffline/{id}(id=${room.roomId})}">
-                        <i class="fas fa-edit"></i> Sửa
-                    </a>
-                    <a class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?');"
-                       th:href="@{/XoaPhongHoc/{id}(id=${room.roomId})}">
-                        <i class="fas fa-trash-alt"></i> Xóa
-                    </a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr class="text-center">
+                    <th>ID</th>
+                    <th>Tên Phòng</th>
+                    <th>Nhân Viên Tạo</th>
+                    <th>Thời Gian Tạo</th>
+                    <th>Thao Tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="room : ${rooms}">
+                    <td class="text-center" th:text="${room.roomId}"></td>
+                    <td th:text="${room.roomName}"></td>
+                    <td th:text="${room.employee.firstName + ' ' + room.employee.lastName}"></td>
+                    <td class="text-center" th:text="${#temporals.format(room.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+                    <td class="text-center">
+                        <a class="btn btn-warning btn-sm" th:href="@{/SuaPhongHocOffline/{id}(id=${room.roomId})}">
+                            <i class="fas fa-edit"></i> Sửa
+                        </a>
+                        <a class="btn btn-danger btn-sm"
+                           onclick="return confirm('Bạn có chắc chắn muốn xóa?');"
+                           th:href="@{/XoaPhongHoc/{id}(id=${room.roomId})}">
+                            <i class="fas fa-trash-alt"></i> Xóa
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
         <!-- Phân trang Offline -->
         <ul class="pagination justify-content-center">
@@ -147,34 +150,37 @@
         <h3 class="text-center text-success">
             <i class="fas fa-laptop"></i> Phòng Học Online
         </h3>
-        <table class="table table-striped">
-            <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Tên Phòng</th>
-                <th>Nhân Viên Tạo</th>
-                <th>Thời Gian Tạo</th>
-                <th>Thao Tác</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="room : ${roomsonline}">
-                <td th:text="${room.roomId}"></td>
-                <td th:text="${room.roomName}"></td>
-                <td th:text="${room.employee.firstName + ' ' + room.employee.lastName}"></td>
-                <td th:text="${#temporals.format(room.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
-                <td>
-                    <a class="btn btn-warning btn-sm" th:href="@{/SuaPhongHocOnline/{id}(id=${room.roomId})}">
-                        <i class="fas fa-edit"></i> Sửa
-                    </a>
-                    <a class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?');"
-                       th:href="@{/XoaPhongHoc/{id}(id=${room.roomId})}">
-                        <i class="fas fa-trash-alt"></i> Xóa
-                    </a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr class="text-center">
+                    <th>ID</th>
+                    <th>Tên Phòng</th>
+                    <th>Nhân Viên Tạo</th>
+                    <th>Thời Gian Tạo</th>
+                    <th>Thao Tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="room : ${roomsonline}">
+                    <td class="text-center" th:text="${room.roomId}"></td>
+                    <td th:text="${room.roomName}"></td>
+                    <td th:text="${room.employee.firstName + ' ' + room.employee.lastName}"></td>
+                    <td class="text-center" th:text="${#temporals.format(room.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+                    <td class="text-center">
+                        <a class="btn btn-warning btn-sm" th:href="@{/SuaPhongHocOnline/{id}(id=${room.roomId})}">
+                            <i class="fas fa-edit"></i> Sửa
+                        </a>
+                        <a class="btn btn-danger btn-sm"
+                           onclick="return confirm('Bạn có chắc chắn muốn xóa?');"
+                           th:href="@{/XoaPhongHoc/{id}(id=${room.roomId})}">
+                            <i class="fas fa-trash-alt"></i> Xóa
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
         <!-- Phân trang Online -->
         <ul class="pagination justify-content-center">

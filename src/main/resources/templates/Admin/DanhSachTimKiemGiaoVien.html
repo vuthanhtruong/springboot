@@ -1,63 +1,88 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Kết Quả Tìm Kiếm Giáo Viên</title>
+    <!-- CSS -->
     <link href="/DanhSachTimKiemGiaoVien.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<div class="container mt-5">
+    <!-- Tiêu đề -->
+    <div class="header">
+        <h2 class="text-center text-primary">
+            <i class="fas fa-search"></i> Kết Quả Tìm Kiếm Giáo Viên
+        </h2>
+    </div>
 
-<div class="container">
-    <h1>🔍 Kết Quả Tìm Kiếm Giáo Viên</h1>
+    <!-- Nút Xóa Tất Cả -->
+    <div class="mb-3">
+        <form method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tất cả giáo viên?');"
+              th:action="@{/XoaTatCaGiaoVienWithAttributes}">
+            <input name="keyword" th:value="${keyword}" type="hidden">
+            <button class="btn btn-danger" type="submit">
+                <i class="fas fa-trash"></i> Xóa Tất Cả Giáo Viên Theo Tìm Kiếm Này
+            </button>
+        </form>
+    </div>
 
-    <form method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tất cả học sinh?');"
-          th:action="@{/XoaTatCaGiaoVienWithAttributes}">
-        <input name="keyword" th:value="${keyword}" type="hidden">
-        <button class="btn btn-danger" type="submit">🗑️ Xóa Tất Cả Học Sinh theo tìm kiếm này dùng cho tên</button>
-    </form>
+    <!-- Bảng danh sách giáo viên -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th><i class="fas fa-id-badge"></i> ID</th>
+                <th><i class="fas fa-user"></i> Họ</th>
+                <th><i class="fas fa-user"></i> Tên</th>
+                <th><i class="fas fa-envelope"></i> Email</th>
+                <th><i class="fas fa-phone"></i> Số Điện Thoại</th>
+                <th><i class="fas fa-calendar"></i> Ngày Sinh</th>
+                <th><i class="fas fa-id-card"></i> MIS ID</th>
+                <th><i class="fas fa-cogs"></i> Hành Động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="teacher : ${teachers}"
+                th:if="${teachers != null and not #lists.isEmpty(teachers)}">
+                <td th:text="${teacher.id}"></td>
+                <td th:text="${teacher.lastName}"></td>
+                <td th:text="${teacher.firstName}"></td>
+                <td th:text="${teacher.email}"></td>
+                <td th:text="${teacher.phoneNumber}"></td>
+                <td th:text="${#temporals.format(teacher.birthDate, 'dd/MM/yyyy')}"></td>
+                <td th:text="${teacher.misID}"></td>
+                <td class="text-center">
+                    <a class="btn btn-warning btn-sm" th:href="@{/SuaGiaoVien/{id}(id=${teacher.id})}">
+                        <i class="fas fa-edit"></i> Sửa
+                    </a>
+                    <a class="btn btn-danger btn-sm"
+                       onclick="return confirm('Bạn có chắc chắn muốn xóa giáo viên này?');"
+                       th:href="@{/XoaGiaoVien/{id}(id=${teacher.id})}">
+                        <i class="fas fa-trash"></i> Xóa
+                    </a>
+                </td>
+            </tr>
+            <tr th:if="${teachers == null or #lists.isEmpty(teachers)}">
+                <td class="text-center text-danger" colspan="8">
+                    <i class="fas fa-exclamation-circle"></i> Không tìm thấy giáo viên nào!
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-    <table border="1">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Họ</th>
-            <th>Tên</th>
-            <th>Email</th>
-            <th>Số Điện Thoại</th>
-            <th>Ngày Sinh</th>
-            <th>MIS ID</th>
-            <th>Hành Động</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="teacher : ${teachers}"
-            th:if="${teachers != null and not #lists.isEmpty(teachers)}">
-            <td th:text="${teacher.id}"></td>
-            <td th:text="${teacher.lastName}"></td>
-            <td th:text="${teacher.firstName}"></td>
-            <td th:text="${teacher.email}"></td>
-            <td th:text="${teacher.phoneNumber}"></td>
-            <td th:text="${#dates.format(teacher.birthDate, 'dd/MM/yyyy')}"></td>
-            <td th:text="${teacher.misID}"></td>
-            <td>
-                <a th:href="@{'/SuaGiaoVien/' + ${teacher.id}}">✏️ Sửa</a> |
-                <a onclick="return confirm('Bạn có chắc chắn muốn xóa?')"
-                   th:href="@{'/XoaGiaoVien/' + ${teacher.id}}">🗑️ Xóa</a>
-            </td>
-        </tr>
-
-        <tr th:if="${teachers == null or #lists.isEmpty(teachers)}">
-            <td class="text-center" colspan="8">❌ Không tìm thấy kết quả nào!</td>
-        </tr>
-        </tbody>
-    </table>
-
-    <br>
-    <a href="/DanhSachGiaoVien">📜 Quay lại Danh Sách Giáo Viên</a>
-    <br><br>
-    <a href="/TrangChuAdmin">🏠 Quay lại Trang Chủ của Admin</a>
+    <!-- Nút điều hướng -->
+    <div class="text-center mt-3">
+        <a class="btn btn-primary me-2" href="/DanhSachGiaoVien">
+            <i class="fas fa-arrow-left"></i> Quay Lại Danh Sách Giáo Viên
+        </a>
+        <a class="btn btn-secondary" href="/TrangChuAdmin">
+            <i class="fas fa-home"></i> Quay Lại Trang Chủ Admin
+        </a>
+    </div>
 </div>
-
 </body>
 </html>

@@ -7,16 +7,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-
 <div class="container mt-4">
     <h1 class="text-center text-primary">
         <i class="fas fa-chalkboard-teacher"></i> Danh Sách Giáo Viên Của Bạn
     </h1>
 
     <div>
-
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <form method="post" th:action="@{/TimKiemHocSinhCuaBan}">
+            <form method="post" th:action="@{/TimKiemGiaoVienCuaBan}">
                 <div class="input-group w-50">
                     <select class="form-select" name="searchType">
                         <option value="name">🔍 Tìm theo Tên</option>
@@ -90,7 +88,7 @@
             <!-- Nút "Trước" -->
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/DanhSachGiaoVienCuaBan(page=${currentPage - 1}, pageSize=${pageSize})}">&laquo;</a>
+                   th:href="@{/DanhSachGiaoVienCuaBan(page=${currentPage - 1}, pageSize=${pageSize})}">«</a>
             </li>
 
             <!-- Duyệt số trang bằng vòng lặp -->
@@ -104,7 +102,7 @@
             <!-- Nút "Sau" -->
             <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/DanhSachGiaoVienCuaBan(page=${currentPage + 1}, pageSize=${pageSize})}">&raquo;</a>
+                   th:href="@{/DanhSachGiaoVienCuaBan(page=${currentPage + 1}, pageSize=${pageSize})}">»</a>
             </li>
 
             <!-- Nút "Cuối" -->
@@ -113,10 +111,7 @@
                    th:href="@{/DanhSachGiaoVienCuaBan(page=${totalPages}, pageSize=${pageSize})}">Cuối</a>
             </li>
         </ul>
-
-
     </div>
 </div>
-
 </body>
 </html>

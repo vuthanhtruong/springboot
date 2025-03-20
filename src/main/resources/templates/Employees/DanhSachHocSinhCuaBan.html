@@ -7,22 +7,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-
 <div class="container mt-4">
     <h1 class="text-center text-primary">
         <i class="fas fa-user-graduate"></i> Danh Sách Học Sinh Của Bạn
     </h1>
 
     <div>
-        <div>
-            <a class="btn btn-secondary mx-2" th:href="@{/TrangChuNhanVien}">
-                <i class="fas fa-home"></i> Trang Chủ
-            </a>
-            <a class="btn btn-success mx-2" th:href="@{/ThemHocSinhCuaBan}">
-                <i class="fas fa-user-plus"></i> Thêm Học Sinh
-            </a>
-        </div>
-
         <div class="d-flex justify-content-between align-items-center mb-3">
             <form method="post" th:action="@{/TimKiemHocSinhCuaBan}">
                 <div class="input-group w-50">
@@ -36,48 +26,61 @@
                     </button>
                 </div>
             </form>
+            <div>
+                <a class="btn btn-secondary mx-2" th:href="@{/TrangChuNhanVien}">
+                    <i class="fas fa-home"></i> Trang Chủ
+                </a>
+                <a class="btn btn-success mx-2" th:href="@{/ThemHocSinhCuaBan}">
+                    <i class="fas fa-user-plus"></i> Thêm Học Sinh
+                </a>
+            </div>
         </div>
 
-        <!-- Phân trang: chọn số bản ghi mỗi trang -->
-        <form method="get" th:action="@{/DanhSachHocSinhCuaBan}">
-            <label for="pageSizeInput">📌 Hiển thị:</label>
-            <input class="form-control" id="pageSizeInput" max="100" min="1"
+        <form class="d-flex align-items-center" method="get" th:action="@{/DanhSachHocSinhCuaBan}">
+            <label class="me-2" for="pageSizeInput">📌 Hiển thị:</label>
+            <input class="form-control form-control-sm w-25" id="pageSizeInput" max="100" min="1"
                    name="pageSize" th:value="${pageSize}" type="number">
-            <button class="btn btn-primary" type="submit">
+            <button class="btn btn-primary btn-sm ms-2" type="submit">
                 <i class="fas fa-check"></i> Áp dụng
             </button>
         </form>
 
-        <table class="table table-bordered" id="studentTable">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Họ và Tên</th>
-                <th>Lớp</th>
-                <th>Email</th>
-                <th>Số Điện Thoại</th>
-                <th>Ngày sinh</th>
-                <th>Hành Động</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="student : ${students}">
-                <td th:text="${student.id}"></td>
-                <td th:text="${student.firstName + ' ' + student.lastName}"></td>
-                <td th:text="${student.lastName}"></td>
-                <td th:text="${student.email}"></td>
-                <td th:text="${student.phoneNumber}"></td>
-                <td th:text="${student.birthDate}"></td>
-                <td>
-                    <a class="btn btn-warning" th:href="@{/SuaHocSinhCuaBan/{id}(id=${student.id})}">Sửa</a>
-                    <a class="btn btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?');"
-                       th:href="@{/XoaHocSinhCuaBan/{id}(id=${student.id})}">Xóa</a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="studentTable">
+                <thead class="table-dark">
+                <tr class="text-center">
+                    <th>ID</th>
+                    <th>Họ và Tên</th>
+                    <th>Lớp</th>
+                    <th>Email</th>
+                    <th>Số Điện Thoại</th>
+                    <th>Ngày sinh</th>
+                    <th>Hành Động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="student : ${students}">
+                    <td class="text-center" th:text="${student.id}"></td>
+                    <td th:text="${student.firstName + ' ' + student.lastName}"></td>
+                    <td th:text="${student.lastName}"></td>
+                    <td th:text="${student.email}"></td>
+                    <td class="text-center" th:text="${student.phoneNumber}"></td>
+                    <td class="text-center" th:text="${student.birthDate}"></td>
+                    <td class="text-center">
+                        <a class="btn btn-warning btn-sm" th:href="@{/SuaHocSinhCuaBan/{id}(id=${student.id})}">
+                            <i class="fas fa-edit"></i> Sửa
+                        </a>
+                        <a class="btn btn-danger btn-sm"
+                           onclick="return confirm('Bạn có chắc muốn xóa?');"
+                           th:href="@{/XoaHocSinhCuaBan/{id}(id=${student.id})}">
+                            <i class="fas fa-trash-alt"></i> Xóa
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-        <!-- Phân trang -->
         <ul class="pagination justify-content-center">
             <!-- Nút "Đầu" -->
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
@@ -87,10 +90,10 @@
             <!-- Nút "Trước" -->
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/DanhSachHocSinhCuaBan(page=${currentPage - 1}, pageSize=${pageSize})}">&laquo;</a>
+                   th:href="@{/DanhSachHocSinhCuaBan(page=${currentPage - 1}, pageSize=${pageSize})}">«</a>
             </li>
 
-            <!-- Duyệt số trang -->
+            <!-- Duyệt số trang bằng vòng lặp -->
             <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
                 <li class="page-item" th:classappend="${i == currentPage} ? 'active'">
                     <a class="page-link" th:href="@{/DanhSachHocSinhCuaBan(page=${i}, pageSize=${pageSize})}"
@@ -101,7 +104,7 @@
             <!-- Nút "Sau" -->
             <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/DanhSachHocSinhCuaBan(page=${currentPage + 1}, pageSize=${pageSize})}">&raquo;</a>
+                   th:href="@{/DanhSachHocSinhCuaBan(page=${currentPage + 1}, pageSize=${pageSize})}">»</a>
             </li>
 
             <!-- Nút "Cuối" -->
@@ -110,9 +113,7 @@
                    th:href="@{/DanhSachHocSinhCuaBan(page=${totalPages}, pageSize=${pageSize})}">Cuối</a>
             </li>
         </ul>
-
     </div>
 </div>
-
 </body>
 </html>

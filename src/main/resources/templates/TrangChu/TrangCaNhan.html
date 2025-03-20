@@ -8,7 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-
 <header>
     <h1>Thông Tin Cá Nhân</h1>
 </header>
@@ -39,6 +38,7 @@
     <div class="alert alert-danger" th:if="${updateFailed}">
         <span th:text="${updateFailed}"></span>
     </div>
+
     <!-- Thông báo thành công từ FaceLoginController -->
     <div class="alert alert-success" th:if="${faceRegisterSuccess}">
         <span th:text="${faceRegisterSuccess}"></span>
@@ -64,9 +64,6 @@
     </div>
     <div class="alert alert-danger" th:if="${notLoggedIn}">
         <span th:text="${notLoggedIn}"></span>
-    </div>
-    <div class="alert alert-danger" th:if="${userNotFound}">
-        <span th:text="${userNotFound}"></span>
     </div>
     <div class="alert alert-danger" th:if="${faceSaveFailed}">
         <span th:text="${faceSaveFailed}"></span>
@@ -112,15 +109,17 @@
             </div>
             <div class="form-group">
                 <label><strong>Email:</strong></label>
-                <input autocomplete="off" class="form-control" name="email" placeholder="Nhập Email" required
-                       th:value="${user.email}" type="email">
+                <input autocomplete="off" class="form-control" name="email" placeholder="Nhập Email"
+                       required th:value="${user.email}" type="email">
             </div>
             <div class="form-group">
                 <label><strong>Số Điện Thoại:</strong></label>
-                <input autocomplete="off" class="form-control" name="phoneNumber" placeholder="Nhập Số Điện Thoại"
-                       required th:value="${user.phoneNumber}" type="text">
+                <input autocomplete="off" class="form-control" name="phoneNumber"
+                       placeholder="Nhập Số Điện Thoại" required th:value="${user.phoneNumber}" type="text">
             </div>
-            <button class="btn btn-primary" type="submit"><i class="fas fa-save"></i> Lưu</button>
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-save"></i> Lưu
+            </button>
         </form>
     </section>
 
@@ -137,47 +136,63 @@
             </div>
             <input id="faceData" name="faceData" type="hidden">
             <span class="text-success mt-2" id="captureStatus" style="display: none;">Đã chụp khuôn mặt!</span>
-            <button class="btn btn-primary mt-2" type="submit"><i class="fas fa-upload"></i> Đăng Ký</button>
+            <button class="btn btn-primary mt-2" type="submit">
+                <i class="fas fa-upload"></i> Đăng Ký
+            </button>
         </form>
     </section>
 
     <!-- Nút Xóa Khuôn Mặt -->
     <section class="face-delete-section">
         <h2><i class="fas fa-trash"></i> Xóa Khuôn Mặt</h2>
-        <a class="btn btn-danger" th:href="@{/XoaKhuonMat}"><i class="fas fa-trash-alt"></i> Xóa Khuôn Mặt Hiện Có</a>
+        <a class="btn btn-danger" th:href="@{/XoaKhuonMat}">
+            <i class="fas fa-trash-alt"></i> Xóa Khuôn Mặt Hiện Có
+        </a>
     </section>
 
     <!-- Mục Đăng Ký Giọng Nói -->
     <section class="voice-registration-section">
         <h2><i class="fas fa-microphone"></i> Đăng Ký Giọng Nói</h2>
-        <p th:if="${user.voiceData != null && !user.voiceData.isEmpty()}">Bạn đã đăng ký giọng nói: <span
-                th:text="${user.voiceData}"></span></p>
+        <p th:if="${user.voiceData != null && !user.voiceData.isEmpty()}">
+            Bạn đã đăng ký giọng nói: <span th:text="${user.voiceData}"></span>
+        </p>
         <p th:unless="${user.voiceData != null && !user.voiceData.isEmpty()}">Bạn chưa đăng ký giọng nói.</p>
         <form th:action="@{/DangKyGiongNoi}" th:method="post">
-            <button class="btn btn-info" onclick="startVoiceRecording('voiceData')" type="button">Bắt Đầu Ghi Âm
+            <button class="btn btn-info" onclick="startVoiceRecording('voiceData')" type="button">
+                Bắt Đầu Ghi Âm
             </button>
             <input id="voiceData" name="voiceData" type="hidden">
             <span class="text-success mt-2" id="recordStatus" style="display: none;">Đã ghi âm!</span>
-            <button class="btn btn-primary mt-2" type="submit"><i class="fas fa-upload"></i> Đăng Ký</button>
+            <button class="btn btn-primary mt-2" type="submit">
+                <i class="fas fa-upload"></i> Đăng Ký
+            </button>
         </form>
     </section>
 
     <!-- Nút Xóa Giọng Nói -->
     <section class="voice-delete-section">
         <h2><i class="fas fa-trash"></i> Xóa Giọng Nói</h2>
-        <a class="btn btn-danger" th:href="@{/XoaGiongNoi}"><i class="fas fa-trash-alt"></i> Xóa Giọng Nói Hiện Có</a>
+        <a class="btn btn-danger" th:href="@{/XoaGiongNoi}">
+            <i class="fas fa-trash-alt"></i> Xóa Giọng Nói Hiện Có
+        </a>
     </section>
 
     <!-- Mục Bảo Mật -->
     <section class="password-section">
         <h2><i class="fas fa-key"></i> Bảo Mật</h2>
-        <a class="btn btn-warning" href="/DoiMatKhau"><i class="fas fa-lock"></i> Đổi Mật Khẩu</a>
+        <a class="btn btn-warning" href="/DoiMatKhau">
+            <i class="fas fa-lock"></i> Đổi Mật Khẩu
+        </a>
     </section>
 
     <!-- Điều Hướng -->
     <section class="navigation-section">
-        <a class="btn btn-primary" th:href="@{/redirect}"><i class="fas fa-home"></i> Quay về Trang Chủ</a>
-        <a class="btn btn-danger" href="/DangXuat"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+        <a class="btn btn-primary" th:href="@{/redirect}">
+            <i class="fas fa-home"></i> Quay về Trang Chủ
+        </a>
+        <a class="btn btn-danger" href="/DangXuat">
+            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+        </a>
     </section>
 </main>
 
@@ -307,6 +322,5 @@
         margin-right: 10px;
     }
 </style>
-
 </body>
 </html>

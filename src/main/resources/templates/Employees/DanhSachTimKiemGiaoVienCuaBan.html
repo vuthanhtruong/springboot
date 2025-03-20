@@ -7,11 +7,22 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-
 <div class="container mt-4">
     <h1 class="text-center text-primary">
         <i class="fas fa-search"></i> Kết Quả Tìm Kiếm Giáo Viên
     </h1>
+    <!-- Thanh điều hướng -->
+    <div class="text-center mb-3">
+        <a class="btn btn-secondary mx-2" th:href="@{/TrangChuNhanVien}">
+            <i class="fas fa-home"></i> Trang Chủ
+        </a>
+        <a class="btn btn-success mx-2" th:href="@{/ThemGiaoVienCuaBan}">
+            <i class="fas fa-user-plus"></i> Thêm Học Sinh
+        </a>
+        <a class="btn btn-secondary mx-2" th:href="@{/DanhSachGiaoVienCuaBan}">
+            <i class="fas fa-arrow-left"></i> Quay Lại Danh Sách Đầy Đủ
+        </a>
+    </div>
 
     <!-- Form tìm kiếm -->
     <form class="d-flex justify-content-center mb-3" method="post" th:action="@{/TimKiemGiaoVienCuaBan}">
@@ -37,15 +48,15 @@
 
     <!-- Kiểm tra nếu không có kết quả -->
     <div class="alert alert-warning text-center" th:if="${teachers.isEmpty()}">
-        <i class="fas fa-exclamation-triangle"></i> Không tìm thấy giáo viên nào phù hợp với từ khóa "<span
-            th:text="${keyword}"></span>".
+        <i class="fas fa-exclamation-triangle"></i> Không tìm thấy giáo viên nào phù hợp với từ khóa
+        "<span th:text="${keyword}"></span>".
     </div>
 
     <!-- Hiển thị kết quả tìm kiếm -->
     <div class="table-responsive" th:if="${!teachers.isEmpty()}">
         <table class="table table-bordered table-hover">
-            <thead class="table-dark text-center">
-            <tr>
+            <thead class="table-dark">
+            <tr class="text-center">
                 <th>ID</th>
                 <th>Họ và Tên</th>
                 <th>Email</th>
@@ -74,6 +85,5 @@
         </table>
     </div>
 </div>
-
 </body>
 </html>
