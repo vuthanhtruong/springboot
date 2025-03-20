@@ -44,6 +44,13 @@ public class Person {
     @Column(name = "VoiceData", columnDefinition = "LONGTEXT", nullable = true)
     private String voiceData;
 
+    // Thêm các trường cho OAuth
+    @Column(name = "OauthProvider", nullable = true, length = 50)
+    private String oauthProvider; // "google", "facebook", v.v.
+
+    @Column(name = "OauthId", nullable = true, length = 255)
+    private String oauthId; // ID duy nhất từ OAuth provider
+
     public String getFullName() {
         return firstName + " " + lastName;
     }

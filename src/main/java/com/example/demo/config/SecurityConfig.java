@@ -167,6 +167,7 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/redirect", true) // Điều hướng tới controller xử lý role
                         .permitAll()
                 )
+
                 .logout(logout -> logout
                         .logoutUrl("/DangXuat")  // Dùng chung cho cả Admin & Nhân viên
                         .logoutSuccessHandler((request, response, authentication) -> {

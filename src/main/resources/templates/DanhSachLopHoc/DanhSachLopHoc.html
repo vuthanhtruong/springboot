@@ -21,7 +21,7 @@
             <th:block th:each="room : ${rooms}">
                 <li>
                     <a th:href="@{'/ChiTietLopHocBanThamGia/' + ${room.roomId}}"
-                       th:text="${room.roomName} + ' - ' + ${room.address}"></a>
+                       th:text="${room.roomName} "></a>
                 </li>
             </th:block>
         </ul>

@@ -5,10 +5,11 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Trang Chủ</title>
     <link href="/TrangChu.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="container text-center">
-    <h1>Chào mừng đến với Trang Chủ</h1>
+    <h1><i class="fas fa-home"></i> Chào mừng đến với Trang Chủ</h1>
 
     <!-- Hiển thị thông báo lỗi từ Model -->
     <div class="alert alert-danger" th:if="${usernamePasswordError}">
@@ -36,25 +37,25 @@
 
     <!-- Form Đăng Nhập -->
     <div class="login-form">
-        <h2>Đăng Nhập</h2>
+        <h2><i class="fas fa-sign-in-alt"></i> Đăng Nhập</h2>
         <form action="/login" method="POST">
             <div class="mb-3">
-                <label class="form-label" for="username">Tên đăng nhập:</label>
+                <label class="form-label" for="username"><i class="fas fa-user"></i> Tên đăng nhập:</label>
                 <input class="form-control" id="username" name="username" required type="text">
             </div>
             <div class="mb-3">
-                <label class="form-label" for="password">Mật khẩu:</label>
+                <label class="form-label" for="password"><i class="fas fa-lock"></i> Mật khẩu:</label>
                 <input class="form-control" id="password" name="password" required type="password">
             </div>
-            <button class="btn btn-primary" type="submit">Đăng Nhập</button>
+            <button class="btn btn-primary" type="submit"><i class="fas fa-arrow-right"></i> Đăng Nhập</button>
         </form>
 
         <!-- Form Đăng Nhập Bằng Khuôn Mặt -->
         <div class="face-login mt-3">
             <form action="/auth/verify-face-login" id="faceLoginForm" method="POST">
                 <input id="faceData" name="image" type="hidden">
-                <button class="btn btn-secondary" onclick="startFaceRecognition()" type="button">Đăng nhập bằng khuôn
-                    mặt
+                <button class="btn btn-secondary" onclick="startFaceRecognition()" type="button"><i
+                        class="fas fa-camera"></i> Đăng nhập bằng khuôn mặt
                 </button>
             </form>
         </div>
@@ -63,22 +64,24 @@
         <div class="voice-login mt-3">
             <form action="/DangNhapBangGiongNoi" id="voiceLoginForm" method="POST">
                 <input id="voiceData" name="voiceData" type="hidden">
-                <button class="btn btn-info" onclick="startVoiceRecognition()" type="button">Đăng nhập bằng giọng nói
+                <button class="btn btn-info" onclick="startVoiceRecognition()" type="button"><i
+                        class="fas fa-microphone"></i> Đăng nhập bằng giọng nói
                 </button>
             </form>
         </div>
 
         <!-- Link Quên Mật Khẩu -->
         <div class="forgot-password mt-3">
-            <a href="/auth/QuenMatKhau">Quên mật khẩu?</a>
+            <a href="/auth/QuenMatKhau"><i class="fas fa-question-circle"></i> Quên mật khẩu?</a>
         </div>
     </div>
 
     <!-- Các liên kết đăng ký -->
     <div class="d-grid gap-2 mt-4">
-        <a class="btn btn-primary" href="/DangKyHocSinh">Đăng ký học sinh</a>
-        <a class="btn btn-success" href="/DangKyGiaoVien">Đăng ký giáo viên</a>
-        <a class="btn btn-warning" href="/DangKyNhanVien">Đăng ký nhân viên</a>
+        <a class="btn btn-primary" href="/DangKyHocSinh"><i class="fas fa-user-graduate"></i> Đăng ký học sinh</a>
+        <a class="btn btn-success" href="/DangKyGiaoVien"><i class="fas fa-chalkboard-teacher"></i> Đăng ký giáo
+            viên</a>
+        <a class="btn btn-warning" href="/DangKyNhanVien"><i class="fas fa-user-tie"></i> Đăng ký nhân viên</a>
     </div>
 </div>
 
@@ -132,7 +135,7 @@
             })
             .catch(error => {
                 console.error('Error accessing webcam:', error);
-                alert("Không thể truy cập webcam của bạn: " + error.message);
+                alert("Không thể truy cập webcam của Stil bạn: " + error.message);
             });
     }
 </script>

@@ -9,87 +9,87 @@
 </head>
 <body>
 <header>
-    <h1>Thông Tin Cá Nhân</h1>
+    <h1><i class="fas fa-address-card"></i> Thông Tin Cá Nhân</h1>
 </header>
 
 <main>
     <!-- Thông báo lỗi -->
     <div class="alert alert-danger" th:if="${firstNameInvalid}">
-        <span th:text="${firstNameInvalid}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${firstNameInvalid}"></span>
     </div>
     <div class="alert alert-danger" th:if="${lastNameInvalid}">
-        <span th:text="${lastNameInvalid}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${lastNameInvalid}"></span>
     </div>
     <div class="alert alert-danger" th:if="${emailInvalid}">
-        <span th:text="${emailInvalid}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${emailInvalid}"></span>
     </div>
     <div class="alert alert-danger" th:if="${phoneNumberInvalid}">
-        <span th:text="${phoneNumberInvalid}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${phoneNumberInvalid}"></span>
     </div>
     <div class="alert alert-danger" th:if="${emailDuplicate}">
-        <span th:text="${emailDuplicate}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${emailDuplicate}"></span>
     </div>
     <div class="alert alert-danger" th:if="${phoneNumberDuplicate}">
-        <span th:text="${phoneNumberDuplicate}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${phoneNumberDuplicate}"></span>
     </div>
     <div class="alert alert-danger" th:if="${userNotFound}">
-        <span th:text="${userNotFound}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${userNotFound}"></span>
     </div>
     <div class="alert alert-danger" th:if="${updateFailed}">
-        <span th:text="${updateFailed}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${updateFailed}"></span>
     </div>
 
     <!-- Thông báo thành công từ FaceLoginController -->
     <div class="alert alert-success" th:if="${faceRegisterSuccess}">
-        <span th:text="${faceRegisterSuccess}"></span>
+        <i class="fas fa-check-circle"></i> <span th:text="${faceRegisterSuccess}"></span>
     </div>
     <div class="alert alert-success" th:if="${faceDeleteSuccess}">
-        <span th:text="${faceDeleteSuccess}"></span>
+        <i class="fas fa-check-circle"></i> <span th:text="${faceDeleteSuccess}"></span>
     </div>
 
     <!-- Thông báo thành công từ VoiceAuthController -->
     <div class="alert alert-success" th:if="${voiceRegisterSuccess}">
-        <span th:text="${voiceRegisterSuccess}"></span>
+        <i class="fas fa-check-circle"></i> <span th:text="${voiceRegisterSuccess}"></span>
     </div>
     <div class="alert alert-success" th:if="${voiceDeleteSuccess}">
-        <span th:text="${voiceDeleteSuccess}"></span>
+        <i class="fas fa-check-circle"></i> <span th:text="${voiceDeleteSuccess}"></span>
     </div>
 
     <!-- Thông báo lỗi từ FaceLoginController -->
     <div class="alert alert-danger" th:if="${faceDataInvalid}">
-        <span th:text="${faceDataInvalid}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${faceDataInvalid}"></span>
     </div>
     <div class="alert alert-danger" th:if="${faceAlreadyRegistered}">
-        <span th:text="${faceAlreadyRegistered}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${faceAlreadyRegistered}"></span>
     </div>
     <div class="alert alert-danger" th:if="${notLoggedIn}">
-        <span th:text="${notLoggedIn}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${notLoggedIn}"></span>
     </div>
     <div class="alert alert-danger" th:if="${faceSaveFailed}">
-        <span th:text="${faceSaveFailed}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${faceSaveFailed}"></span>
     </div>
     <div class="alert alert-danger" th:if="${noFaceToDelete}">
-        <span th:text="${noFaceToDelete}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${noFaceToDelete}"></span>
     </div>
     <div class="alert alert-danger" th:if="${faceNotMatched}">
-        <span th:text="${faceNotMatched}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${faceNotMatched}"></span>
     </div>
     <div class="alert alert-danger" th:if="${faceDeleteFailed}">
-        <span th:text="${faceDeleteFailed}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${faceDeleteFailed}"></span>
     </div>
 
     <!-- Thông báo lỗi từ VoiceAuthController -->
     <div class="alert alert-danger" th:if="${voiceDataInvalid}">
-        <span th:text="${voiceDataInvalid}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${voiceDataInvalid}"></span>
     </div>
     <div class="alert alert-danger" th:if="${voiceSaveFailed}">
-        <span th:text="${voiceSaveFailed}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${voiceSaveFailed}"></span>
     </div>
     <div class="alert alert-danger" th:if="${noVoiceToDelete}">
-        <span th:text="${noVoiceToDelete}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${noVoiceToDelete}"></span>
     </div>
     <div class="alert alert-danger" th:if="${voiceDeleteFailed}">
-        <span th:text="${voiceDeleteFailed}"></span>
+        <i class="fas fa-exclamation-circle"></i> <span th:text="${voiceDeleteFailed}"></span>
     </div>
 
     <!-- Mục Hồ Sơ Cá Nhân -->
@@ -97,23 +97,23 @@
         <h2><i class="fas fa-user"></i> Hồ Sơ Cá Nhân</h2>
         <form th:action="@{/LuuThongTinCaNhan}" th:method="post">
             <div class="form-group">
-                <label><strong>ID:</strong></label>
+                <label><i class="fas fa-id-badge"></i> <strong>ID:</strong></label>
                 <span th:text="${user.id}"></span>
             </div>
             <div class="form-group">
-                <label><strong>Họ và Tên:</strong></label>
+                <label><i class="fas fa-user-edit"></i> <strong>Họ và Tên:</strong></label>
                 <input autocomplete="off" class="form-control d-inline-block w-auto" name="firstName"
                        placeholder="Nhập Họ" required th:value="${user.firstName}" type="text">
                 <input autocomplete="off" class="form-control d-inline-block w-auto" name="lastName"
                        placeholder="Nhập Tên" required th:value="${user.lastName}" type="text">
             </div>
             <div class="form-group">
-                <label><strong>Email:</strong></label>
+                <label><i class="fas fa-envelope"></i> <strong>Email:</strong></label>
                 <input autocomplete="off" class="form-control" name="email" placeholder="Nhập Email"
                        required th:value="${user.email}" type="email">
             </div>
             <div class="form-group">
-                <label><strong>Số Điện Thoại:</strong></label>
+                <label><i class="fas fa-phone"></i> <strong>Số Điện Thoại:</strong></label>
                 <input autocomplete="off" class="form-control" name="phoneNumber"
                        placeholder="Nhập Số Điện Thoại" required th:value="${user.phoneNumber}" type="text">
             </div>
@@ -126,16 +126,22 @@
     <!-- Mục Đăng Ký Khuôn Mặt -->
     <section class="face-registration-section">
         <h2><i class="fas fa-camera"></i> Đăng Ký Khuôn Mặt</h2>
-        <p th:if="${user.faceData != null && !user.faceData.isEmpty()}">Bạn đã đăng ký khuôn mặt.</p>
-        <p th:unless="${user.faceData != null && !user.faceData.isEmpty()}">Bạn chưa đăng ký khuôn mặt.</p>
+        <p th:if="${user.faceData != null && !user.faceData.isEmpty()}"><i class="fas fa-check"></i> Bạn đã đăng ký
+            khuôn mặt.</p>
+        <p th:unless="${user.faceData != null && !user.faceData.isEmpty()}"><i class="fas fa-times"></i> Bạn chưa đăng
+            ký khuôn mặt.</p>
         <form th:action="@{/DangKyKhuonMat}" th:method="post">
             <video autoplay height="240" id="video" style="transform: scaleX(-1);" width="320"></video>
             <div class="mt-2">
-                <button class="btn btn-info" onclick="toggleCamera()" type="button">Bật/Tắt Camera</button>
-                <button class="btn btn-success" onclick="captureFace('faceData')" type="button">Chụp Khuôn Mặt</button>
+                <button class="btn btn-info" onclick="toggleCamera()" type="button"><i class="fas fa-video"></i> Bật/Tắt
+                    Camera
+                </button>
+                <button class="btn btn-success" onclick="captureFace('faceData')" type="button"><i
+                        class="fas fa-camera-retro"></i> Chụp Khuôn Mặt
+                </button>
             </div>
             <input id="faceData" name="faceData" type="hidden">
-            <span class="text-success mt-2" id="captureStatus" style="display: none;">Đã chụp khuôn mặt!</span>
+            <span class="text-success mt-2" id="captureStatus" style="display: none;"><i class="fas fa-check"></i> Đã chụp khuôn mặt!</span>
             <button class="btn btn-primary mt-2" type="submit">
                 <i class="fas fa-upload"></i> Đăng Ký
             </button>
@@ -154,15 +160,16 @@
     <section class="voice-registration-section">
         <h2><i class="fas fa-microphone"></i> Đăng Ký Giọng Nói</h2>
         <p th:if="${user.voiceData != null && !user.voiceData.isEmpty()}">
-            Bạn đã đăng ký giọng nói: <span th:text="${user.voiceData}"></span>
+            <i class="fas fa-check"></i> Bạn đã đăng ký giọng nói: <span th:text="${user.voiceData}"></span>
         </p>
-        <p th:unless="${user.voiceData != null && !user.voiceData.isEmpty()}">Bạn chưa đăng ký giọng nói.</p>
+        <p th:unless="${user.voiceData != null && !user.voiceData.isEmpty()}"><i class="fas fa-times"></i> Bạn chưa đăng
+            ký giọng nói.</p>
         <form th:action="@{/DangKyGiongNoi}" th:method="post">
             <button class="btn btn-info" onclick="startVoiceRecording('voiceData')" type="button">
-                Bắt Đầu Ghi Âm
+                <i class="fas fa-microphone-alt"></i> Bắt Đầu Ghi Âm
             </button>
             <input id="voiceData" name="voiceData" type="hidden">
-            <span class="text-success mt-2" id="recordStatus" style="display: none;">Đã ghi âm!</span>
+            <span class="text-success mt-2" id="recordStatus" style="display: none;"><i class="fas fa-check"></i> Đã ghi âm!</span>
             <button class="btn btn-primary mt-2" type="submit">
                 <i class="fas fa-upload"></i> Đăng Ký
             </button>
@@ -284,43 +291,5 @@
     }
 </script>
 
-<style>
-    .alert {
-        padding: 10px;
-        margin-bottom: 15px;
-        border-radius: 5px;
-    }
-
-    .alert-success {
-        background-color: #d4edda;
-        color: #155724;
-    }
-
-    .alert-danger {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-
-    .alert-warning {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-
-    .text-success {
-        color: #28a745;
-    }
-
-    section {
-        margin-bottom: 20px;
-    }
-
-    .form-control {
-        max-width: 300px;
-    }
-
-    .btn {
-        margin-right: 10px;
-    }
-</style>
 </body>
 </html>
