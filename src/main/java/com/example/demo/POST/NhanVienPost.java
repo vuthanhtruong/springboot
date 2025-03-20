@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -154,6 +155,7 @@ public class NhanVienPost {
     }
 
     @PostMapping("/ThemGiaoVienCuaBan")
+    @Transactional(rollbackOn = Exception.class)
     public String themGiaoVienCuaBan(
             @RequestParam("teacherID") String teacherID,
             @RequestParam("password") String password,
@@ -162,9 +164,11 @@ public class NhanVienPost {
             @RequestParam("email") String email,
             @RequestParam("phoneNumber") String phoneNumber,
             @RequestParam(value = "misID", required = false) String misId,
+            @RequestParam("birthDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate, // Thêm BirthDate
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
+        // Lấy thông tin nhân viên từ Authentication
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName();
         Person person = entityManager.find(Person.class, employeeId);
@@ -173,77 +177,96 @@ public class NhanVienPost {
             return "redirect:/ThemGiaoVienCuaBan";
         }
 
+        // Lấy Admin
         Admin admin = entityManager.createQuery("SELECT a FROM Admin a", Admin.class)
                 .setMaxResults(1)
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
         if (admin == null) {
-            redirectAttributes.addFlashAttribute("error", "Không tìm thấy Admin!");
+            redirectAttributes.addFlashAttribute("errorAdmin", "Không tìm thấy Admin!");
             return "redirect:/ThemGiaoVienCuaBan";
         }
 
-        if (!teacherID.matches("^[A-Za-z0-9]+$")) {
-            redirectAttributes.addFlashAttribute("error", "Mã giáo viên chỉ được chứa chữ và số!");
-            return "redirect:/ThemGiaoVienCuaBan";
-        }
-
+        // Kiểm tra TeacherID đã tồn tại chưa
         if (entityManager.find(Person.class, teacherID) != null) {
-            redirectAttributes.addFlashAttribute("error", "Mã giáo viên đã tồn tại!");
+            redirectAttributes.addFlashAttribute("errorTeacherID", "Mã giáo viên đã tồn tại!");
             return "redirect:/ThemGiaoVienCuaBan";
         }
 
+        // Kiểm tra Email hợp lệ
         if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-            redirectAttributes.addFlashAttribute("error", "Email không hợp lệ!");
+            redirectAttributes.addFlashAttribute("errorEmail", "Email không hợp lệ!");
             return "redirect:/ThemGiaoVienCuaBan";
         }
 
+        // Kiểm tra Email đã tồn tại chưa
         boolean emailExists = entityManager.createQuery(
                         "SELECT COUNT(t) > 0 FROM Person t WHERE t.email = :email", Boolean.class)
                 .setParameter("email", email)
                 .getSingleResult();
         if (emailExists) {
-            redirectAttributes.addFlashAttribute("error", "Email này đã được sử dụng!");
+            redirectAttributes.addFlashAttribute("errorEmail", "Email này đã được sử dụng!");
             return "redirect:/ThemGiaoVienCuaBan";
         }
 
-        if (!isValidPhoneNumber(phoneNumber)) {
-            redirectAttributes.addFlashAttribute("error", "Số điện thoại không hợp lệ!");
+        // Kết hợp mã quốc gia +84 với số điện thoại
+        String fullPhoneNumber = "+84" + phoneNumber;
+
+        // Kiểm tra định dạng số điện thoại
+        if (!phoneNumber.matches("^[0-9]+$")) {
+            redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại chỉ được chứa chữ số!");
+            return "redirect:/ThemGiaoVienCuaBan";
+        } else if (!phoneNumber.matches("^\\d{9,10}$")) {
+            redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại phải có 9-10 chữ số!");
             return "redirect:/ThemGiaoVienCuaBan";
         }
 
+        // Kiểm tra số điện thoại đã tồn tại chưa
         boolean phoneExists = entityManager.createQuery(
                         "SELECT COUNT(t) > 0 FROM Person t WHERE t.phoneNumber = :phoneNumber", Boolean.class)
-                .setParameter("phoneNumber", phoneNumber)
+                .setParameter("phoneNumber", fullPhoneNumber)
                 .getSingleResult();
         if (phoneExists) {
-            redirectAttributes.addFlashAttribute("error", "Số điện thoại này đã được sử dụng!");
+            redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại này đã được sử dụng!");
             return "redirect:/ThemGiaoVienCuaBan";
         }
 
+        // Kiểm tra mật khẩu
         if (!isValidPassword(password)) {
-            redirectAttributes.addFlashAttribute("error", "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
+            redirectAttributes.addFlashAttribute("errorPassword", "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
             return "redirect:/ThemGiaoVienCuaBan";
         }
 
+        // Kiểm tra tên chỉ chứa chữ cái
         String formattedFirstName = formatName(firstName);
         String formattedLastName = formatName(lastName);
         if (formattedFirstName == null || formattedLastName == null) {
-            redirectAttributes.addFlashAttribute("error", "Họ và tên chỉ được chứa chữ cái!");
+            redirectAttributes.addFlashAttribute("errorName", "Họ và tên chỉ được chứa chữ cái!");
             return "redirect:/ThemGiaoVienCuaBan";
         }
 
+        // Kiểm tra độ tuổi (giả sử giáo viên phải >= 18 tuổi)
+        LocalDate today = LocalDate.now();
+        if (ChronoUnit.YEARS.between(birthDate, today) < 18) {
+            redirectAttributes.addFlashAttribute("errorBirthDate", "Giáo viên phải từ 18 tuổi trở lên!");
+            return "redirect:/ThemGiaoVienCuaBan";
+        }
+
+        // Tạo đối tượng giáo viên
         Teachers teacher = new Teachers();
         teacher.setId(teacherID);
         teacher.setFirstName(formattedFirstName);
         teacher.setLastName(formattedLastName);
         teacher.setEmail(email);
-        teacher.setPhoneNumber(phoneNumber);
-        teacher.setPassword(password);
+        teacher.setPhoneNumber(fullPhoneNumber); // Lưu số điện thoại đầy đủ với +84
+        teacher.setBirthDate(birthDate); // Thêm BirthDate
         teacher.setMisID(misId);
+        teacher.setPassword(password);
         teacher.setEmployee(employee);
         teacher.setAdmin(admin);
 
+        // Lưu giáo viên vào database
         entityManager.persist(teacher);
 
         redirectAttributes.addFlashAttribute("successMessage", "Thêm giáo viên thành công!");
@@ -251,6 +274,7 @@ public class NhanVienPost {
     }
 
     @PostMapping("/ThemHocSinhCuaBan")
+    @Transactional(rollbackOn = Exception.class)
     public String ThemHocSinhCuaBan(
             @RequestParam("studentID") String studentID,
             @RequestParam("firstName") String firstName,
@@ -259,9 +283,11 @@ public class NhanVienPost {
             @RequestParam("password") String password,
             @RequestParam("phoneNumber") String phoneNumber,
             @RequestParam(value = "misID", required = false) String misId,
+            @RequestParam("birthDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate, // Thêm BirthDate
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
+        // Lấy thông tin nhân viên từ Authentication
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName();
         Person person = entityManager.find(Person.class, employeeId);
@@ -270,46 +296,64 @@ public class NhanVienPost {
             return "redirect:/ThemHocSinhCuaBan";
         }
 
-        // Lấy Admin (chỉ lấy một admin)
+        // Lấy Admin
         Admin admin = entityManager.createQuery("SELECT a FROM Admin a", Admin.class)
                 .setMaxResults(1)
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
         if (admin == null) {
-            redirectAttributes.addFlashAttribute("error", "Không tìm thấy Admin!");
+            redirectAttributes.addFlashAttribute("errorAdmin", "Không tìm thấy Admin!");
             return "redirect:/ThemHocSinhCuaBan";
         }
 
-        // Kiểm tra ID trùng lặp
+        // Kiểm tra StudentID đã tồn tại chưa
         if (entityManager.find(Person.class, studentID) != null) {
-            redirectAttributes.addFlashAttribute("error", "Mã học sinh đã tồn tại!");
+            redirectAttributes.addFlashAttribute("errorStudentID", "Mã học sinh đã tồn tại!");
             return "redirect:/ThemHocSinhCuaBan";
         }
 
-        // Kiểm tra email trùng lặp
+        // Kiểm tra định dạng Email
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+            redirectAttributes.addFlashAttribute("errorEmail", "Email không hợp lệ!");
+            return "redirect:/ThemHocSinhCuaBan";
+        }
+
+        // Kiểm tra Email đã tồn tại chưa
         boolean emailExists = entityManager.createQuery(
                         "SELECT COUNT(s) > 0 FROM Person s WHERE s.email = :email", Boolean.class)
                 .setParameter("email", email)
                 .getSingleResult();
         if (emailExists) {
-            redirectAttributes.addFlashAttribute("error", "Email này đã được sử dụng!");
+            redirectAttributes.addFlashAttribute("errorEmail", "Email này đã được sử dụng!");
             return "redirect:/ThemHocSinhCuaBan";
         }
 
-        // Kiểm tra số điện thoại trùng lặp
+        // Kết hợp mã quốc gia +84 với số điện thoại
+        String fullPhoneNumber = "+84" + phoneNumber;
+
+        // Kiểm tra định dạng số điện thoại
+        if (!phoneNumber.matches("^[0-9]+$")) {
+            redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại chỉ được chứa chữ số!");
+            return "redirect:/ThemHocSinhCuaBan";
+        } else if (!phoneNumber.matches("^\\d{9,10}$")) {
+            redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại phải có 9-10 chữ số!");
+            return "redirect:/ThemHocSinhCuaBan";
+        }
+
+        // Kiểm tra số điện thoại đã tồn tại chưa
         boolean phoneExists = entityManager.createQuery(
                         "SELECT COUNT(s) > 0 FROM Person s WHERE s.phoneNumber = :phoneNumber", Boolean.class)
-                .setParameter("phoneNumber", phoneNumber)
+                .setParameter("phoneNumber", fullPhoneNumber)
                 .getSingleResult();
         if (phoneExists) {
-            redirectAttributes.addFlashAttribute("error", "Số điện thoại này đã được sử dụng!");
+            redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại này đã được sử dụng!");
             return "redirect:/ThemHocSinhCuaBan";
         }
 
-        // Kiểm tra mật khẩu mạnh
+        // Kiểm tra mật khẩu
         if (!isValidPassword(password)) {
-            redirectAttributes.addFlashAttribute("error", "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
+            redirectAttributes.addFlashAttribute("errorPassword", "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
             return "redirect:/ThemHocSinhCuaBan";
         }
 
@@ -317,13 +361,14 @@ public class NhanVienPost {
         String formattedFirstName = formatName(firstName);
         String formattedLastName = formatName(lastName);
         if (formattedFirstName == null || formattedLastName == null) {
-            redirectAttributes.addFlashAttribute("error", "Họ và tên chỉ được chứa chữ cái!");
+            redirectAttributes.addFlashAttribute("errorName", "Họ và tên chỉ được chứa chữ cái!");
             return "redirect:/ThemHocSinhCuaBan";
         }
 
-        // Kiểm tra số điện thoại hợp lệ
-        if (!isValidPhoneNumber(phoneNumber)) {
-            redirectAttributes.addFlashAttribute("error", "Số điện thoại không hợp lệ!");
+        // Kiểm tra độ tuổi (học sinh phải >= 6 tuổi)
+        LocalDate today = LocalDate.now();
+        if (ChronoUnit.YEARS.between(birthDate, today) < 6) {
+            redirectAttributes.addFlashAttribute("errorBirthDate", "Học sinh phải từ 6 tuổi trở lên!");
             return "redirect:/ThemHocSinhCuaBan";
         }
 
@@ -333,7 +378,8 @@ public class NhanVienPost {
         student.setFirstName(formattedFirstName);
         student.setLastName(formattedLastName);
         student.setEmail(email);
-        student.setPhoneNumber(phoneNumber);
+        student.setPhoneNumber(fullPhoneNumber); // Lưu số điện thoại đầy đủ với +84
+        student.setBirthDate(birthDate); // Thêm BirthDate
         student.setPassword(password); // Mã hóa mật khẩu
         student.setMisId(misId);
         student.setEmployee(employee);
@@ -347,17 +393,17 @@ public class NhanVienPost {
         return "redirect:/DanhSachHocSinhCuaBan";
     }
 
-
+    // Phương thức định dạng tên (chỉ giữ chữ cái)
     private String formatName(String name) {
         if (name == null || name.trim().isEmpty()) {
-            return "";
+            return null; // Thay vì trả về "" để báo lỗi nếu tên rỗng
         }
 
         String[] words = name.trim().toLowerCase().split("\\s+");
         StringBuilder formattedName = new StringBuilder();
 
         for (String word : words) {
-            if (!word.matches("[a-zA-ZÀ-Ỵà-ỵ]+")) { // Kiểm tra ký tự hợp lệ
+            if (!word.matches("[a-zA-ZÀ-Ỵà-ỵ]+")) { // Kiểm tra ký tự hợp lệ (bao gồm tiếng Việt)
                 return null; // Tên không hợp lệ
             }
             formattedName.append(Character.toUpperCase(word.charAt(0))) // Viết hoa chữ cái đầu
@@ -367,11 +413,6 @@ public class NhanVienPost {
         return formattedName.toString().trim();
     }
 
-    /**
-     * Kiểm tra số điện thoại hợp lệ:
-     * - Chỉ chứa số (cho phép dấu + ở đầu)
-     * - Độ dài từ 10 đến 15 số
-     */
     private boolean isValidPhoneNumber(String phoneNumber) {
         String phoneRegex = "^\\+?[0-9]{10,15}$";
         return phoneNumber.matches(phoneRegex);
