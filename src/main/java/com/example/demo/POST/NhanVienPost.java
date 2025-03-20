@@ -210,9 +210,6 @@ public class NhanVienPost {
             return "redirect:/ThemGiaoVienCuaBan";
         }
 
-        // Kết hợp mã quốc gia +84 với số điện thoại
-        String fullPhoneNumber = "+84" + phoneNumber;
-
         // Kiểm tra định dạng số điện thoại
         if (!phoneNumber.matches("^[0-9]+$")) {
             redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại chỉ được chứa chữ số!");
@@ -225,7 +222,7 @@ public class NhanVienPost {
         // Kiểm tra số điện thoại đã tồn tại chưa
         boolean phoneExists = entityManager.createQuery(
                         "SELECT COUNT(t) > 0 FROM Person t WHERE t.phoneNumber = :phoneNumber", Boolean.class)
-                .setParameter("phoneNumber", fullPhoneNumber)
+                .setParameter("phoneNumber", phoneNumber)
                 .getSingleResult();
         if (phoneExists) {
             redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại này đã được sử dụng!");
@@ -259,7 +256,7 @@ public class NhanVienPost {
         teacher.setFirstName(formattedFirstName);
         teacher.setLastName(formattedLastName);
         teacher.setEmail(email);
-        teacher.setPhoneNumber(fullPhoneNumber); // Lưu số điện thoại đầy đủ với +84
+        teacher.setPhoneNumber(phoneNumber); // Lưu số điện thoại đầy đủ với +84
         teacher.setBirthDate(birthDate); // Thêm BirthDate
         teacher.setMisID(misId);
         teacher.setPassword(password);
@@ -329,8 +326,6 @@ public class NhanVienPost {
             return "redirect:/ThemHocSinhCuaBan";
         }
 
-        // Kết hợp mã quốc gia +84 với số điện thoại
-        String fullPhoneNumber = "+84" + phoneNumber;
 
         // Kiểm tra định dạng số điện thoại
         if (!phoneNumber.matches("^[0-9]+$")) {
@@ -344,7 +339,7 @@ public class NhanVienPost {
         // Kiểm tra số điện thoại đã tồn tại chưa
         boolean phoneExists = entityManager.createQuery(
                         "SELECT COUNT(s) > 0 FROM Person s WHERE s.phoneNumber = :phoneNumber", Boolean.class)
-                .setParameter("phoneNumber", fullPhoneNumber)
+                .setParameter("phoneNumber", phoneNumber)
                 .getSingleResult();
         if (phoneExists) {
             redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại này đã được sử dụng!");
@@ -378,7 +373,7 @@ public class NhanVienPost {
         student.setFirstName(formattedFirstName);
         student.setLastName(formattedLastName);
         student.setEmail(email);
-        student.setPhoneNumber(fullPhoneNumber); // Lưu số điện thoại đầy đủ với +84
+        student.setPhoneNumber(phoneNumber); // Lưu số điện thoại đầy đủ với +84
         student.setBirthDate(birthDate); // Thêm BirthDate
         student.setPassword(password); // Mã hóa mật khẩu
         student.setMisId(misId);
