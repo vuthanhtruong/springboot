@@ -25,19 +25,19 @@ public class GiaoVienPost {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Transactional
     @PostMapping("/DangKyGiaoVien")
-    public String dangKyGiaoVien(@RequestParam("EmployeeID") String employeeID,
-                                 @RequestParam("TeacherID") String teacherID,
-                                 @RequestParam("FirstName") String firstName,
-                                 @RequestParam("LastName") String lastName,
-                                 @RequestParam("Email") String email,
-                                 @RequestParam("PhoneNumber") String phoneNumber,
-                                 @RequestParam("BirthDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
-                                 @RequestParam(value = "MisID", required = false) String misID,
-                                 @RequestParam("Password") String password,
-                                 @RequestParam("ConfirmPassword") String confirmPassword,
-                                 Model model) {
+    @Transactional(rollbackOn = Exception.class) // Tự động quản lý giao dịch, rollback nếu có lỗi
+    public String dangKyGiaoVien(
+            @RequestParam("TeacherID") String teacherID,
+            @RequestParam("FirstName") String firstName,
+            @RequestParam("LastName") String lastName,
+            @RequestParam("Email") String email,
+            @RequestParam("PhoneNumber") String phoneNumber,
+            @RequestParam("BirthDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
+            @RequestParam(value = "MisID", required = false) String misID,
+            @RequestParam("Password") String password,
+            @RequestParam("ConfirmPassword") String confirmPassword,
+            Model model) {
 
         System.out.println("Bắt đầu đăng ký giáo viên...");
 
@@ -73,7 +73,15 @@ public class GiaoVienPost {
             model.addAttribute("emailError", "Email này đã được sử dụng.");
             return "DangKyGiaoVien";
         }
-
+        // Kiểm tra định dạng số điện thoại
+        if (!phoneNumber.matches("^[0-9]+$")) { // Kiểm tra toàn số
+            model.addAttribute("phoneError", "Số điện thoại chỉ được chứa chữ số!");
+            return "DangKyGiaoVien";
+        } else if (!phoneNumber.matches("^\\d{9,10}$")) { // Kiểm tra độ dài
+            model.addAttribute("phoneError", "Số điện thoại phải có 9-10 chữ số!");
+            return "DangKyGiaoVien";
+        }
+        
         // Kiểm tra nếu Số điện thoại đã tồn tại
         List<Person> existingTeachersByPhone = entityManager.createQuery("SELECT t FROM Person t WHERE t.phoneNumber = :phoneNumber", Person.class)
                 .setParameter("phoneNumber", phoneNumber)
@@ -83,7 +91,7 @@ public class GiaoVienPost {
             return "DangKyGiaoVien";
         }
 
-        // Lấy Admin
+        // Lấy Admin (giả sử vẫn lấy Admin đầu tiên)
         List<Admin> adminList = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
         if (adminList.isEmpty()) {
             model.addAttribute("adminError", "Không tìm thấy Admin.");
@@ -91,10 +99,10 @@ public class GiaoVienPost {
         }
         Admin admin = adminList.get(0);
 
-        // Lấy Employee
-        Employees employee = entityManager.find(Employees.class, employeeID);
-        if (employee == null) {
-            model.addAttribute("employeeError", "Employee ID không hợp lệ.");
+        // Tìm nhân viên có ít giáo viên nhất
+        Employees selectedEmployee = findEmployeeWithFewestTeachers();
+        if (selectedEmployee == null) {
+            model.addAttribute("employeeError", "Không tìm thấy nhân viên nào để phân bổ.");
             return "DangKyGiaoVien";
         }
 
@@ -105,30 +113,50 @@ public class GiaoVienPost {
         giaoVien.setLastName(lastName);
         giaoVien.setEmail(email);
         giaoVien.setPhoneNumber(phoneNumber);
-        giaoVien.setBirthDate(birthDate); // Lưu ngày sinh
+        giaoVien.setBirthDate(birthDate);
         giaoVien.setMisID(misID);
-        giaoVien.setPassword(password); // Nên mã hóa mật khẩu trước khi lưu
-        giaoVien.setEmployee(employee);
+        giaoVien.setPassword(password); // Mật khẩu đã được mã hóa trong setter của Teachers
+        giaoVien.setEmployee(selectedEmployee);
         giaoVien.setAdmin(admin);
 
-        try {
-            entityManager.persist(giaoVien);
-            System.out.println("Đăng ký giáo viên thành công!");
-        } catch (Exception e) {
-            System.out.println("Lỗi khi lưu giáo viên: " + e.getMessage());
-            model.addAttribute("databaseError", "Lỗi khi lưu dữ liệu.");
-            return "DangKyGiaoVien";
-        }
+        // Lưu giáo viên (giao dịch được quản lý bởi @Transactional)
+        entityManager.persist(giaoVien);
+        System.out.println("Đăng ký giáo viên thành công! Gán cho nhân viên: " + selectedEmployee.getId());
 
         return "redirect:/TrangChu";
     }
 
+    // Phương thức phụ để tìm nhân viên có ít giáo viên nhất
+    private Employees findEmployeeWithFewestTeachers() {
+        // Lấy tất cả nhân viên
+        List<Employees> employeesList = entityManager.createQuery("FROM Employees", Employees.class).getResultList();
+        if (employeesList.isEmpty()) {
+            return null;
+        }
 
-    private boolean isValidPassword(String password) {
-        // Mật khẩu phải có ít nhất 8 ký tự, chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt
-        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
-        return password.matches(passwordRegex);
+        Employees selectedEmployee = null;
+        Long minTeacherCount = Long.MAX_VALUE;
+
+        // Duyệt qua từng nhân viên và đếm số giáo viên họ quản lý
+        for (Employees employee : employeesList) {
+            Long teacherCount = entityManager.createQuery(
+                            "SELECT COUNT(t) FROM Teachers t WHERE t.employee = :employee", Long.class)
+                    .setParameter("employee", employee)
+                    .getSingleResult();
+
+            if (teacherCount < minTeacherCount) {
+                minTeacherCount = teacherCount;
+                selectedEmployee = employee;
+            }
+        }
+
+        return selectedEmployee;
     }
 
+    // Hàm kiểm tra tính hợp lệ của mật khẩu
+    private boolean isValidPassword(String password) {
+        String passwordPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$";
+        return password.matches(passwordPattern);
+    }
 }
 

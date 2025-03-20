@@ -2,7 +2,6 @@ package com.example.demo.POST;
 
 import com.example.demo.OOP.*;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -13,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Controller
 @RequestMapping("/")
@@ -32,29 +31,24 @@ public class StudentPost {
     private EntityManager entityManager;
 
     @PostMapping("/DangKyHocSinh")
-    public String DangKyHocSinh(
-            @RequestParam("EmployeeID") String employeeID,
+    @Transactional(rollbackOn = Exception.class) // Quản lý giao dịch tự động
+    public String dangKyHocSinh(
             @RequestParam("StudentID") String studentID,
             @RequestParam("FirstName") String firstName,
             @RequestParam("LastName") String lastName,
             @RequestParam("Email") String email,
             @RequestParam("PhoneNumber") String phoneNumber,
-            @RequestParam("BirthDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate, // Thêm ngày sinh
+            @RequestParam("BirthDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
             @RequestParam(value = "MisId", required = false) String misId,
             @RequestParam("Password") String password,
             @RequestParam("ConfirmPassword") String confirmPassword,
             RedirectAttributes redirectAttributes) {
 
+        System.out.println("Bắt đầu đăng ký học sinh...");
+
         // Kiểm tra mật khẩu khớp nhau
         if (!password.equals(confirmPassword)) {
             redirectAttributes.addFlashAttribute("errorPassword", "Mật khẩu nhập lại không khớp!");
-            return "redirect:/DangKyHocSinh";
-        }
-
-        // Kiểm tra nhân viên có tồn tại không
-        Employees employee = entityManager.find(Employees.class, employeeID);
-        if (employee == null) {
-            redirectAttributes.addFlashAttribute("errorEmployee", "Mã nhân viên không hợp lệ!");
             return "redirect:/DangKyHocSinh";
         }
 
@@ -69,9 +63,16 @@ public class StudentPost {
                         "SELECT s FROM Person s WHERE s.email = :email", Person.class)
                 .setParameter("email", email)
                 .getResultList().isEmpty();
-
         if (emailExists) {
             redirectAttributes.addFlashAttribute("errorEmail", "Email đã tồn tại!");
+            return "redirect:/DangKyHocSinh";
+        }
+        // Kiểm tra định dạng số điện thoại
+        if (!phoneNumber.matches("^[0-9]+$")) { // Chỉ kiểm tra có phải toàn số không
+            redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại chỉ được chứa chữ số!");
+            return "redirect:/DangKyHocSinh";
+        } else if (!phoneNumber.matches("^\\d{9,10}$")) { // Kiểm tra độ dài
+            redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại phải có 9-10 chữ số!");
             return "redirect:/DangKyHocSinh";
         }
 
@@ -80,7 +81,6 @@ public class StudentPost {
                         "SELECT s FROM Person s WHERE s.phoneNumber = :phoneNumber", Person.class)
                 .setParameter("phoneNumber", phoneNumber)
                 .getResultList().isEmpty();
-
         if (phoneExists) {
             redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại đã được đăng ký!");
             return "redirect:/DangKyHocSinh";
@@ -92,17 +92,27 @@ public class StudentPost {
             return "redirect:/DangKyHocSinh";
         }
 
-        // Kiểm tra độ tuổi hợp lệ (ví dụ: ít nhất 6 tuổi)
+        // Kiểm tra độ tuổi hợp lệ (ít nhất 6 tuổi)
         LocalDate today = LocalDate.now();
         if (ChronoUnit.YEARS.between(birthDate, today) < 6) {
             redirectAttributes.addFlashAttribute("errorBirthDate", "Học sinh phải từ 6 tuổi trở lên!");
             return "redirect:/DangKyHocSinh";
         }
 
-        // Lấy admin (giả sử chỉ có một admin)
-        Admin admin = entityManager.createQuery("FROM Admin", Admin.class)
-                .setMaxResults(1)
-                .getSingleResult();
+        // Lấy Admin (giả sử chỉ có một admin)
+        List<Admin> adminList = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
+        if (adminList.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorAdmin", "Không tìm thấy Admin!");
+            return "redirect:/DangKyHocSinh";
+        }
+        Admin admin = adminList.get(0);
+
+        // Tìm nhân viên có ít học sinh nhất
+        Employees selectedEmployee = findEmployeeWithFewestStudents();
+        if (selectedEmployee == null) {
+            redirectAttributes.addFlashAttribute("errorEmployee", "Không tìm thấy nhân viên nào để phân bổ!");
+            return "redirect:/DangKyHocSinh";
+        }
 
         // Tạo đối tượng học sinh
         Students student = new Students();
@@ -111,38 +121,46 @@ public class StudentPost {
         student.setLastName(lastName);
         student.setEmail(email);
         student.setPhoneNumber(phoneNumber);
-        student.setBirthDate(birthDate); // Thêm ngày sinh
-        student.setPassword(password);
+        student.setBirthDate(birthDate);
         student.setMisId(misId);
-        student.setEmployee(employee);
+        student.setPassword(password); // Mật khẩu đã được mã hóa trong setter của Students
+        student.setEmployee(selectedEmployee);
         student.setAdmin(admin);
 
-        // Lưu vào database
+        // Lưu vào database (giao dịch được quản lý bởi @Transactional)
         entityManager.persist(student);
+        System.out.println("Đăng ký học sinh thành công! Gán cho nhân viên: " + selectedEmployee.getId());
 
-        // Chuyển hướng đến trang đăng nhập với thông báo thành công
+        // Chuyển hướng đến trang chủ với thông báo thành công
         redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công! Vui lòng đăng nhập.");
         return "redirect:/TrangChu";
     }
 
-    @PostMapping("/DangNhapHocSinh")
-    public String DangNhapHocSinh(@RequestParam("studentID") String studentID,
-                                  @RequestParam("password") String password,
-                                  ModelMap model,
-                                  HttpSession session) {
-        try {
-            Students student = entityManager.find(Students.class, studentID);
-
-            if (student != null && student.getPassword().equals(password)) {
-                return "redirect:/TrangChuHocSinh";
-            } else {
-                model.addAttribute("error", "Mã học sinh hoặc mật khẩu không đúng!");
-                return "redirect:/DangNhapHocSinh";
-            }
-        } catch (NoResultException e) {
-            model.addAttribute("error", "Mã học sinh không tồn tại!");
-            return "redirect:/DangNhapHocSinh";
+    // Phương thức phụ để tìm nhân viên có ít học sinh nhất
+    private Employees findEmployeeWithFewestStudents() {
+        // Lấy tất cả nhân viên
+        List<Employees> employeesList = entityManager.createQuery("FROM Employees", Employees.class).getResultList();
+        if (employeesList.isEmpty()) {
+            return null;
         }
+
+        Employees selectedEmployee = null;
+        Long minStudentCount = Long.MAX_VALUE;
+
+        // Duyệt qua từng nhân viên và đếm số học sinh họ quản lý
+        for (Employees employee : employeesList) {
+            Long studentCount = entityManager.createQuery(
+                            "SELECT COUNT(s) FROM Students s WHERE s.employee = :employee", Long.class)
+                    .setParameter("employee", employee)
+                    .getSingleResult();
+
+            if (studentCount < minStudentCount) {
+                minStudentCount = studentCount;
+                selectedEmployee = employee;
+            }
+        }
+
+        return selectedEmployee;
     }
 
     @PostMapping("/GuiNhanXetGiaoVien")
@@ -188,27 +206,5 @@ public class StudentPost {
         }
         return "redirect:/TrangChuHocSinh";
     }
-
-    @PostMapping("/LuuThongTinHocSinh")
-    public String luuThongTinHocSinh(@RequestParam String firstName,
-                                     @RequestParam String lastName,
-                                     @RequestParam String email,
-                                     @RequestParam String phoneNumber,
-                                     HttpSession session) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String studentId = authentication.getName();
-        Person person = entityManager.find(Person.class, studentId);
-        Students student = (Students) person;
-
-        // Cập nhật thông tin học sinh
-        student.setFirstName(firstName);
-        student.setLastName(lastName);
-        student.setEmail(email);
-        student.setPhoneNumber(phoneNumber);
-        entityManager.merge(student);
-
-        return "redirect:/TrangChuHocSinh"; // Tải lại trang cá nhân với thông tin mới
-    }
-
 
 }

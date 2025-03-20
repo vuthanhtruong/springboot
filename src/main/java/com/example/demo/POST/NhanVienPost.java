@@ -59,6 +59,14 @@ public class NhanVienPost {
             model.addAttribute("emailFormatError", "Email không hợp lệ.");
             return "DangKyNhanVien";
         }
+        // Kiểm tra định dạng số điện thoại
+        if (!PhoneNumber.matches("^[0-9]+$")) { // Kiểm tra toàn số
+            model.addAttribute("phoneError", "Số điện thoại chỉ được chứa chữ số!");
+            return "DangKyNhanVien";
+        } else if (!PhoneNumber.matches("^\\d{9,10}$")) { // Kiểm tra độ dài
+            model.addAttribute("phoneError", "Số điện thoại phải có 9-10 chữ số!");
+            return "DangKyNhanVien";
+        }
 
         // Kiểm tra Email đã tồn tại chưa
         List<Person> existingEmployeesByEmail = entityManager.createQuery(

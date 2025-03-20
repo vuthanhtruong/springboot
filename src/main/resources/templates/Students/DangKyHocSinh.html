@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Đăng Ký Học Sinh</title>
     <link href="/DangKyHocSinh.css" rel="stylesheet">
+    <!-- Bootstrap CSS (nếu bạn muốn dùng, thêm vào để style nhất quán) -->
 </head>
 <body class="d-flex align-items-center justify-content-center vh-100 bg-light">
-
-<div class="container">
+<main class="container">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <section class="col-md-6">
             <div class="card shadow-lg p-4">
-                <h2 class="text-center mb-4">Đăng Ký Học Sinh</h2>
+                <h1 class="text-center mb-4">Đăng Ký Học Sinh</h1>
 
+                <!-- Thông báo thành công -->
                 <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+                <!-- Thông báo lỗi chung -->
                 <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
 
                 <form action="/DangKyHocSinh" method="post">
@@ -62,22 +65,10 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="ConfirmPassword">Nhập lại mật khẩu</label>
-                        <input class="form-control" id="ConfirmPassword" name="ConfirmPassword" required
+                        <label class="form-label" for="confirmPassword">Nhập Lại Mật Khẩu</label>
+                        <input class="form-control" id="confirmPassword" name="ConfirmPassword" required
                                type="password">
                         <div class="text-danger" th:if="${errorPassword}" th:text="${errorPassword}"></div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label" for="employeeID">Nhân Viên Quản Lý</label>
-                        <select class="form-select" id="employeeID" name="EmployeeID" required>
-                            <option value="">-- Chọn Nhân Viên --</option>
-                            <option th:each="employee : ${employees}"
-                                    th:text="${employee.firstName + ' ' + employee.lastName}"
-                                    th:value="${employee.id}">
-                            </option>
-                        </select>
-                        <div class="text-danger" th:if="${errorEmployee}" th:text="${errorEmployee}"></div>
                     </div>
 
                     <div class="d-grid gap-2">
@@ -86,9 +77,13 @@
                     </div>
                 </form>
             </div>
-        </div>
+        </section>
     </div>
-</div>
+</main>
 
+<!-- Bootstrap JS (nếu cần, để hỗ trợ các tính năng động) -->
+<script crossorigin="anonymous"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
