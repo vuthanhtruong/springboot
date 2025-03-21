@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Set;
 
@@ -30,11 +31,17 @@ public class Admin extends Person {
         this.setLastName(lastName);
         this.setEmail(email);
         this.setPhoneNumber(phoneNumber);
-        this.password = password;
+        this.setPassword(password);
     }
 
     // Constructor không tham số (cần thiết cho JPA)
     public Admin() {
+    }
+
+    // Thêm setter để tự động mã hóa khi đặt mật khẩu mới
+    public void setPassword(String password) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        this.password = passwordEncoder.encode(password);
     }
 
 }
