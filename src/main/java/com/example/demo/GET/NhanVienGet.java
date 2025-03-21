@@ -295,7 +295,7 @@ public class NhanVienGet {
             return "DanhSachGiaoVienCuaBan";
         }
         // Xóa tin nhắn liên quan trước
-        entityManager.createQuery("DELETE FROM Messages m WHERE m.recipient.id = :studentID OR m.sender.id = :teacherID")
+        entityManager.createQuery("DELETE FROM Messages m WHERE m.recipient.id = :teacherID OR m.sender.id = :teacherID")
                 .setParameter("teacherID", id)
                 .executeUpdate();
 
