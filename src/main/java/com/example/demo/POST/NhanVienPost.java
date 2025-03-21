@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -164,8 +163,6 @@ public class NhanVienPost {
             @RequestParam("email") String email,
             @RequestParam("phoneNumber") String phoneNumber,
             @RequestParam(value = "misID", required = false) String misId,
-            @RequestParam("birthDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate, // Thêm BirthDate
-            HttpSession session,
             RedirectAttributes redirectAttributes) {
 
         // Lấy thông tin nhân viên từ Authentication
@@ -243,13 +240,6 @@ public class NhanVienPost {
             return "redirect:/ThemGiaoVienCuaBan";
         }
 
-        // Kiểm tra độ tuổi (giả sử giáo viên phải >= 18 tuổi)
-        LocalDate today = LocalDate.now();
-        if (ChronoUnit.YEARS.between(birthDate, today) < 18) {
-            redirectAttributes.addFlashAttribute("errorBirthDate", "Giáo viên phải từ 18 tuổi trở lên!");
-            return "redirect:/ThemGiaoVienCuaBan";
-        }
-
         // Tạo đối tượng giáo viên
         Teachers teacher = new Teachers();
         teacher.setId(teacherID);
@@ -257,7 +247,6 @@ public class NhanVienPost {
         teacher.setLastName(formattedLastName);
         teacher.setEmail(email);
         teacher.setPhoneNumber(phoneNumber); // Lưu số điện thoại đầy đủ với +84
-        teacher.setBirthDate(birthDate); // Thêm BirthDate
         teacher.setMisID(misId);
         teacher.setPassword(password);
         teacher.setEmployee(employee);
@@ -280,8 +269,6 @@ public class NhanVienPost {
             @RequestParam("password") String password,
             @RequestParam("phoneNumber") String phoneNumber,
             @RequestParam(value = "misID", required = false) String misId,
-            @RequestParam("birthDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate, // Thêm BirthDate
-            HttpSession session,
             RedirectAttributes redirectAttributes) {
 
         // Lấy thông tin nhân viên từ Authentication
@@ -360,13 +347,6 @@ public class NhanVienPost {
             return "redirect:/ThemHocSinhCuaBan";
         }
 
-        // Kiểm tra độ tuổi (học sinh phải >= 6 tuổi)
-        LocalDate today = LocalDate.now();
-        if (ChronoUnit.YEARS.between(birthDate, today) < 6) {
-            redirectAttributes.addFlashAttribute("errorBirthDate", "Học sinh phải từ 6 tuổi trở lên!");
-            return "redirect:/ThemHocSinhCuaBan";
-        }
-
         // Tạo mới student
         Students student = new Students();
         student.setId(studentID);
@@ -374,7 +354,6 @@ public class NhanVienPost {
         student.setLastName(formattedLastName);
         student.setEmail(email);
         student.setPhoneNumber(phoneNumber); // Lưu số điện thoại đầy đủ với +84
-        student.setBirthDate(birthDate); // Thêm BirthDate
         student.setPassword(password); // Mã hóa mật khẩu
         student.setMisId(misId);
         student.setEmployee(employee);

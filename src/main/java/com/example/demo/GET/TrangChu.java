@@ -26,6 +26,11 @@ public class TrangChu {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @GetMapping("/")
+    public String ChayVaoTrangChu(HttpSession session) {
+        return "redirect:/TrangChu";
+    }
+
     @GetMapping("/TrangChu")
     public String TrangChu(HttpSession session) {
         return "TrangChu";
