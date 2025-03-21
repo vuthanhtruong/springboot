@@ -4,11 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Documents")
@@ -35,6 +32,7 @@ public class Documents {
 
     @ManyToOne
     @JoinColumn(name = "CreatorID", nullable = false, foreignKey = @ForeignKey(name = "FK_Documents_Person"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Person creator;
 
     @ManyToOne
