@@ -1,12 +1,17 @@
 package com.example.demo.POST;
 
 import com.example.demo.OOP.*;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -32,6 +37,9 @@ public class NhanVienPost {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Autowired
+    private JavaMailSender mailSender; // Không khai báo lại ở nơi khác
 
 
     @Transactional
@@ -698,6 +706,11 @@ public class NhanVienPost {
     @PostMapping("/ThemGiaoVienVaoLop")
     @Transactional
     public String ThemGiaoVienVaoLop(@RequestParam String roomId, @RequestParam List<String> teacherIds) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
+
+        // Tìm Employee trong database bằng EntityManager
+        Employees employee = entityManager.find(Employees.class, employeeId);
         // Tìm Room theo roomId
         Room room = entityManager.find(Room.class, roomId);
         if (room == null) {
@@ -720,10 +733,38 @@ public class NhanVienPost {
                     .getSingleResult();
 
             if (count == 0) {
+                // Thêm giáo viên vào lớp
                 ClassroomDetails classroomDetail = new ClassroomDetails(room, teacher);
-                Events event = entityManager.find(Events.class, 9);
+                Events event = entityManager.find(Events.class, 9); // Giả định event ID 9 là sự kiện mặc định
                 classroomDetail.setEvent(event);
                 entityManager.persist(classroomDetail);
+
+                // Gửi email thông báo cho giáo viên
+                String subject = "Chào Mừng Thầy/Cô Đến Với Nhiệm Vụ Cao Quý Tại " + room.getRoomName();
+
+                String message = "<html><body style='font-family: Georgia, serif; line-height: 1.8; color: #333333; max-width: 700px; margin: 0 auto; background-color: #F9F9F9; padding: 20px;'>" +
+                        "<p style='font-size: 18px; color: #1A3C5E;'><b>Kính thưa " + teacher.getFullName() + ", người dẫn đường đáng kính,</b></p>" +
+                        "<p style='color: #4A4A4A;'>Trước hết, cho phép chúng tôi gửi tới Thầy/Cô những lời chào trân trọng nhất, như ánh trăng rằm soi sáng con đường tri thức, mang theo lòng biết ơn sâu sắc vì sự hiện diện của Thầy/Cô trong hành trình giáo dục của chúng tôi. Hôm nay là một dịp đặc biệt, khi Thầy/Cô chính thức gia nhập lớp học <i style='color: #D35400;'>" + room.getRoomName() + "</i> tại Hệ Thống Quản Lý Giáo Dục - xAI Education, mở ra một chương mới đầy ý nghĩa trong sứ mệnh cao cả của Thầy/Cô.</p>" +
+                        "<p style='color: #4A4A4A;'>Sự góp mặt của Thầy/Cô không chỉ là một niềm vinh dự lớn lao đối với chúng tôi, mà còn là ngọn lửa thắp sáng những tâm hồn trẻ, là ngọn hải đăng dẫn lối cho những ước mơ bay xa. Đây là khoảnh khắc khởi đầu cho một hành trình nơi tài năng, tâm huyết và kinh nghiệm của Thầy/Cô sẽ trở thành nguồn cảm hứng bất tận, góp phần vẽ nên bức tranh giáo dục sống động và trọn vẹn.</p>" +
+                        "<p style='color: #4A4A4A;'>Để Thầy/Cô có thể hình dung rõ hơn về nhiệm vụ mới này, chúng tôi xin phép ghi lại vài nét thông tin, như những dòng chữ được khắc trên tấm bia kỷ niệm của một chặng đường đáng nhớ:</p>" +
+                        "<ul style='list-style-type: none; padding-left: 20px; color: #4A4A4A;'>" +
+                        "   <li><b style='color: #2E7D32;'>✦ Mã lớp học:</b> " + roomId + "</li>" +
+                        "   <li><b style='color: #2E7D32;'>✦ Tên lớp học:</b> " + room.getRoomName() + "</li>" +
+                        "   <li><b style='color: #2E7D32;'>✦ Thời gian gia nhập:</b> " + new java.util.Date() + "</li>" +
+                        "   <li><b style='color: #2E7D32;'>✦ Lời chào từ chúng tôi:</b> Trân trọng chào mừng Thầy/Cô đến với ngôi nhà tri thức mới, nơi mỗi bài giảng của Thầy/Cô sẽ là một viên gạch xây dựng tương lai.</li>" +
+                        "</ul>" +
+                        "<p style='color: #4A4A4A;'>Chúng tôi hiểu rằng, mỗi vai trò mới đều đi kèm với những kỳ vọng và trách nhiệm lớn lao. Vì vậy, nếu Thầy/Cô có bất kỳ câu hỏi nào về lớp học này, hay chỉ đơn giản muốn trao đổi để chuẩn bị cho hành trình phía trước, xin đừng ngần ngại liên hệ với chúng tôi qua <a href='mailto:vuthanhtruong1280@gmail.com' style='color: #2980B9; text-decoration: none; font-weight: bold;'>vuthanhtruong1280@gmail.com</a> hoặc số điện thoại <b style='color: #C0392B;'>0394444107</b>. Đội ngũ của chúng tôi luôn sẵn sàng đồng hành cùng Thầy/Cô, với tất cả sự tận tâm và tôn kính.</p>" +
+                        "<p style='color: #4A4A4A;'>Thưa Thầy/Cô, hành trình giáo dục là một bản giao hưởng dài, và Thầy/Cô chính là nhạc trưởng tài hoa, người sẽ dẫn dắt những nốt nhạc tri thức vang lên trong lòng học trò. Chúng tôi tin tưởng rằng, với sự tận tụy và lòng nhiệt thành của Thầy/Cô, lớp học này sẽ trở thành một mảnh đất màu mỡ, nơi những hạt giống tri thức được gieo trồng và nở hoa rực rỡ.</p>" +
+                        "<p style='color: #4A4A4A;'>Trước khi khép lại lá thư này, chúng tôi xin gửi tới Thầy/Cô lời chúc tốt đẹp nhất: Chúc Thầy/Cô luôn dồi dào sức khỏe, tràn đầy cảm hứng, và tìm thấy niềm vui bất tận trong sứ mệnh cao quý của mình. Thầy/Cô không chỉ là một người giáo viên, mà còn là ngọn gió nâng cánh những ước mơ, là ánh sáng soi đường cho thế hệ trẻ.</p>" +
+                        "<p style='margin-top: 30px; text-align: center; color: #7F8C8D;'><i>Trân trọng kính thư,</i></p>" +
+                        "<p style='text-align: center; color: #34495E;'>" +
+                        "<b>" + employee.getFirstName() + " " + employee.getLastName() + "</b><br>" +
+                        "Quản Trị Viên Hệ Thống<br>" +
+                        "Hệ Thống Quản Lý Giáo Dục - xAI Education<br>" +
+                        "Email: <a href='mailto:vuthanhtruong1280@gmail.com' style='color: #2980B9; text-decoration: none;'>support@xaiedu.com</a> | Hotline: <span style='color: #C0392B;'>0394444107</span></p>" +
+                        "</body></html>";
+
+                sendEmail(teacher.getEmail(), subject, message);
             }
         }
 
@@ -733,6 +774,11 @@ public class NhanVienPost {
     @PostMapping("/ThemHocSinhVaoLop")
     @Transactional
     public String ThemHocSinhVaoLop(@RequestParam String roomId, @RequestParam List<String> studentIds) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
+
+        // Tìm Employee trong database bằng EntityManager
+        Employees employee = entityManager.find(Employees.class, employeeId);
         // Tìm Room theo roomId
         Room room = entityManager.find(Room.class, roomId);
         if (room == null) {
@@ -755,10 +801,38 @@ public class NhanVienPost {
                     .getSingleResult();
 
             if (count == 0) {
+                // Thêm học sinh vào lớp
                 ClassroomDetails classroomDetail = new ClassroomDetails(room, student);
-                Events event = entityManager.find(Events.class, 10);
+                Events event = entityManager.find(Events.class, 10); // Giả định event ID 10 là sự kiện mặc định
                 classroomDetail.setEvent(event);
                 entityManager.persist(classroomDetail);
+
+                // Gửi email thông báo cho học sinh
+                String subject = "Chào Mừng Bạn Đến Với Hành Trình Học Tập Mới - " + room.getRoomName();
+
+                String message = "<html><body style='font-family: Georgia, serif; line-height: 1.8; color: #333333; max-width: 700px; margin: 0 auto; background-color: #F5F6F5; padding: 20px;'>" +
+                        "<p style='font-size: 18px; color: #154360;'><b>Thân gửi " + student.getFullName() + ", người bạn đồng hành mới đáng quý,</b></p>" +
+                        "<p style='color: #4A4A4A;'>Trước tiên, chúng tôi xin gửi tới bạn một lời chào ấm áp, như ngọn gió xuân khẽ lùa qua những cánh hoa đang hé nở, mang theo niềm vui và hy vọng. Hôm nay là một ngày đặc biệt, ngày mà bạn chính thức trở thành một phần của đại gia đình học tập tại lớp <i style='color: #D35400;'>" + room.getRoomName() + "</i> trong Hệ Thống Quản Lý Giáo Dục - xAI Education.</p>" +
+                        "<p style='color: #4A4A4A;'>Đây không chỉ là một sự khởi đầu, mà là một cánh cửa rộng mở dẫn bạn đến những chân trời tri thức mới, nơi mỗi bước đi của bạn sẽ được ghi dấu bằng sự nỗ lực, đam mê và những ước mơ rực rỡ. Chúng tôi vô cùng vinh dự được chào đón bạn, một mảnh ghép quan trọng, để cùng nhau viết nên những trang sử đẹp đẽ trong hành trình giáo dục đầy ý nghĩa này.</p>" +
+                        "<p style='color: #4A4A4A;'>Để bạn có thể hình dung rõ hơn về ngôi nhà học tập mới của mình, chúng tôi xin phép gửi tới bạn đôi dòng thông tin như những nét phác thảo đầu tiên trên hành trình khám phá:</p>" +
+                        "<ul style='list-style-type: none; padding-left: 20px; color: #4A4A4A;'>" +
+                        "   <li><b style='color: #2E7D32;'>✦ Mã lớp học:</b> " + roomId + "</li>" +
+                        "   <li><b style='color: #2E7D32;'>✦ Tên lớp học:</b> " + room.getRoomName() + "</li>" +
+                        "   <li><b style='color: #2E7D32;'>✦ Thời gian gia nhập:</b> " + new java.util.Date() + "</li>" +
+                        "   <li><b style='color: #2E7D32;'>✦ Thông điệp từ chúng tôi:</b> Chào mừng bạn đến với một hành trình đầy cảm hứng, nơi bạn sẽ tỏa sáng theo cách riêng của mình.</li>" +
+                        "</ul>" +
+                        "<p style='color: #4A4A4A;'>Chúng tôi tin rằng, với tài năng, nhiệt huyết và khát khao học hỏi của bạn, lớp học này sẽ trở thành một mảnh đất màu mỡ để bạn gieo những hạt giống tri thức, chờ ngày nở rộ thành những bông hoa rực rỡ. Nếu bạn có bất kỳ thắc mắc nào về hành trình sắp tới, hay chỉ đơn giản muốn trò chuyện để làm quen, xin đừng ngần ngại liên hệ với chúng tôi qua <a href='mailto:vuthanhtruong1280@gmail.com' style='color: #2980B9; text-decoration: none; font-weight: bold;'>vuthanhtruong1280@gmail.com</a> hoặc số điện thoại <b style='color: #C0392B;'>0394444107</b>. Đội ngũ của chúng tôi luôn sẵn sàng đồng hành, lắng nghe và hỗ trợ bạn như những người bạn thân thiết nhất.</p>" +
+                        "<p style='color: #4A4A4A;'>Thân gửi bạn, con đường học tập phía trước là một bản nhạc dài, và bạn chính là nghệ sĩ tài hoa sẽ tạo nên những giai điệu độc đáo của riêng mình. Chúng tôi hy vọng rằng, tại ngôi nhà mới này, bạn sẽ tìm thấy niềm vui, sự tự tin và động lực để chinh phục những đỉnh cao tri thức mà bạn hằng mơ ước.</p>" +
+                        "<p style='color: #4A4A4A;'>Trước khi khép lại lá thư này, chúng tôi xin gửi tới bạn lời chúc nồng nhiệt nhất: Chúc bạn luôn mạnh mẽ như ngọn sóng biển, rực rỡ như ánh bình minh, và tràn đầy năng lượng để viết tiếp câu chuyện tuyệt vời của tuổi trẻ. Chào mừng bạn, một lần nữa, đến với <i style='color: #D35400;'>" + room.getRoomName() + "</i>!</p>" +
+                        "<p style='margin-top: 30px; text-align: center; color: #7F8C8D;'><i>Trân trọng gửi tới bạn,</i></p>" +
+                        "<p style='text-align: center; color: #34495E;'>" +
+                        "<b>" + employee.getFirstName() + " " + employee.getLastName() + "</b><br>" +
+                        "Quản Trị Viên Hệ Thống<br>" +
+                        "Hệ Thống Quản Lý Giáo Dục - xAI Education<br>" +
+                        "Email: <a href='mailto:vuthanhtruong1280@gmail.com' style='color: #2980B9; text-decoration: none;'>support@xaiedu.com</a> | Hotline: <span style='color: #C0392B;'>0394444107</span></p>" +
+                        "</body></html>";
+
+                sendEmail(student.getEmail(), subject, message);
             }
         }
 
@@ -944,6 +1018,24 @@ public class NhanVienPost {
         model.addAttribute("keyword", keyword);
 
         return "DanhSachTimKiemPhongHoc"; // Đảm bảo có file HTML này trong templates
+    }
+
+    public void sendEmail(String recipientEmail, String subject, String htmlMessage) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setTo(recipientEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlMessage, true); // true = nội dung là HTML
+            helper.setFrom("vuthanhtruong1280@gmail.com");
+
+            mailSender.send(mimeMessage);
+            System.out.println("Email HTML đã được gửi thành công!");
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            System.out.println("Gửi email thất bại: " + e.getMessage());
+        }
     }
 
 

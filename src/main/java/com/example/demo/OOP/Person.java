@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -50,6 +51,8 @@ public class Person {
 
     @Column(name = "OauthId", nullable = true, length = 255)
     private String oauthId; // ID duy nhất từ OAuth provider
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     public String getFullName() {
         return firstName + " " + lastName;
