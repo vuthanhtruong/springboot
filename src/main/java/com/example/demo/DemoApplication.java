@@ -71,7 +71,7 @@ public class DemoApplication {
             System.out.println("Admin mặc định đã tồn tại.");
         } catch (NoResultException e) {
             String encodedPassword = "Admin123";
-            Admin defaultAdmin = new Admin("admin", encodedPassword, "Default", "Admin", "admin@example.com", "+1234567890");
+            Admin defaultAdmin = new Admin("admin", encodedPassword, "Default", "Admin", "admin@example.com", "0394444107");
             defaultAdmin.setBirthDate(LocalDateTime.of(1990, 1, 1, 0, 0).toLocalDate());
             entityManager.persist(defaultAdmin);
             System.out.println("Đã thêm Admin mặc định.");

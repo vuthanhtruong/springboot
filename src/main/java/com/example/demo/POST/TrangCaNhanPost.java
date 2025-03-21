@@ -34,19 +34,24 @@ public class TrangCaNhanPost {
         // Kiểm tra dữ liệu đầu vào
         if (firstName == null || firstName.trim().isEmpty()) {
             model.addAttribute("firstNameInvalid", "Họ không được để trống");
-            return "TrangCaNhan";
+            return "redirect:/TrangCaNhan";
         }
         if (lastName == null || lastName.trim().isEmpty()) {
             model.addAttribute("lastNameInvalid", "Tên không được để trống");
-            return "TrangCaNhan";
+            return "redirect:/TrangCaNhan";
         }
         if (email == null || email.trim().isEmpty() || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
             model.addAttribute("emailInvalid", "Email không hợp lệ");
-            return "TrangCaNhan";
+            return "redirect:/TrangCaNhan";
         }
-        if (phoneNumber == null || phoneNumber.trim().isEmpty() || !phoneNumber.matches("\\d{10,11}")) {
-            model.addAttribute("phoneNumberInvalid", "Số điện thoại không hợp lệ (10-11 chữ số)");
-            return "TrangCaNhan";
+
+        // Kiểm tra định dạng số điện thoại
+        if (!phoneNumber.matches("^[0-9]+$")) { // Kiểm tra toàn số
+            model.addAttribute("phoneNumberInvalid", "Số điện thoại chỉ được chứa chữ số!");
+            return "redirect:/TrangCaNhan";
+        } else if (!phoneNumber.matches("^\\d{9,10}$")) { // Kiểm tra độ dài
+            model.addAttribute("phoneNumberInvalid", "Số điện thoại phải có 9-10 chữ số!");
+            return "redirect:/TrangCaNhan";
         }
 
         // Lấy ID từ Authentication
@@ -62,7 +67,7 @@ public class TrangCaNhanPost {
         Person person = entityManager.find(Person.class, userId);
         if (person == null) {
             model.addAttribute("userNotFound", "Không tìm thấy thông tin người dùng");
-            return "TrangCaNhan";
+            return "redirect:/TrangCaNhan";
         }
 
         // Kiểm tra trùng email
@@ -72,7 +77,7 @@ public class TrangCaNhanPost {
         emailQuery.setParameter("userId", userId);
         if (!emailQuery.getResultList().isEmpty()) {
             model.addAttribute("emailDuplicate", "Email này đã được sử dụng bởi người dùng khác");
-            return "TrangCaNhan";
+            return "redirect:/TrangCaNhan";
         }
 
         // Kiểm tra trùng số điện thoại
@@ -82,7 +87,7 @@ public class TrangCaNhanPost {
         phoneQuery.setParameter("userId", userId);
         if (!phoneQuery.getResultList().isEmpty()) {
             model.addAttribute("phoneNumberDuplicate", "Số điện thoại này đã được sử dụng bởi người dùng khác");
-            return "TrangCaNhan";
+            return "redirect:/TrangCaNhan";
         }
 
         // Cập nhật thông tin và xử lý lỗi khi merge
