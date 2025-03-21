@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>✏️ Chỉnh Sửa Blog</title>
+</head>
+<body>
+<h2>✏️ Chỉnh Sửa Blog</h2>
+
+<!-- Form gửi dữ liệu lên server -->
+<form action="/XuLySuaBlog" method="post">
+    <!-- Trường ẩn để giữ ID của blog -->
+    <input name="id" th:value="${Fixblogs.blogId}" type="hidden">
+
+    <label for="title">📌 Tiêu đề:</label><br>
+    <input id="title" name="title" required th:value="${Fixblogs.title}" type="text"><br><br>
+
+    <label for="content">📝 Nội dung:</label><br>
+    <textarea id="content" name="content" required rows="5">[[${Fixblogs.content}]]</textarea><br><br>
+
+    <button type="submit">💾 Lưu thay đổi</button>
+    <a href="/BlogCaNhan">🔙 Hủy</a>
+</form>
+</body>
+</html>

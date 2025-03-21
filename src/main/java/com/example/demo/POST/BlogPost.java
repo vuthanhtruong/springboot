@@ -13,6 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 
@@ -39,6 +41,35 @@ public class BlogPost {
         entityManager.persist(newBlog);
 
         return "redirect:/Blogs";
+    }
+
+
+    @PostMapping("/XuLySuaBlog")
+    public String XuLySuaBlog(@RequestParam("id") Long blogId,
+                              @RequestParam("title") String title,
+                              @RequestParam("content") String content,
+                              RedirectAttributes redirectAttributes) {
+
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        Person creator = entityManager.find(Person.class, userId);
+        if (creator == null) {
+            return "redirect:/Blogs?error=userNotFound";
+        }
+
+        Blogs FixBlog = entityManager.find(Blogs.class, blogId);
+        if (FixBlog == null) {
+            return "redirect:/Blogs?error=blogNotFound";
+        }
+        FixBlog.setTitle(title);
+        FixBlog.setContent(content);
+        FixBlog.setCreator(creator);
+        FixBlog.setCreatedAt(LocalDateTime.now());
+        entityManager.merge(FixBlog);
+
+        return "redirect:/BlogCaNhan";
     }
 
 

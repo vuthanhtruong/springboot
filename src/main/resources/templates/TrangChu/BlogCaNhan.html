@@ -17,19 +17,6 @@
 </header>
 
 <main>
-
-    <!-- 🔹 Hộp nhập Blog -->
-    <section class="new-post">
-        <div class="profile-pic">
-            <img alt="User Avatar" th:src="@{/images/user-default.png}">
-        </div>
-        <form action="/XuLyThemBlog" class="post-form" method="post">
-            <input id="title" name="title" placeholder="Bạn đang nghĩ gì?" required type="text">
-            <textarea id="content" name="content" placeholder="Viết nội dung blog..." required></textarea>
-            <button type="submit"><i class="fas fa-paper-plane"></i> Đăng</button>
-        </form>
-    </section>
-
     <!-- 🔹 Danh sách Blog dưới dạng bảng -->
     <section class="blog-feed">
         <h2><i class="fas fa-list"></i> Bài viết mới nhất</h2>
@@ -41,6 +28,7 @@
                 <th>📅 Ngày đăng</th>
                 <th>📖 Tiêu đề</th>
                 <th>📝 Nội dung</th>
+                <th>⚙️ Hành động</th>
             </tr>
             </thead>
             <tbody>
@@ -49,6 +37,15 @@
                 <td th:text="${#temporals.format(blog.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
                 <td th:text="${blog.title}"></td>
                 <td th:text="${blog.content}"></td>
+                <td>
+                    <a class="btn btn-primary" th:href="@{/SuaBlogCaNhan/{id}(id=${blog.blogId})}">
+                        <i class="fas fa-edit"></i> Sửa
+                    </a>
+                    <a class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa blog này?');"
+                       th:href="@{/XoaBlogCaNhan/{id}(id=${blog.blogId})}">
+                        <i class="fas fa-trash"></i> Xóa
+                    </a>
+                </td>
             </tr>
             </tbody>
         </table>
