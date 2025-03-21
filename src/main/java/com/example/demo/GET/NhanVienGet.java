@@ -294,6 +294,10 @@ public class NhanVienGet {
             model.addAttribute("error", "Không tìm thấy giáo viên cần xóa!");
             return "DanhSachGiaoVienCuaBan";
         }
+        // Xóa tin nhắn liên quan trước
+        entityManager.createQuery("DELETE FROM Messages m WHERE m.recipient.id = :studentID OR m.sender.id = :teacherID")
+                .setParameter("teacherID", id)
+                .executeUpdate();
 
         // Xóa giáo viên sau khi đã xóa dữ liệu liên quan
         entityManager.remove(teacher);
