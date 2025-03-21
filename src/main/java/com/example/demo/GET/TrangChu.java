@@ -74,8 +74,8 @@ public class TrangChu {
         if (person instanceof Students student) {
             student.setPassword(newPassword);
             entityManager.merge(student);
-            System.out.println("Redirecting to: /TrangChuSinhVien");
-            return "redirect:/TrangChuSinhVien";
+            System.out.println("Redirecting to: /TrangChuHocSinh");
+            return "redirect:/TrangChuHocSinh";
         } else if (person instanceof Teachers teacher) {
             teacher.setPassword(newPassword);
             entityManager.merge(teacher);
