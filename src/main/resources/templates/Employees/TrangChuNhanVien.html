@@ -14,7 +14,6 @@
         <h2 class="text-secondary">
             Chào mừng, <span th:text="${employee.firstName} + ' ' + ${employee.lastName}"></span> |
             <a class="text-info" th:href="@{/TrangCaNhan}"><i class="fas fa-user-circle"></i> Trang Cá Nhân</a> |
-            <a class="text-warning" th:href="@{/Blogs}"><i class="fas fa-blog"></i> Blogs</a>
         </h2>
     </div>
 
@@ -49,10 +48,22 @@
             </a>
         </div>
 
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-dark w-100 p-3" th:href="@{/DieuChinhLichHoc}">
+                <i class="fas fa-th-large icon"></i> Bố trí Thời Khóa Biểu
+            </a>
+        </div>
+
         <!-- 🆕 Mục Feedback từ Học Sinh -->
         <div class="col-md-6 mb-3">
             <a class="btn btn-outline-secondary w-100 p-3" th:href="@{/FeedbackHocSinh}">
-                <i class="fas fa-comments icon"></i> Feedback từ học sinh
+                <i class="fas fa-comments icon"></i> Feedback Của Học Sinh
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-secondary w-100 p-3" th:href="@{/Blogs}">
+                <i class="fas fa-comments icon"></i> Blogs
             </a>
         </div>
 
@@ -61,6 +72,8 @@
                 <i class="fas fa-sign-out-alt icon"></i> Đăng xuất
             </a>
         </div>
+
+
     </div>
 </div>
 

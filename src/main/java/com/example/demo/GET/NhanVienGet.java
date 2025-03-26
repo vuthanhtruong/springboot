@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.WeekFields;
+import java.util.*;
 
 @Controller
 @RequestMapping("/")
@@ -961,4 +961,90 @@ public class NhanVienGet {
         entityManager.createQuery("DELETE FROM Room").executeUpdate();
         return "redirect:/DanhSachPhongHoc"; // Chuyển hướng về danh sách phòng
     }
+
+    @GetMapping("/DieuChinhLichHoc")
+    public String DieuChinhLichHoc(
+            @RequestParam(value = "year", required = false) Integer year,
+            @RequestParam(value = "week", required = false) Integer week,
+            ModelMap model,
+            HttpSession session) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
+
+        // Tìm Employee trong database
+        Employees employee = entityManager.find(Employees.class, employeeId);
+        if (employee == null) {
+            model.addAttribute("error", "Không tìm thấy nhân viên!");
+            return "errorPage";
+        }
+
+        // Xử lý year và week
+        LocalDate today = LocalDate.now();
+        int currentYear = today.getYear();
+        int currentWeek = today.get(WeekFields.ISO.weekOfWeekBasedYear());
+
+        if (year == null) year = currentYear;
+        if (week == null) week = currentWeek;
+
+        // Tạo danh sách years và weeks cho form lọc
+        List<Integer> years = new ArrayList<>();
+        for (int i = currentYear - 5; i <= currentYear + 5; i++) {
+            years.add(i);
+        }
+        List<Integer> weeks = new ArrayList<>();
+        for (int i = 1; i <= 53; i++) {
+            weeks.add(i);
+        }
+
+        // Tính toán ngày đầu tuần (thứ Hai) của tuần được chọn
+        LocalDate firstDayOfYear = LocalDate.of(year, 1, 1);
+        LocalDate monday = firstDayOfYear.with(WeekFields.ISO.weekOfWeekBasedYear(), week)
+                .with(WeekFields.ISO.dayOfWeek(), 1); // Thứ Hai
+        LocalDate sunday = monday.plusDays(6); // Chủ Nhật
+
+        // Tạo danh sách ngày trong tuần (dd/MM)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM");
+        List<String> weekDates = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            weekDates.add(monday.plusDays(i).format(formatter));
+        }
+
+        // Lưu weekDates vào session để sử dụng trong NhanVienPost
+        session.setAttribute("weekDates", weekDates);
+
+        // Lấy danh sách tất cả Slots (Slot 1 đến Slot 6)
+        List<Slots> slots = entityManager.createQuery("FROM Slots ORDER BY slotId ASC", Slots.class)
+                .getResultList();
+
+        // Lấy danh sách tất cả Rooms (bao gồm cả Rooms và OnlineRooms)
+        List<Room> allRooms = entityManager.createQuery("FROM Room", Room.class).getResultList();
+
+        // Lấy danh sách Timetable của nhân viên này trong tuần được chọn
+        List<Timetable> timetables = entityManager.createQuery(
+                        "FROM Timetable t WHERE t.editor.id = :employeeId AND t.date BETWEEN :startDate AND :endDate",
+                        Timetable.class)
+                .setParameter("employeeId", employeeId)
+                .setParameter("startDate", monday)
+                .setParameter("endDate", sunday)
+                .getResultList();
+
+        // Tạo danh sách các ngày trong tuần (MONDAY đến SUNDAY)
+        List<String> daysOfWeek = Arrays.asList("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY");
+
+        // Đưa dữ liệu vào model để hiển thị trong view
+        model.addAttribute("employee", employee);
+        model.addAttribute("slots", slots);
+        model.addAttribute("timetables", timetables); // Truyền danh sách timetables
+        model.addAttribute("allRooms", allRooms);
+        model.addAttribute("weekDates", weekDates);
+        model.addAttribute("daysOfWeek", daysOfWeek);
+        model.addAttribute("years", years);
+        model.addAttribute("weeks", weeks);
+        model.addAttribute("selectedYear", year);
+        model.addAttribute("selectedWeek", week);
+        model.addAttribute("weekRange", monday.format(formatter) + " TO " + sunday.format(formatter));
+
+        return "DieuChinhLichHoc";
+    }
+
 }

@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public abstract class Room {
+public class Room {
 
     @Id
     @Column(name = "RoomID")
@@ -37,11 +37,15 @@ public abstract class Room {
     @Column(name = "EndTime", nullable = true)
     private LocalDateTime endTime;
 
+    @Column(name = "SlotQuantity", nullable = true)
+    private Integer slotQuantity; // Số lượng slot
+
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Posts> posts = new ArrayList<>();
 
 

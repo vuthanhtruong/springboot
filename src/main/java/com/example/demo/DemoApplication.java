@@ -2,6 +2,7 @@ package com.example.demo;
 
 import com.example.demo.OOP.Admin;
 import com.example.demo.OOP.Events;
+import com.example.demo.OOP.Slots;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;
@@ -11,6 +12,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @SpringBootApplication(scanBasePackages = "com.example.demo")
@@ -48,6 +50,22 @@ public class DemoApplication {
 
             // Thêm danh sách sự kiện nếu chưa tồn tại
             addDefaultEvents(entityManager);
+
+            // Commit transaction
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            e.printStackTrace();
+        }
+
+        try {
+            // Bắt đầu transaction để thêm slots
+            entityManager.getTransaction().begin();
+
+            // Thêm danh sách slots nếu chưa tồn tại
+            addDefaultSlots(entityManager);
 
             // Commit transaction
             entityManager.getTransaction().commit();
@@ -118,6 +136,43 @@ public class DemoApplication {
             return true; // Sự kiện đã tồn tại
         } catch (NoResultException e) {
             return false; // Sự kiện chưa tồn tại
+        }
+    }
+
+    // Thêm các slot mặc định vào database nếu chưa có
+    private static void addDefaultSlots(EntityManager entityManager) {
+        List<Slots> slotsToAdd = List.of(
+                new Slots("Slot 1", LocalTime.of(7, 0), LocalTime.of(8, 40)),
+                new Slots("Slot 2", LocalTime.of(8, 50), LocalTime.of(10, 20)),
+                new Slots("Slot 3", LocalTime.of(10, 30), LocalTime.of(12, 0)),
+                new Slots("Slot 4", LocalTime.of(12, 50), LocalTime.of(14, 20)),
+                new Slots("Slot 5", LocalTime.of(14, 30), LocalTime.of(16, 0)),
+                new Slots("Slot 6", LocalTime.of(16, 10), LocalTime.of(17, 40))
+        );
+
+        for (Slots slot : slotsToAdd) {
+            boolean exists = checkSlotExists(entityManager, slot.getSlotName(), slot.getStartTime(), slot.getEndTime());
+            if (!exists) {
+                entityManager.persist(slot);
+                System.out.println("Đã thêm slot: " + slot.getSlotName());
+            } else {
+                System.out.println("Slot đã tồn tại: " + slot.getSlotName());
+            }
+        }
+    }
+
+    // Kiểm tra xem slot đã tồn tại trong cơ sở dữ liệu chưa
+    private static boolean checkSlotExists(EntityManager entityManager, String slotName, LocalTime startTime, LocalTime endTime) {
+        try {
+            entityManager.createQuery(
+                            "SELECT s FROM Slots s WHERE s.slotName = :slotName AND s.startTime = :startTime AND s.endTime = :endTime", Slots.class)
+                    .setParameter("slotName", slotName)
+                    .setParameter("startTime", startTime)
+                    .setParameter("endTime", endTime)
+                    .getSingleResult();
+            return true; // Slot đã tồn tại
+        } catch (NoResultException e) {
+            return false; // Slot chưa tồn tại
         }
     }
 }

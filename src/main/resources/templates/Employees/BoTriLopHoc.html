@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Bố Trí Lớp Học</title>
     <link rel="stylesheet" th:href="@{/BoTriLopHoc.css}">
 </head>
@@ -11,7 +11,7 @@
     <h1>Bố Trí Lớp Học</h1>
 </header>
 <nav class="mb-3">
-    <a th:href="@{/TrangChuNhanVien}" class="btn btn-secondary">Quay Lại Trang Chủ Nhân Viên</a>
+    <a class="btn btn-secondary" th:href="@{/TrangChuNhanVien}">Quay Lại Trang Chủ Nhân Viên</a>
 </nav>
 <main class="container">
     <!-- Bảng phòng học Offline -->
@@ -23,7 +23,7 @@
                 <th>ID Phòng</th>
                 <th>Tên Phòng</th>
                 <th>Địa Chỉ</th>
-                <th>Lịch Trình</th>
+                <th>Tổng Số Slot</th>
                 <th>Chi Tiết</th>
                 <th>Hành Động</th>
             </tr>
@@ -33,38 +33,32 @@
                 <td th:text="${room.roomId}"></td>
                 <td th:text="${room.roomName}"></td>
                 <td>
-                    <form th:action="@{/CapNhatDiaChi}" method="post">
-                        <input type="hidden" name="roomId" th:value="${room.roomId}" />
-                        <input type="text" name="roomAddress" th:value="${room.address}" required />
-                        <button type="submit" class="btn btn-primary btn-sm">Cập Nhật Địa Chỉ</button>
+                    <form method="post" th:action="@{/CapNhatDiaChi}">
+                        <input name="roomId" th:value="${room.roomId}" type="hidden"/>
+                        <input name="roomAddress" required th:value="${room.address}" type="text"/>
+                        <button class="btn btn-primary btn-sm" type="submit">Cập Nhật Địa Chỉ</button>
                     </form>
                 </td>
                 <td>
-                    <form th:action="@{/CapNhatLichTrinh}" method="post" style="text-align: center;">
-                        <input type="hidden" name="roomId" th:value="${room.roomId}" />
-                        <div>
-                            <input type="datetime-local" class="startTime" name="startTime"
-                                   th:value="${room.startTime != null ? #temporals.format(room.startTime, 'yyyy-MM-dd''T''HH:mm') : ''}"
-                                   required />
-                        </div>
-                        <br>
-                        <div>
-                            <input type="datetime-local" class="endTime" name="endTime"
-                                   th:value="${room.endTime != null ? #temporals.format(room.endTime, 'yyyy-MM-dd''T''HH:mm') : ''}"
-                                   required />
-                        </div>
-                        <br>
-                        <button type="submit" class="btn btn-success btn-sm">Cập Nhật</button>
+                    <form class="slot-counter" method="post" th:action="@{/CapNhatSoSlot}">
+                        <input name="roomId" th:value="${room.roomId}" type="hidden"/>
+                        <button onclick="this.parentNode.querySelector('input[name=slotQuantity]').stepDown();"
+                                type="button">-
+                        </button>
+                        <input min="0" name="slotQuantity" required th:value="${room.slotQuantity}" type="number"/>
+                        <button onclick="this.parentNode.querySelector('input[name=slotQuantity]').stepUp();"
+                                type="button">+
+                        </button>
+                        <button class="btn btn-primary btn-sm" type="submit">Cập Nhật</button>
                     </form>
                 </td>
-
                 <td>
-                    <a th:href="@{/ChiTietLopHoc/{id}(id=${room.roomId})}" class="btn btn-info btn-sm">
+                    <a class="btn btn-info btn-sm" th:href="@{/ChiTietLopHoc/{id}(id=${room.roomId})}">
                         Xem Chi Tiết
                     </a>
                 </td>
                 <td>
-                    <a th:href="@{/GuiThongBao/{id}(id=${room.roomId})}" class="btn btn-warning btn-sm">
+                    <a class="btn btn-warning btn-sm" th:href="@{/GuiThongBao/{id}(id=${room.roomId})}">
                         Gửi Thông Báo
                     </a>
                 </td>
@@ -82,7 +76,7 @@
                 <th>ID Phòng</th>
                 <th>Tên Phòng</th>
                 <th>Link Phòng</th>
-                <th>Lịch Trình</th>
+                <th>Tổng Số Slot</th>
                 <th>Chi Tiết</th>
                 <th>Hành Động</th>
             </tr>
@@ -92,38 +86,32 @@
                 <td th:text="${room.roomId}"></td>
                 <td th:text="${room.roomName}"></td>
                 <td>
-                    <form th:action="@{/CapNhatLink}" method="post">
-                        <input type="hidden" name="roomId" th:value="${room.roomId}" />
-                        <input type="url" name="roomLink" th:value="${room.link}" required />
-                        <button type="submit" class="btn btn-primary btn-sm">Cập Nhật Link</button>
+                    <form method="post" th:action="@{/CapNhatLink}">
+                        <input name="roomId" th:value="${room.roomId}" type="hidden"/>
+                        <input name="roomLink" required th:value="${room.link}" type="url"/>
+                        <button class="btn btn-primary btn-sm" type="submit">Cập Nhật Link</button>
                     </form>
                 </td>
                 <td>
-                    <form th:action="@{/CapNhatLichTrinh}" method="post" style="text-align: center;">
-                        <input type="hidden" name="roomId" th:value="${room.roomId}" />
-                        <div>
-                            <input type="datetime-local" class="startTime" name="startTime"
-                                   th:value="${room.startTime != null ? #temporals.format(room.startTime, 'yyyy-MM-dd''T''HH:mm') : ''}"
-                                   required />
-                        </div>
-                        <br>
-                        <div>
-                            <input type="datetime-local" class="endTime" name="endTime"
-                                   th:value="${room.endTime != null ? #temporals.format(room.endTime, 'yyyy-MM-dd''T''HH:mm') : ''}"
-                                   required />
-                        </div>
-                        <br>
-                        <button type="submit" class="btn btn-success btn-sm">Cập Nhật</button>
+                    <form class="slot-counter" method="post" th:action="@{/CapNhatSoSlot}">
+                        <input name="roomId" th:value="${room.roomId}" type="hidden"/>
+                        <button onclick="this.parentNode.querySelector('input[name=slotQuantity]').stepDown();"
+                                type="button">-
+                        </button>
+                        <input min="0" name="slotQuantity" required th:value="${room.slotQuantity}" type="number"/>
+                        <button onclick="this.parentNode.querySelector('input[name=slotQuantity]').stepUp();"
+                                type="button">+
+                        </button>
+                        <button class="btn btn-primary btn-sm" type="submit">Cập Nhật</button>
                     </form>
                 </td>
-
                 <td>
-                    <a th:href="@{/ChiTietLopHoc/{id}(id=${room.roomId})}" class="btn btn-info btn-sm">
+                    <a class="btn btn-info btn-sm" th:href="@{/ChiTietLopHoc/{id}(id=${room.roomId})}">
                         Xem Chi Tiết
                     </a>
                 </td>
                 <td>
-                    <a th:href="@{/GuiThongBao/{id}(id=${room.roomId})}" class="btn btn-warning btn-sm">
+                    <a class="btn btn-warning btn-sm" th:href="@{/GuiThongBao/{id}(id=${room.roomId})}">
                         Gửi Thông Báo
                     </a>
                 </td>

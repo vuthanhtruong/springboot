@@ -27,7 +27,11 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.WeekFields;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Controller
@@ -265,6 +269,16 @@ public class NhanVienPost {
 
         redirectAttributes.addFlashAttribute("successMessage", "Thêm giáo viên thành công!");
         return "redirect:/DanhSachGiaoVienCuaBan";
+    }
+
+    @PostMapping("/CapNhatSoSlot")
+    public String capNhatSoSlot(@RequestParam("roomId") String roomId, @RequestParam("slotQuantity") Integer slotQuantity) {
+        Room room = entityManager.find(Room.class, roomId);
+        if (room != null) {
+            room.setSlotQuantity(slotQuantity);
+            entityManager.merge(room);
+        }
+        return "redirect:/BoTriLopHoc";
     }
 
     @PostMapping("/ThemHocSinhCuaBan")
@@ -1038,5 +1052,396 @@ public class NhanVienPost {
         }
     }
 
+    @PostMapping("/LuuLichHoc")
+    public String luuLichHoc(
+            @RequestParam("slotId") Long slotId,
+            @RequestParam("day") String day,
+            @RequestParam("roomId") String roomId,
+            @RequestParam("year") Integer year,
+            @RequestParam("week") Integer week,
+            RedirectAttributes redirectAttributes) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName();
+
+        // Tìm Employee
+        Employees employee = entityManager.find(Employees.class, employeeId);
+        if (employee == null) {
+            redirectAttributes.addAttribute("error", "EmployeeNotFound");
+            return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+        }
+
+        // Tìm Slot
+        Slots slot = entityManager.find(Slots.class, slotId);
+        if (slot == null) {
+            redirectAttributes.addAttribute("error", "SlotNotFound");
+            return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+        }
+
+        // Tìm Room
+        Room room = entityManager.find(Room.class, roomId);
+        if (room == null) {
+            redirectAttributes.addAttribute("error", "RoomNotFound");
+            return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+        }
+
+        // Tính ngày bắt đầu (thứ Hai của tuần được chọn)
+        LocalDate firstDayOfYear = LocalDate.of(year, 1, 1);
+        LocalDate monday = firstDayOfYear.with(WeekFields.ISO.weekOfWeekBasedYear(), week)
+                .with(WeekFields.ISO.dayOfWeek(), 1); // Thứ Hai
+        LocalDate sunday = monday.plusDays(6); // Chủ Nhật
+
+        // Tính ngày cụ thể dựa trên day (MONDAY, TUESDAY, ...)
+        int dayOffset = Timetable.DayOfWeek.valueOf(day).ordinal();
+        LocalDate date = monday.plusDays(dayOffset);
+
+        // Kiểm tra xem lịch học đã tồn tại cho slot và ngày này chưa
+        List<Timetable> existingTimetables = entityManager.createQuery(
+                        "FROM Timetable t WHERE t.slot.slotId = :slotId AND t.dayOfWeek = :dayOfWeek AND t.date = :date",
+                        Timetable.class)
+                .setParameter("slotId", slotId)
+                .setParameter("dayOfWeek", Timetable.DayOfWeek.valueOf(day))
+                .setParameter("date", date)
+                .getResultList();
+
+        if (!existingTimetables.isEmpty()) {
+            redirectAttributes.addAttribute("error", "ScheduleExists");
+            return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+        }
+
+        // Kiểm tra xem phòng đã được sử dụng trong slot này chưa
+        List<Timetable> conflictingTimetables = entityManager.createQuery(
+                        "FROM Timetable t WHERE t.room.roomId = :roomId AND t.slot.slotId = :slotId AND t.date = :date",
+                        Timetable.class)
+                .setParameter("roomId", roomId)
+                .setParameter("slotId", slotId)
+                .setParameter("date", date)
+                .getResultList();
+
+        if (!conflictingTimetables.isEmpty()) {
+            redirectAttributes.addAttribute("error", "RoomAlreadyUsed");
+            return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+        }
+
+        // Đếm tổng số slot đã sử dụng cho phòng này
+        List<Timetable> roomTimetables = entityManager.createQuery(
+                        "FROM Timetable t WHERE t.room.roomId = :roomId",
+                        Timetable.class)
+                .setParameter("roomId", roomId)
+                .getResultList();
+
+        int usedSlots = roomTimetables.size();
+        int slotQuantity = room.getSlotQuantity() != null ? room.getSlotQuantity() : Integer.MAX_VALUE;
+
+        // Nếu đã đạt slotQuantity, xóa bớt slot cũ
+        if (usedSlots >= slotQuantity) {
+            // Sắp xếp theo ngày để xóa slot cũ nhất
+            roomTimetables.sort(Comparator.comparing(Timetable::getDate));
+            Timetable oldestTimetable = roomTimetables.get(0);
+            entityManager.remove(oldestTimetable);
+            usedSlots--; // Giảm số slot đã sử dụng
+        }
+
+        // Tạo lịch học cho tuần hiện tại
+        Timetable timetable = new Timetable();
+        timetable.setSlot(slot);
+        timetable.setDayOfWeek(Timetable.DayOfWeek.valueOf(day));
+        timetable.setDate(date);
+        timetable.setRoom(room);
+        timetable.setEditor(employee);
+        entityManager.persist(timetable);
+        usedSlots++; // Cập nhật số slot đã sử dụng
+
+        // Lấy tất cả lịch học của Room trong tuần hiện tại (bao gồm lịch vừa thêm)
+        List<Timetable> weeklyTimetables = entityManager.createQuery(
+                        "FROM Timetable t WHERE t.room.roomId = :roomId AND t.date BETWEEN :startDate AND :endDate",
+                        Timetable.class)
+                .setParameter("roomId", roomId)
+                .setParameter("startDate", monday)
+                .setParameter("endDate", sunday)
+                .getResultList();
+
+        // Tính số lần lặp tối đa dựa trên slotQuantity
+        int slotsPerWeek = weeklyTimetables.size();
+        if (slotsPerWeek == 0) {
+            slotsPerWeek = 1; // Đảm bảo không chia cho 0
+        }
+        int remainingSlots = slotQuantity - usedSlots;
+        int maxWeeksToRepeat = remainingSlots / slotsPerWeek; // Số tuần tối đa có thể lặp lại
+        int addedWeeks = 0; // Đếm số tuần đã thêm lịch
+
+        // Tự động lặp lại toàn bộ lịch học của Room cho các tuần tiếp theo
+        LocalDate currentMonday = monday;
+        for (int i = 0; i < maxWeeksToRepeat; i++) {
+            currentMonday = currentMonday.plusWeeks(1); // Tăng lên 1 tuần
+            LocalDate currentSunday = currentMonday.plusDays(6);
+
+            // Kiểm tra xem có lịch nào trong tuần này đã tồn tại cho Room chưa
+            List<Timetable> futureTimetables = entityManager.createQuery(
+                            "FROM Timetable t WHERE t.room.roomId = :roomId AND t.date BETWEEN :startDate AND :endDate",
+                            Timetable.class)
+                    .setParameter("roomId", roomId)
+                    .setParameter("startDate", currentMonday)
+                    .setParameter("endDate", currentSunday)
+                    .getResultList();
+
+            if (!futureTimetables.isEmpty()) {
+                continue; // Bỏ qua nếu đã có lịch trong tuần này
+            }
+
+            // Lặp lại tất cả các slot của tuần hiện tại
+            boolean canScheduleWeek = true;
+            for (Timetable weeklyTimetable : weeklyTimetables) {
+                LocalDate newDate = currentMonday.plusDays(weeklyTimetable.getDayOfWeek().ordinal());
+                Long weeklySlotId = weeklyTimetable.getSlot().getSlotId();
+
+                // Kiểm tra xem phòng đã được sử dụng trong slot này chưa
+                List<Timetable> futureConflictingTimetables = entityManager.createQuery(
+                                "FROM Timetable t WHERE t.room.roomId = :roomId AND t.slot.slotId = :slotId AND t.date = :date",
+                                Timetable.class)
+                        .setParameter("roomId", roomId)
+                        .setParameter("slotId", weeklySlotId)
+                        .setParameter("date", newDate)
+                        .getResultList();
+
+                if (!futureConflictingTimetables.isEmpty()) {
+                    canScheduleWeek = false;
+                    break; // Nếu có xung đột, bỏ qua tuần này
+                }
+            }
+
+            if (!canScheduleWeek) {
+                continue; // Bỏ qua tuần này nếu có xung đột
+            }
+
+            // Tạo lịch học cho tất cả slot trong tuần
+            for (Timetable weeklyTimetable : weeklyTimetables) {
+                LocalDate newDate = currentMonday.plusDays(weeklyTimetable.getDayOfWeek().ordinal());
+                Timetable futureTimetable = new Timetable();
+                futureTimetable.setSlot(weeklyTimetable.getSlot());
+                futureTimetable.setDayOfWeek(weeklyTimetable.getDayOfWeek());
+                futureTimetable.setDate(newDate);
+                futureTimetable.setRoom(room);
+                futureTimetable.setEditor(employee);
+                entityManager.persist(futureTimetable);
+                usedSlots++; // Cập nhật số slot đã sử dụng
+
+                // Nếu vượt quá slotQuantity, xóa slot cũ
+                if (usedSlots > slotQuantity) {
+                    roomTimetables = entityManager.createQuery(
+                                    "FROM Timetable t WHERE t.room.roomId = :roomId",
+                                    Timetable.class)
+                            .setParameter("roomId", roomId)
+                            .getResultList();
+                    roomTimetables.sort(Comparator.comparing(Timetable::getDate));
+                    Timetable oldestTimetable = roomTimetables.get(0);
+                    entityManager.remove(oldestTimetable);
+                    usedSlots--;
+                }
+            }
+
+            addedWeeks++; // Tăng số tuần đã thêm
+        }
+
+        redirectAttributes.addAttribute("success", "ScheduleSaved");
+        if (addedWeeks > 0) {
+            redirectAttributes.addAttribute("remainingSlots", addedWeeks);
+        }
+        return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+    }
+
+    @PostMapping("/LuuLichHocNhieuSlot")
+    @Transactional
+    public String luuLichHocNhieuSlot(
+            @RequestParam("roomId") String roomId,
+            @RequestParam("year") Integer year,
+            @RequestParam("week") Integer week,
+            @RequestParam Map<String, String> allParams, // Capture all checkbox values
+            RedirectAttributes redirectAttributes) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName();
+
+        try {
+            // Tìm Employee
+            Employees employee = entityManager.find(Employees.class, employeeId);
+            if (employee == null) {
+                redirectAttributes.addAttribute("error", "EmployeeNotFound");
+                return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+            }
+
+            // Tìm Room
+            Room room = entityManager.find(Room.class, roomId);
+            if (room == null) {
+                redirectAttributes.addAttribute("error", "RoomNotFound");
+                return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+            }
+
+            // Tính ngày bắt đầu của tuần đầu tiên
+            LocalDate firstDayOfYear = LocalDate.of(year, 1, 1);
+            LocalDate monday = firstDayOfYear.with(WeekFields.ISO.weekOfWeekBasedYear(), week)
+                    .with(WeekFields.ISO.dayOfWeek(), 1);
+
+            // Lấy tất cả các slot-day được chọn từ checkbox
+            List<Timetable> baseTimetables = new ArrayList<>();
+            for (String key : allParams.keySet()) {
+                if (key.startsWith("slotDay_")) {
+                    String[] parts = allParams.get(key).split(",");
+                    Long slotId = Long.parseLong(parts[0]);
+                    String day = parts[1];
+
+                    Slots slot = entityManager.find(Slots.class, slotId);
+                    if (slot == null) {
+                        continue; // Bỏ qua nếu slot không tồn tại
+                    }
+
+                    LocalDate date = monday.plusDays(Timetable.DayOfWeek.valueOf(day).ordinal());
+
+                    // Kiểm tra xung đột cho tuần đầu tiên
+                    List<Timetable> conflicts = entityManager.createQuery(
+                                    "FROM Timetable t WHERE t.room.roomId = :roomId AND t.slot.slotId = :slotId AND t.date = :date",
+                                    Timetable.class)
+                            .setParameter("roomId", roomId)
+                            .setParameter("slotId", slotId)
+                            .setParameter("date", date)
+                            .getResultList();
+
+                    if (!conflicts.isEmpty()) {
+                        continue; // Bỏ qua nếu có xung đột
+                    }
+
+                    // Tạo Timetable cho tuần đầu tiên
+                    Timetable timetable = new Timetable();
+                    timetable.setSlot(slot);
+                    timetable.setDayOfWeek(Timetable.DayOfWeek.valueOf(day));
+                    timetable.setDate(date);
+                    timetable.setRoom(room);
+                    timetable.setEditor(employee);
+                    baseTimetables.add(timetable);
+                }
+            }
+
+            // Kiểm tra slotQuantity
+            List<Timetable> roomTimetables = entityManager.createQuery(
+                            "FROM Timetable t WHERE t.room.roomId = :roomId",
+                            Timetable.class)
+                    .setParameter("roomId", roomId)
+                    .getResultList();
+
+            int usedSlots = roomTimetables.size();
+            int slotQuantity = room.getSlotQuantity() != null ? room.getSlotQuantity() : Integer.MAX_VALUE;
+            int slotsPerWeek = baseTimetables.size();
+
+            if (slotsPerWeek == 0) {
+                redirectAttributes.addAttribute("error", "NoSlotsSelected");
+                return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+            }
+
+            // Tính số tuần tối đa có thể lặp lại dựa trên slotQuantity
+            int remainingSlots = slotQuantity - usedSlots;
+            int maxWeeksToRepeat = slotsPerWeek > 0 ? (remainingSlots / slotsPerWeek) + 1 : 0; // +1 để tính cả tuần đầu
+            int addedWeeks = 0;
+            int totalSlotsAdded = 0;
+
+            // Lặp lại lịch học cho đến khi hết slotQuantity
+            LocalDate currentMonday = monday;
+            for (int i = 0; i < maxWeeksToRepeat && usedSlots < slotQuantity; i++) {
+                currentMonday = monday.plusWeeks(i); // Tuần hiện tại (bao gồm tuần đầu tiên khi i=0)
+                LocalDate currentSunday = currentMonday.plusDays(6);
+
+                // Kiểm tra xem tuần này đã có lịch nào cho room chưa
+                List<Timetable> existingWeekTimetables = entityManager.createQuery(
+                                "FROM Timetable t WHERE t.room.roomId = :roomId AND t.date BETWEEN :startDate AND :endDate",
+                                Timetable.class)
+                        .setParameter("roomId", roomId)
+                        .setParameter("startDate", currentMonday)
+                        .setParameter("endDate", currentSunday)
+                        .getResultList();
+
+                if (!existingWeekTimetables.isEmpty() && i > 0) { // Cho phép tuần đầu tiên dù có lịch
+                    continue; // Bỏ qua nếu tuần sau đã có lịch
+                }
+
+                // Kiểm tra xung đột cho toàn bộ tuần
+                boolean canScheduleWeek = true;
+                for (Timetable baseTimetable : baseTimetables) {
+                    LocalDate newDate = currentMonday.plusDays(baseTimetable.getDayOfWeek().ordinal());
+                    Long slotId = baseTimetable.getSlot().getSlotId();
+
+                    List<Timetable> conflicts = entityManager.createQuery(
+                                    "FROM Timetable t WHERE t.room.roomId = :roomId AND t.slot.slotId = :slotId AND t.date = :date",
+                                    Timetable.class)
+                            .setParameter("roomId", roomId)
+                            .setParameter("slotId", slotId)
+                            .setParameter("date", newDate)
+                            .getResultList();
+
+                    if (!conflicts.isEmpty()) {
+                        canScheduleWeek = false;
+                        break;
+                    }
+                }
+
+                if (!canScheduleWeek) {
+                    continue; // Bỏ qua tuần này nếu có xung đột
+                }
+
+                // Lưu lịch cho tuần hiện tại
+                for (Timetable baseTimetable : baseTimetables) {
+                    if (usedSlots >= slotQuantity) {
+                        break; // Dừng nếu đã hết slotQuantity
+                    }
+
+                    LocalDate newDate = currentMonday.plusDays(baseTimetable.getDayOfWeek().ordinal());
+                    Timetable newTimetable = new Timetable();
+                    newTimetable.setSlot(baseTimetable.getSlot());
+                    newTimetable.setDayOfWeek(baseTimetable.getDayOfWeek());
+                    newTimetable.setDate(newDate);
+                    newTimetable.setRoom(room);
+                    newTimetable.setEditor(employee);
+                    entityManager.persist(newTimetable);
+
+                    usedSlots++;
+                    totalSlotsAdded++;
+                }
+
+                if (i > 0) { // Không đếm tuần đầu tiên là tuần lặp lại
+                    addedWeeks++;
+                }
+            }
+
+            redirectAttributes.addAttribute("success", "ScheduleSaved");
+            redirectAttributes.addAttribute("slotsAdded", totalSlotsAdded);
+            if (addedWeeks > 0) {
+                redirectAttributes.addAttribute("weeksRepeated", addedWeeks);
+            }
+        } catch (Exception e) {
+            redirectAttributes.addAttribute("error", "SaveFailed");
+            e.printStackTrace();
+        }
+
+        return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+    }
+
+    @PostMapping("/XoaLichHoc")
+    @Transactional
+    public String xoaLichHoc(
+            @RequestParam("timetableId") Long timetableId,
+            @RequestParam("year") Integer year,
+            @RequestParam("week") Integer week,
+            RedirectAttributes redirectAttributes) {
+
+        // Tìm timetable cụ thể theo timetableId
+        Timetable timetable = entityManager.find(Timetable.class, timetableId);
+        if (timetable == null) {
+            redirectAttributes.addAttribute("error", "InvalidTimetable");
+            return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+        }
+
+        // Xóa chỉ timetable này
+        entityManager.remove(timetable);
+
+        redirectAttributes.addAttribute("success", "ScheduleDeleted");
+        return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+    }
 
 }

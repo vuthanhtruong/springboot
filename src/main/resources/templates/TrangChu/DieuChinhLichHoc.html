@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Điều Chỉnh Lịch Học</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .slot-header {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .schedule-cell {
+            min-height: 100px;
+            vertical-align: top;
+        }
+
+        .schedule-cell .room-info {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .week-header {
+            background-color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .filter-form {
+            margin-bottom: 20px;
+        }
+
+        .filter-form select {
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        .home-button {
+            margin-bottom: 20px;
+        }
+
+        .home-button a {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .home-button a:hover {
+            background-color: #45a049;
+        }
+
+        .delete-button {
+            color: red;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .delete-button:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+
+        .success-message {
+            color: green;
+            margin-top: 10px;
+        }
+
+        .submit-button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .submit-button:hover {
+            background-color: #45a049;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Điều Chỉnh Lịch Học</h1>
+</header>
+
+<nav class="home-button">
+    <a th:href="@{/TrangChuNhanVien}">Quay về trang chủ</a>
+</nav>
+
+<section class="messages">
+    <div class="error-message" th:if="${param.error}">
+        <p th:switch="${param.error}">
+            <span th:case="'InvalidSlotOrRoom'">Phòng hoặc slot không hợp lệ!</span>
+            <span th:case="'ScheduleExists'">Lịch học đã tồn tại cho slot và ngày này!</span>
+            <span th:case="'InvalidTimetable'">Không tìm thấy lịch học để xóa!</span>
+            <span th:case="'RoomAlreadyUsed'">Phòng đã được sử dụng trong slot này!</span>
+            <span th:case="'RoomSlotLimitReached'">Phòng đã đạt giới hạn số lượng slot trong ngày!</span>
+            <span th:case="'EmployeeNotFound'">Không tìm thấy nhân viên!</span>
+            <span th:case="'SlotNotFound'">Không tìm thấy slot!</span>
+            <span th:case="'RoomNotFound'">Không tìm thấy phòng!</span>
+            <span th:case="'InvalidDate'">Không thể xác định ngày cho lịch học!</span>
+            <span th:case="'SaveFailed'">Lưu lịch học thất bại!</span>
+        </p>
+    </div>
+    <div class="success-message" th:if="${param.success}">
+        <p th:text="${param.success == 'ScheduleSaved' ? 'Lịch học đã được lưu thành công!' : ''}"></p>
+        <p th:if="${param.success == 'ScheduleSaved' and param.slotsAdded != null}">
+            <span th:text="'Đã thêm ' + ${param.slotsAdded} + ' slot.'"></span>
+        </p>
+        <p th:if="${param.success == 'ScheduleSaved' and param.weeksRepeated != null}">
+            <span th:text="'Lịch đã được lặp lại cho ' + ${param.weeksRepeated} + ' tuần.'"></span>
+        </p>
+        <p th:text="${param.success == 'ScheduleDeleted' ? 'Lịch học đã được xóa thành công!' : ''}"></p>
+    </div>
+</section>
+
+<section class="filter-form">
+    <form method="get" th:action="@{/DieuChinhLichHoc}">
+        <label for="year">Chọn thời điểm:</label>
+        <select id="year" name="year" onchange="this.form.submit()">
+            <option th:each="year : ${years}"
+                    th:selected="${year == selectedYear}"
+                    th:text="'YEAR ' + ${year}"
+                    th:value="${year}">
+            </option>
+        </select>
+        <select id="week" name="week" onchange="this.form.submit()">
+            <option th:each="week : ${weeks}"
+                    th:selected="${week == selectedWeek}"
+                    th:text="'WEEK ' + ${week} + '/03'"
+                    th:value="${week}">
+            </option>
+        </select>
+    </form>
+</section>
+
+<section>
+    <p>
+        <span>Year: <span th:text="${selectedYear}"></span></span> |
+        <span>Week: <span th:text="${weekRange}"></span></span>
+    </p>
+</section>
+
+<section th:if="${timetables == null or timetables.isEmpty()}">
+    <p>Không có lịch học nào cho tuần này.</p>
+</section>
+
+<section>
+    <form method="post" th:action="@{/LuuLichHocNhieuSlot}">
+        <input name="year" th:value="${selectedYear}" type="hidden">
+        <input name="week" th:value="${selectedWeek}" type="hidden">
+
+        <table>
+            <thead>
+            <tr class="week-header">
+                <th></th>
+                <th th:each="date : ${weekDates}" th:text="${date}"></th>
+            </tr>
+            <tr>
+                <th></th>
+                <th th:each="day : ${daysOfWeek}" th:text="${day.substring(0, 3)}"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="slot : ${slots}">
+                <td class="slot-header"
+                    th:text="${slot.slotName} + ' (' + ${#temporals.format(slot.startTime, 'HH:mm')} + '-' + ${#temporals.format(slot.endTime, 'HH:mm')} + ')'">
+                </td>
+                <td class="schedule-cell" th:each="day : ${daysOfWeek}">
+                    <div th:with="foundTimetable=false">
+                        <div th:each="timetable : ${timetables}">
+                            <div th:if="${timetable.slot.slotId == slot.slotId and timetable.dayOfWeek.name() == day}">
+                                <div th:with="foundTimetable=true">
+                                    <div class="room-info">
+                                        <!-- Link đến chi tiết buổi học -->
+                                        <a style="color: #2980B9; text-decoration: none;"
+                                           th:href="@{/ChiTietBuoiHoc(timetableId=${timetable.timetableId})}"
+                                           th:text="'Phòng: ' + ${timetable.room.roomName}"></a>
+                                        <br>
+                                        <!-- Thông tin slot -->
+                                        <span th:text="'Slot: ' + ${timetable.slot.slotName}"></span>
+                                        <br>
+                                        <!-- Thời gian -->
+                                        <span th:text="'Thời gian: ' + ${#temporals.format(timetable.slot.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(timetable.slot.endTime, 'HH:mm')}"></span>
+                                        <br>
+                                        <!-- Ngày -->
+                                        <span th:text="'Ngày: ' + ${#temporals.format(timetable.date, 'dd/MM/yyyy')}"></span>
+                                        <br>
+                                        <!-- Form xóa lịch học -->
+                                        <form method="post" style="display:inline;" th:action="@{/XoaLichHoc}">
+                                            <input name="timetableId" th:value="${timetable.timetableId}" type="hidden">
+                                            <input name="year" th:value="${selectedYear}" type="hidden">
+                                            <input name="week" th:value="${selectedWeek}" type="hidden">
+                                            <button class="delete-button" type="submit">Xóa</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${not foundTimetable}">
+                            <input th:name="'slotDay_' + ${slot.slotId} + '_' + ${day}"
+                                   th:value="${slot.slotId} + ',' + ${day}"
+                                   type="checkbox">
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 20px;">
+            <label for="roomId">Chọn phòng:</label>
+            <select id="roomId" name="roomId" required>
+                <option value="">-- Chọn phòng --</option>
+                <option th:each="room : ${allRooms}" th:text="${room.roomName}" th:value="${room.roomId}"></option>
+            </select>
+            <button class="submit-button" type="submit">Lưu tất cả</button>
+        </div>
+    </form>
+</section>
+</body>
+</html>

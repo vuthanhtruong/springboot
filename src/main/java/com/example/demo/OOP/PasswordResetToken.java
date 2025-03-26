@@ -3,6 +3,8 @@ package com.example.demo.OOP;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -24,6 +26,7 @@ public class PasswordResetToken {
 
     @ManyToOne
     @JoinColumn(name = "person_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Person person;
 
     public boolean isExpired() {

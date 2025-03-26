@@ -28,6 +28,7 @@ public class Students extends Person {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AdminID", nullable = true) // Có thể NULL nếu không có Admin trực tiếp quản lý
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Admin admin;
 
     // Constructor có tham số

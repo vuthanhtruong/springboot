@@ -77,7 +77,8 @@ public class SecurityConfig {
                                         "/BangDieuKhienGiaoVien/**",
                                         "/TimKiemGiaoVienCuaBan",
                                         "/TimKiemHocSinhCuaBan",
-                                        "/DanhSachTimKiemPhongHoc"
+                                        "/DanhSachTimKiemPhongHoc",
+                                        "/DieuChinhLichHoc"
                                 ).hasRole("EMPLOYEE")
                                 .requestMatchers(HttpMethod.GET,
                                         "/TinNhanCuaBan",

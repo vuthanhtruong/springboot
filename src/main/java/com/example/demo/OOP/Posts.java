@@ -51,6 +51,7 @@ public class Posts {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Comments> comments = new ArrayList<>();
 
     public Posts(Person creator, String content, Room room, Events event) {
