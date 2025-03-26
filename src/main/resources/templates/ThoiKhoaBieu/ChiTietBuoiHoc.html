@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi Tiết Buổi Học</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .info-section {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .status-present {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .status-absent {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .status-late {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .status-unknown {
+            color: #7f8c8d;
+        }
+
+        .btn-back, .btn-save, .btn-attendance {
+            display: inline-block;
+            padding: 8px 16px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-back {
+            background-color: #7f8c8d;
+        }
+
+        .btn-back:hover {
+            background-color: #95a5a6;
+        }
+
+        .btn-save {
+            background-color: #3498db;
+        }
+
+        .btn-save:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-present {
+            background-color: #27ae60;
+        }
+
+        .btn-present:hover {
+            background-color: #219653;
+        }
+
+        .btn-absent {
+            background-color: #e74c3c;
+        }
+
+        .btn-absent:hover {
+            background-color: #c0392b;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+
+        .success-message {
+            color: #27ae60;
+            margin-top: 10px;
+        }
+
+        .attendance-status {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+<h1>Chi Tiết Buổi Học</h1>
+
+<!-- Thông báo lỗi hoặc thành công -->
+<div class="error-message" th:if="${param.error}">
+    <p th:text="${param.error == 'SaveFailed' ? 'Lưu điểm danh thất bại!' : 'Có lỗi xảy ra!'}"></p>
+</div>
+<div class="success-message" th:if="${param.success}">
+    <p th:text="${param.success == 'AttendanceSaved' ? 'Điểm danh đã được lưu thành công!' : ''}"></p>
+</div>
+
+<!-- Thông tin buổi học -->
+<div class="info-section">
+    <h2>Thông Tin Buổi Học</h2>
+    <p><strong>Giáo Viên của lớp:</strong>
+        <span th:if="${teacher != null}" th:text="${teacher.lastName + ' ' + teacher.firstName}"></span>
+        <span th:if="${teacher == null}" th:text="${errorMessage != null ? errorMessage : 'Không có giáo viên'}"></span>
+    </p>
+    <p><strong>Mã Phòng:</strong> <span th:text="${timetable.room.roomId}"></span></p>
+    <p><strong>Tên Phòng:</strong> <span th:text="${timetable.room.roomName}"></span></p>
+    <p><strong>Ngày:</strong> <span th:text="${#temporals.format(timetable.date, 'dd/MM/yyyy')}"></span></p>
+    <p><strong>Thứ:</strong> <span th:text="${timetable.dayOfWeek}"></span></p>
+    <p><strong>Thời Gian Bắt Đầu:</strong> <span
+            th:text="${#temporals.format(timetable.slot.startTime, 'HH:mm')}"></span></p>
+    <p><strong>Thời Gian Kết Thúc:</strong> <span
+            th:text="${#temporals.format(timetable.slot.endTime, 'HH:mm')}"></span></p>
+</div>
+
+<!-- Form điểm danh -->
+<h2>Danh Sách Học Sinh</h2>
+<form method="post" th:action="@{/DiemDanh}">
+    <input name="timetableId" th:value="${timetable.timetableId}" type="hidden">
+    <table>
+        <thead>
+        <tr>
+            <th>Mã Học Sinh</th>
+            <th>Họ</th>
+            <th>Tên</th>
+            <th>Trạng Thái Điểm Danh</th>
+            <th>Ghi Chú</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="student : ${students}">
+            <td th:text="${student.id}"></td>
+            <td th:text="${student.lastName}"></td>
+            <td th:text="${student.firstName}"></td>
+            <td>
+                <input th:id="'status_' + ${student.id}" th:name="'status_' + ${student.id}"
+                       th:value="${attendanceMap[student.id]?.status ?: 'Absent'}" type="hidden">
+                <button class="btn-attendance btn-present" th:attr="onclick=|setStatus('${student.id}', 'Present')|,
+                                 data-student-id=${student.id}"
+                        type="button">Có Mặt
+                </button>
+                <button class="btn-attendance btn-absent" th:attr="onclick=|setStatus('${student.id}', 'Absent')|,
+                                 data-student-id=${student.id}"
+                        type="button">Vắng Mặt
+                </button>
+                <span class="attendance-status"
+                      th:classappend="${attendanceMap[student.id]?.status == 'Present' ? 'status-present' : (attendanceMap[student.id]?.status == 'Absent' ? 'status-absent' : 'status-unknown')}"
+                      th:text="${attendanceMap[student.id]?.status == 'Present' ? 'Có Mặt' : (attendanceMap[student.id]?.status == 'Absent' ? 'Vắng Mặt' : 'Chưa Điểm Danh')}"></span>
+            </td>
+            <td>
+                <input th:name="'note_' + ${student.id}" th:value="${attendanceMap[student.id]?.note}" type="text">
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(students)}">
+            <td colspan="5" style="text-align: center;">Không có học sinh trong lớp này.</td>
+        </tr>
+        </tbody>
+    </table>
+    <button class="btn-save" type="submit">Lưu Điểm Danh</button>
+</form>
+
+<!-- Nút quay lại -->
+<a class="btn-back"
+   th:href="@{/DieuChinhLichHoc(year=${#temporals.format(timetable.date, 'yyyy')}, week=${weekNumber})}">Quay Lại Lịch
+    Học</a>
+
+<!-- JavaScript để cập nhật trạng thái -->
+<script>
+    function setStatus(studentId, status) {
+        const statusInput = document.getElementById('status_' + studentId);
+        statusInput.value = status;
+
+        const statusSpan = document.querySelector(`tr td span.attendance-status`);
+        if (statusSpan) {
+            statusSpan.textContent = status === 'Present' ? 'Có Mặt' : 'Vắng Mặt';
+            statusSpan.className = 'attendance-status ' + (status === 'Present' ? 'status-present' : 'status-absent');
+        } else {
+            const td = statusInput.parentElement;
+            const newSpan = document.createElement('span');
+            newSpan.className = 'attendance-status ' + (status === 'Present' ? 'status-present' : 'status-absent');
+            newSpan.textContent = status === 'Present' ? 'Có Mặt' : 'Vắng Mặt';
+            td.appendChild(newSpan);
+        }
+    }
+</script>
+</body>
+</html>

@@ -719,7 +719,7 @@ public class NhanVienPost {
 
     @PostMapping("/ThemGiaoVienVaoLop")
     @Transactional
-    public String ThemGiaoVienVaoLop(@RequestParam String roomId, @RequestParam List<String> teacherIds) {
+    public String ThemGiaoVienVaoLop(@RequestParam String roomId, @RequestParam(name = "teacherIds", required = false) List<String> teacherIds, RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
 
@@ -729,6 +729,16 @@ public class NhanVienPost {
         Room room = entityManager.find(Room.class, roomId);
         if (room == null) {
             throw new IllegalArgumentException("Không tìm thấy phòng với ID: " + roomId);
+        }
+
+        if (teacherIds == null || teacherIds.isEmpty()) {
+            redirectAttributes.addFlashAttribute("Note", "Vui lòng chọn ít nhất 1 giáo viên");
+            return "redirect:/ChiTietLopHoc/" + roomId;
+        }
+
+        if (teacherIds.size() > 1) {
+            redirectAttributes.addFlashAttribute("Note", "Chỉ được phép thêm duy nhất 1 giáo viên");
+            return "redirect:/ChiTietLopHoc/" + roomId;
         }
 
         for (String teacherId : teacherIds) {
@@ -787,13 +797,20 @@ public class NhanVienPost {
 
     @PostMapping("/ThemHocSinhVaoLop")
     @Transactional
-    public String ThemHocSinhVaoLop(@RequestParam String roomId, @RequestParam List<String> studentIds) {
+    public String ThemHocSinhVaoLop(@RequestParam String roomId, @RequestParam(name = "studentIds", required = false) List<String> studentIds, RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
 
         // Tìm Employee trong database bằng EntityManager
         Employees employee = entityManager.find(Employees.class, employeeId);
         // Tìm Room theo roomId
+
+        if (studentIds == null || studentIds.isEmpty()) {
+            redirectAttributes.addFlashAttribute("Note", "Vui lòng chọn 1 hoặc nhiều học sinh");
+            return "redirect:/ChiTietLopHoc/" + roomId;
+        }
+
+
         Room room = entityManager.find(Room.class, roomId);
         if (room == null) {
             throw new IllegalArgumentException("Không tìm thấy phòng với ID: " + roomId);
@@ -1444,4 +1461,102 @@ public class NhanVienPost {
         return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
     }
 
+    @PostMapping("/DiemDanh")
+    @Transactional
+    public String saveAttendance(
+            @RequestParam("timetableId") Long timetableId,
+            @RequestParam Map<String, String> allParams,
+            RedirectAttributes redirectAttributes) {
+
+        // Lấy thông tin người dùng đăng nhập
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        try {
+            // Tìm Timetable
+            Timetable timetable = entityManager.find(Timetable.class, timetableId);
+            if (timetable == null) {
+                redirectAttributes.addAttribute("error", "TimetableNotFound");
+                return "redirect:/ChiTietBuoiHoc?timetableId=" + timetableId;
+            }
+
+            // Lấy giáo viên từ ClassroomDetails
+            List<Teachers> teachers = entityManager.createQuery(
+                            "SELECT DISTINCT cd.member FROM ClassroomDetails cd WHERE cd.room.roomId = :roomId AND TYPE(cd.member) = Teachers",
+                            Teachers.class)
+                    .setParameter("roomId", timetable.getRoom().getRoomId())
+                    .getResultList();
+
+            Teachers teacher = teachers.isEmpty() ? null : teachers.get(0);
+            if (teacher == null) {
+                redirectAttributes.addAttribute("error", "TeacherNotFound");
+                return "redirect:/ChiTietBuoiHoc?timetableId=" + timetableId;
+            }
+
+            // Kiểm tra quyền của người dùng (Teachers hoặc Employees)
+            Teachers markingTeacher = entityManager.find(Teachers.class, userId);
+            Employees markingEmployee = entityManager.find(Employees.class, userId);
+            if (markingTeacher == null && markingEmployee == null) {
+                redirectAttributes.addAttribute("error", "UserNotFound");
+                return "redirect:/ChiTietBuoiHoc?timetableId=" + timetableId;
+            }
+
+            // Lấy danh sách học sinh trong phòng
+            List<Students> students = entityManager.createQuery(
+                            "SELECT DISTINCT cd.member FROM ClassroomDetails cd WHERE cd.room.roomId = :roomId AND TYPE(cd.member) = Students",
+                            Students.class)
+                    .setParameter("roomId", timetable.getRoom().getRoomId())
+                    .getResultList();
+
+            // Lấy danh sách điểm danh hiện tại để cập nhật hoặc xóa
+            List<Attendances> existingAttendances = entityManager.createQuery(
+                            "FROM Attendances a WHERE a.timetable.timetableId = :timetableId",
+                            Attendances.class)
+                    .setParameter("timetableId", timetableId)
+                    .getResultList();
+
+            // Xóa các bản ghi điểm danh cũ (ghi đè toàn bộ)
+            for (Attendances attendance : existingAttendances) {
+                entityManager.remove(attendance);
+            }
+
+            // Lưu điểm danh mới cho từng học sinh
+            for (Students student : students) {
+                String statusKey = "status_" + student.getId();
+                String noteKey = "note_" + student.getId();
+                String status = allParams.getOrDefault(statusKey, "Absent");
+                String note = allParams.get(noteKey);
+
+                // Nếu nhân viên điểm danh hộ, thêm ghi chú với tên nhân viên
+                if (markingEmployee != null) {
+                    String employeeName = markingEmployee.getLastName() + " " + markingEmployee.getFirstName(); // Giả sử có các trường này
+                    String employeeNote = "Nhân viên " + employeeName + " điểm danh hộ vì giáo viên quên điểm danh";
+                    if (note == null || note.trim().isEmpty()) {
+                        note = employeeNote; // Nếu không có ghi chú, dùng ghi chú của nhân viên
+                    } else {
+                        note = note + " - " + employeeNote; // Nếu đã có ghi chú, nối thêm
+                    }
+                }
+
+                // Tạo bản ghi Attendance mới
+                Attendances attendance = new Attendances(
+                        teacher, // Giáo viên từ ClassroomDetails
+                        student,
+                        timetable.getSlot(),
+                        status,
+                        note,
+                        LocalDateTime.now()
+                );
+                attendance.setTimetable(timetable);
+                entityManager.persist(attendance);
+            }
+
+            redirectAttributes.addAttribute("success", "AttendanceSaved");
+        } catch (Exception e) {
+            redirectAttributes.addAttribute("error", "SaveFailed");
+            e.printStackTrace();
+        }
+
+        return "redirect:/ChiTietBuoiHoc?timetableId=" + timetableId;
+    }
 }

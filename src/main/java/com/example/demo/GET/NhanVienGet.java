@@ -1050,42 +1050,51 @@ public class NhanVienGet {
 
     @GetMapping("/ChiTietBuoiHoc")
     public String chiTietBuoiHoc(@RequestParam("timetableId") Long timetableId, Model model) {
-        // Tìm Timetable theo timetableId
         Timetable timetable = entityManager.find(Timetable.class, timetableId);
         if (timetable == null) {
             return "redirect:/DieuChinhLichHoc?error=TimetableNotFound";
         }
+        if (timetable.getRoom() == null) {
+            return "redirect:/DieuChinhLichHoc?error=RoomNotFound";
+        }
 
-        // Lấy danh sách học sinh trong phòng (giả sử từ ClassroomDetails)
+        List<Teachers> teachers = entityManager.createQuery(
+                        "SELECT DISTINCT cd.member FROM ClassroomDetails cd WHERE cd.room.roomId = :roomId AND TYPE(cd.member) = Teachers",
+                        Teachers.class)
+                .setParameter("roomId", timetable.getRoom().getRoomId())
+                .getResultList();
+
         List<Students> students = entityManager.createQuery(
-                        "SELECT DISTINCT cd.member FROM ClassroomDetails cd WHERE cd.room.roomId = :roomId AND cd.member.class = Students",
+                        "SELECT DISTINCT cd.member FROM ClassroomDetails cd WHERE cd.room.roomId = :roomId AND TYPE(cd.member) = Students",
                         Students.class)
                 .setParameter("roomId", timetable.getRoom().getRoomId())
                 .getResultList();
 
-        // Lấy danh sách điểm danh hiện tại (nếu có)
         List<Attendances> existingAttendances = entityManager.createQuery(
                         "FROM Attendances a WHERE a.timetable.timetableId = :timetableId",
                         Attendances.class)
                 .setParameter("timetableId", timetableId)
                 .getResultList();
 
-        // Tạo Map thủ công thay vì dùng Stream
         Map<String, Attendances> attendanceMap = new HashMap<>();
         for (Attendances attendance : existingAttendances) {
-            // Giả định rằng Attendances có một phương thức để lấy Students, ví dụ: getStudent()
-            // Nếu tên phương thức khác, hãy thay thế bằng tên thực tế trong entity của bạn
-            Students student = attendance.getStudent(); // Điều chỉnh nếu cần
+            Students student = attendance.getStudent();
             if (student != null) {
                 attendanceMap.put(student.getId(), attendance);
             }
         }
 
-        // Thêm dữ liệu vào model
+        // Đảm bảo teacher không null hoặc xử lý trường hợp rỗng
+        Teachers teacher = !teachers.isEmpty() ? teachers.get(0) : null;
+        if (teacher == null) {
+            model.addAttribute("errorMessage", "Không tìm thấy giáo viên cho buổi học này.");
+        }
+
+        model.addAttribute("teacher", teacher);
         model.addAttribute("timetable", timetable);
         model.addAttribute("students", students);
         model.addAttribute("attendanceMap", attendanceMap);
 
-        return "ChiTietBuoiHoc"; // Trả về template ChiTietBuoiHoc.html
+        return "ChiTietBuoiHoc";
     }
 }

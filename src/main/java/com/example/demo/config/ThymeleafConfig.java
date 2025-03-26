@@ -84,4 +84,15 @@ public class ThymeleafConfig {
         return resolver;
     }
 
+    @Bean
+    public SpringResourceTemplateResolver templateResolver8() {
+        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+        resolver.setPrefix("classpath:/templates/ThoiKhoaBieu/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode("HTML");
+        resolver.setOrder(8);
+        resolver.setCheckExistence(true);
+        return resolver;
+    }
+
 }
