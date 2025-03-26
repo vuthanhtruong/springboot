@@ -13,6 +13,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -1047,4 +1048,44 @@ public class NhanVienGet {
         return "DieuChinhLichHoc";
     }
 
+    @GetMapping("/ChiTietBuoiHoc")
+    public String chiTietBuoiHoc(@RequestParam("timetableId") Long timetableId, Model model) {
+        // Tìm Timetable theo timetableId
+        Timetable timetable = entityManager.find(Timetable.class, timetableId);
+        if (timetable == null) {
+            return "redirect:/DieuChinhLichHoc?error=TimetableNotFound";
+        }
+
+        // Lấy danh sách học sinh trong phòng (giả sử từ ClassroomDetails)
+        List<Students> students = entityManager.createQuery(
+                        "SELECT DISTINCT cd.member FROM ClassroomDetails cd WHERE cd.room.roomId = :roomId AND cd.member.class = Students",
+                        Students.class)
+                .setParameter("roomId", timetable.getRoom().getRoomId())
+                .getResultList();
+
+        // Lấy danh sách điểm danh hiện tại (nếu có)
+        List<Attendances> existingAttendances = entityManager.createQuery(
+                        "FROM Attendances a WHERE a.timetable.timetableId = :timetableId",
+                        Attendances.class)
+                .setParameter("timetableId", timetableId)
+                .getResultList();
+
+        // Tạo Map thủ công thay vì dùng Stream
+        Map<String, Attendances> attendanceMap = new HashMap<>();
+        for (Attendances attendance : existingAttendances) {
+            // Giả định rằng Attendances có một phương thức để lấy Students, ví dụ: getStudent()
+            // Nếu tên phương thức khác, hãy thay thế bằng tên thực tế trong entity của bạn
+            Students student = attendance.getStudent(); // Điều chỉnh nếu cần
+            if (student != null) {
+                attendanceMap.put(student.getId(), attendance);
+            }
+        }
+
+        // Thêm dữ liệu vào model
+        model.addAttribute("timetable", timetable);
+        model.addAttribute("students", students);
+        model.addAttribute("attendanceMap", attendanceMap);
+
+        return "ChiTietBuoiHoc"; // Trả về template ChiTietBuoiHoc.html
+    }
 }
