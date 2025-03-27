@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -599,44 +601,56 @@ public class NhanVienPost {
     }
 
     @PostMapping("/ThemPhongHocOnline")
+    @Transactional
     public String LuuPhongHocOnline(
             @RequestParam("roomId") String roomId,
             @RequestParam("roomName") String roomName,
             RedirectAttributes redirectAttributes) {
 
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName();
         Person person = entityManager.find(Person.class, employeeId);
-        Employees employee = (Employees) person;
+        if (!(person instanceof Employees employee)) {
+            redirectAttributes.addFlashAttribute("error", "Bạn không có quyền thêm phòng học.");
+            return "redirect:/ThemPhongHocOnline";
+        }
 
-        // Kiểm tra ID phòng đã tồn tại chưa
+        // Kiểm tra ID phòng
         OnlineRooms existingRoomById = entityManager.find(OnlineRooms.class, roomId);
         if (existingRoomById != null) {
             redirectAttributes.addFlashAttribute("error", "ID phòng học đã tồn tại.");
             return "redirect:/ThemPhongHocOnline";
         }
 
-        // Kiểm tra tên phòng đã tồn tại chưa
+        // Kiểm tra tên phòng
         TypedQuery<OnlineRooms> query = entityManager.createQuery(
                 "SELECT r FROM OnlineRooms r WHERE r.roomName = :roomName", OnlineRooms.class);
         query.setParameter("roomName", roomName);
-        List<OnlineRooms> existingRoomsByName = query.getResultList();
-        if (!existingRoomsByName.isEmpty()) {
+        if (!query.getResultList().isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Tên phòng học đã tồn tại.");
             return "redirect:/ThemPhongHocOnline";
         }
 
-        // Tạo phòng học online mới
+        // Tạo link Google Meet
+        String meetLink;
+        try {
+            GoogleCalendarService calendarService = new GoogleCalendarService();
+            meetLink = calendarService.createGoogleMeetLink(roomName, LocalDateTime.now());
+        } catch (IOException | GeneralSecurityException e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi tạo link Google Meet: " + e.getMessage());
+            return "redirect:/ThemPhongHocOnline";
+        }
+
+        // Tạo và lưu phòng học
         OnlineRooms newRoom = new OnlineRooms();
         newRoom.setRoomId(roomId);
         newRoom.setRoomName(roomName);
         newRoom.setEmployee(employee);
         newRoom.setCreatedAt(LocalDateTime.now());
+        newRoom.setLink(meetLink);
 
-        // Lưu vào database
         entityManager.persist(newRoom);
-        redirectAttributes.addFlashAttribute("success", "Thêm phòng học thành công.");
+        redirectAttributes.addFlashAttribute("success", "Thêm phòng học thành công với link: " + meetLink);
 
         return "redirect:/DanhSachPhongHoc";
     }
