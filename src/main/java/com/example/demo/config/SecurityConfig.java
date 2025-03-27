@@ -78,17 +78,28 @@ public class SecurityConfig {
                                         "/TimKiemGiaoVienCuaBan",
                                         "/TimKiemHocSinhCuaBan",
                                         "/DanhSachTimKiemPhongHoc",
-                                        "/DieuChinhLichHoc"
+                                        "/ThoiKhoaBieu",
+                                        "/LuuLichHocNhieuSlot",
+                                        "/LuuLichHoc",
+                                        "/XoaLichHoc"
                                 ).hasRole("EMPLOYEE")
                                 .requestMatchers(HttpMethod.GET,
                                         "/TinNhanCuaBan",
                                         "/ChiTietTinNhan/**",
                                         "/XoaKhuonMat",
-                                        "/XoaGiongNoi"
+                                        "/XoaGiongNoi",
+                                        "/ChiTietBuoiHoc"
                                 ).hasAnyRole("TEACHER", "STUDENT", "ADMIN", "EMPLOYEE")
                                 .requestMatchers(HttpMethod.POST, "/BaiPost",
                                         "/BinhLuan", "/register-face", "/XoaKhuonMat", "/DangKyKhuonMat", "/DangKyGiongNoi", "/LuuThongTinCaNhan")
                                 .hasAnyRole("TEACHER", "STUDENT", "ADMIN", "EMPLOYEE")
+
+                                .requestMatchers(HttpMethod.POST, "/DiemDanh")
+                                .hasAnyRole("TEACHER", "EMPLOYEE")
+                                .requestMatchers(HttpMethod.GET, "/ThoiKhoaBieuNguoiDung")
+                                .hasAnyRole("TEACHER", "STUDENT")
+
+
                                 .requestMatchers(HttpMethod.GET,
 
                                         "/TrangChuGiaoVien",

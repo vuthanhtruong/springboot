@@ -963,7 +963,7 @@ public class NhanVienGet {
         return "redirect:/DanhSachPhongHoc"; // Chuyển hướng về danh sách phòng
     }
 
-    @GetMapping("/DieuChinhLichHoc")
+    @GetMapping("/ThoiKhoaBieu")
     public String DieuChinhLichHoc(
             @RequestParam(value = "year", required = false) Integer year,
             @RequestParam(value = "week", required = false) Integer week,
@@ -1052,10 +1052,10 @@ public class NhanVienGet {
     public String chiTietBuoiHoc(@RequestParam("timetableId") Long timetableId, Model model) {
         Timetable timetable = entityManager.find(Timetable.class, timetableId);
         if (timetable == null) {
-            return "redirect:/DieuChinhLichHoc?error=TimetableNotFound";
+            return "redirect:/ThoiKhoaBieu?error=TimetableNotFound";
         }
         if (timetable.getRoom() == null) {
-            return "redirect:/DieuChinhLichHoc?error=RoomNotFound";
+            return "redirect:/ThoiKhoaBieu?error=RoomNotFound";
         }
 
         List<Teachers> teachers = entityManager.createQuery(
@@ -1090,10 +1090,36 @@ public class NhanVienGet {
             model.addAttribute("errorMessage", "Không tìm thấy giáo viên cho buổi học này.");
         }
 
+        // Kiểm tra vai trò người dùng
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isStudent = false;
+        boolean isTeacher = false;
+        boolean isEmployee = false;
+
+        if (authentication != null) {
+            isStudent = authentication.getAuthorities().stream()
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_STUDENT"));
+            isTeacher = authentication.getAuthorities().stream()
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_TEACHER"));
+            isEmployee = authentication.getAuthorities().stream()
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_EMPLOYEE"));
+        }
+
+        // Xác định đường dẫn "Quay lại" dựa trên vai trò
+        String backUrl;
+        if (isStudent || isTeacher) {
+            backUrl = "/ThoiKhoaBieuNguoiDung";
+        } else {
+            backUrl = "/ThoiKhoaBieu"; // Mặc định cho nhân viên hoặc trường hợp không xác định
+        }
+
+        // Thêm các thuộc tính vào model
         model.addAttribute("teacher", teacher);
         model.addAttribute("timetable", timetable);
         model.addAttribute("students", students);
         model.addAttribute("attendanceMap", attendanceMap);
+        model.addAttribute("isStudent", isStudent); // Để kiểm soát giao diện điểm danh
+        model.addAttribute("backUrl", backUrl); // Lưu đường dẫn "Quay lại"
 
         return "ChiTietBuoiHoc";
     }

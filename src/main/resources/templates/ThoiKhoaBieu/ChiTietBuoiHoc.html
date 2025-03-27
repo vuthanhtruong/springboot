@@ -152,9 +152,9 @@
             th:text="${#temporals.format(timetable.slot.endTime, 'HH:mm')}"></span></p>
 </div>
 
-<!-- Form điểm danh -->
+<!-- Danh sách học sinh -->
 <h2>Danh Sách Học Sinh</h2>
-<form method="post" th:action="@{/DiemDanh}">
+<form method="post" th:action="@{/DiemDanh}" th:if="${!isStudent}">
     <input name="timetableId" th:value="${timetable.timetableId}" type="hidden">
     <table>
         <thead>
@@ -172,22 +172,31 @@
             <td th:text="${student.lastName}"></td>
             <td th:text="${student.firstName}"></td>
             <td>
-                <input th:id="'status_' + ${student.id}" th:name="'status_' + ${student.id}"
-                       th:value="${attendanceMap[student.id]?.status ?: 'Absent'}" type="hidden">
-                <button class="btn-attendance btn-present" th:attr="onclick=|setStatus('${student.id}', 'Present')|,
-                                 data-student-id=${student.id}"
-                        type="button">Có Mặt
-                </button>
-                <button class="btn-attendance btn-absent" th:attr="onclick=|setStatus('${student.id}', 'Absent')|,
-                                 data-student-id=${student.id}"
-                        type="button">Vắng Mặt
-                </button>
+                <!-- Chỉ hiển thị nút điểm danh nếu không phải học sinh -->
+                <div th:if="${!isStudent}">
+                    <input th:id="'status_' + ${student.id}" th:name="'status_' + ${student.id}"
+                           th:value="${attendanceMap[student.id]?.status ?: 'Absent'}" type="hidden">
+                    <button class="btn-attendance btn-present" th:attr="onclick=|setStatus('${student.id}', 'Present')|,
+                                     data-student-id=${student.id}"
+                            type="button">Có Mặt
+                    </button>
+                    <button class="btn-attendance btn-absent" th:attr="onclick=|setStatus('${student.id}', 'Absent')|,
+                                     data-student-id=${student.id}"
+                            type="button">Vắng Mặt
+                    </button>
+                </div>
+                <!-- Trạng thái hiển thị cho tất cả -->
                 <span class="attendance-status"
                       th:classappend="${attendanceMap[student.id]?.status == 'Present' ? 'status-present' : (attendanceMap[student.id]?.status == 'Absent' ? 'status-absent' : 'status-unknown')}"
                       th:text="${attendanceMap[student.id]?.status == 'Present' ? 'Có Mặt' : (attendanceMap[student.id]?.status == 'Absent' ? 'Vắng Mặt' : 'Chưa Điểm Danh')}"></span>
             </td>
             <td>
-                <input th:name="'note_' + ${student.id}" th:value="${attendanceMap[student.id]?.note}" type="text">
+                <!-- Chỉ hiển thị input ghi chú nếu không phải học sinh -->
+                <input th:if="${!isStudent}" th:name="'note_' + ${student.id}"
+                       th:value="${attendanceMap[student.id]?.note}"
+                       type="text">
+                <!-- Hiển thị ghi chú readonly cho học sinh -->
+                <span th:if="${isStudent}" th:text="${attendanceMap[student.id]?.note ?: ''}"></span>
             </td>
         </tr>
         <tr th:if="${#lists.isEmpty(students)}">
@@ -195,30 +204,60 @@
         </tr>
         </tbody>
     </table>
-    <button class="btn-save" type="submit">Lưu Điểm Danh</button>
+    <!-- Nút Lưu chỉ hiển thị nếu không phải học sinh -->
+    <button class="btn-save" th:if="${!isStudent}" type="submit">Lưu Điểm Danh</button>
 </form>
 
+<!-- Trường hợp là học sinh, chỉ hiển thị bảng mà không có form -->
+<div th:if="${isStudent}">
+    <table>
+        <thead>
+        <tr>
+            <th>Mã Học Sinh</th>
+            <th>Họ</th>
+            <th>Tên</th>
+            <th>Trạng Thái Điểm Danh</th>
+            <th>Ghi Chú</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="student : ${students}">
+            <td th:text="${student.id}"></td>
+            <td th:text="${student.lastName}"></td>
+            <td th:text="${student.firstName}"></td>
+            <td>
+                <span class="attendance-status"
+                      th:classappend="${attendanceMap[student.id]?.status == 'Present' ? 'status-present' : (attendanceMap[student.id]?.status == 'Absent' ? 'status-absent' : 'status-unknown')}"
+                      th:text="${attendanceMap[student.id]?.status == 'Present' ? 'Có Mặt' : (attendanceMap[student.id]?.status == 'Absent' ? 'Vắng Mặt' : 'Chưa Điểm Danh')}"></span>
+            </td>
+            <td>
+                <span th:text="${attendanceMap[student.id]?.note ?: ''}"></span>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(students)}">
+            <td colspan="5" style="text-align: center;">Không có học sinh trong lớp này.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
 <!-- Nút quay lại -->
-<a class="btn-back"
-   th:href="@{/DieuChinhLichHoc(year=${#temporals.format(timetable.date, 'yyyy')}, week=${weekNumber})}">Quay Lại Lịch
-    Học</a>
+<!-- Nút quay lại -->
+<a class="btn-back" th:href="@{${backUrl}(year=${#temporals.format(timetable.date, 'yyyy')}, week=${weekNumber})}">Quay
+    Lại Lịch Học</a>
 
 <!-- JavaScript để cập nhật trạng thái -->
 <script>
     function setStatus(studentId, status) {
         const statusInput = document.getElementById('status_' + studentId);
-        statusInput.value = status;
+        if (statusInput) {
+            statusInput.value = status;
 
-        const statusSpan = document.querySelector(`tr td span.attendance-status`);
-        if (statusSpan) {
-            statusSpan.textContent = status === 'Present' ? 'Có Mặt' : 'Vắng Mặt';
-            statusSpan.className = 'attendance-status ' + (status === 'Present' ? 'status-present' : 'status-absent');
-        } else {
-            const td = statusInput.parentElement;
-            const newSpan = document.createElement('span');
-            newSpan.className = 'attendance-status ' + (status === 'Present' ? 'status-present' : 'status-absent');
-            newSpan.textContent = status === 'Present' ? 'Có Mặt' : 'Vắng Mặt';
-            td.appendChild(newSpan);
+            const statusSpan = statusInput.parentElement.querySelector('.attendance-status');
+            if (statusSpan) {
+                statusSpan.textContent = status === 'Present' ? 'Có Mặt' : 'Vắng Mặt';
+                statusSpan.className = 'attendance-status ' + (status === 'Present' ? 'status-present' : 'status-absent');
+            }
         }
     }
 </script>

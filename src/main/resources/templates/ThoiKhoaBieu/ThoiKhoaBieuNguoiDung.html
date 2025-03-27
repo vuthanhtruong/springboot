@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Thời Khóa Biểu Của Tôi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .slot-header {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .schedule-cell {
+            min-height: 100px;
+            vertical-align: top;
+        }
+
+        .schedule-cell .room-info {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .week-header {
+            background-color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .filter-form {
+            margin-bottom: 20px;
+        }
+
+        .filter-form select {
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        .home-button {
+            margin-bottom: 20px;
+        }
+
+        .home-button a {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .home-button a:hover {
+            background-color: #45a049;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Thời Khóa Biểu Của <span th:text="${userType == 'Teacher' ? 'Giáo Viên' : 'Học Sinh'}"></span> <span
+            th:text="${userName}"></span></h1>
+</header>
+
+<nav class="home-button">
+    <a th:href="@{/TrangChuGiaoVien}">Quay về trang chủ</a>
+</nav>
+
+<section class="filter-form">
+    <form method="get" th:action="@{/ThoiKhoaBieuNguoiDung}">
+        <label for="year">Chọn thời điểm:</label>
+        <select id="year" name="year" onchange="this.form.submit()">
+            <option th:each="y : ${#numbers.sequence(selectedYear - 5, selectedYear + 5)}"
+                    th:selected="${y == selectedYear}"
+                    th:text="'YEAR ' + ${y}"
+                    th:value="${y}"></option>
+        </select>
+        <select id="week" name="week" onchange="this.form.submit()">
+            <option th:each="w : ${#numbers.sequence(1, 52)}"
+                    th:selected="${w == selectedWeek}"
+                    th:text="'WEEK ' + ${w} + '/03'"
+                    th:value="${w}"></option>
+        </select>
+    </form>
+</section>
+
+<section>
+    <p>
+        <span>Year: <span th:text="${selectedYear}"></span></span> |
+        <span>Week: <span th:text="${weekRange}"></span></span>
+    </p>
+</section>
+
+<section th:if="${timetables == null or timetables.isEmpty()}">
+    <p>Không có lịch học nào cho tuần này.</p>
+</section>
+
+<section>
+    <table>
+        <thead>
+        <tr class="week-header">
+            <th></th>
+            <th th:each="date : ${weekDates}" th:text="${#temporals.format(date, 'dd/MM/yyyy')}"></th>
+        </tr>
+        <tr>
+            <th></th>
+            <th th:each="day : ${daysOfWeek}" th:text="${day.substring(0, 3)}"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="slot : ${slots}">
+            <td class="slot-header"
+                th:text="${slot.slotName} + ' (' + ${#temporals.format(slot.startTime, 'HH:mm')} + '-' + ${#temporals.format(slot.endTime, 'HH:mm')} + ')'">
+            </td>
+            <td class="schedule-cell" th:each="day : ${daysOfWeek}">
+                <div th:each="timetable : ${timetables}">
+                    <div th:if="${timetable.slot.slotId == slot.slotId and timetable.dayOfWeek.name() == day}">
+                        <div class="room-info">
+                            <a style="color: #2980B9; text-decoration: none;"
+                               th:href="@{/ChiTietBuoiHoc(timetableId=${timetable.timetableId})}"
+                               th:text="'Phòng: ' + ${timetable.room.roomName}"></a>
+                            <br>
+                            <span th:text="'Slot: ' + ${timetable.slot.slotName}"></span>
+                            <br>
+                            <span th:text="'Thời gian: ' + ${#temporals.format(timetable.slot.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(timetable.slot.endTime, 'HH:mm')}"></span>
+                            <br>
+                            <span th:text="'Ngày: ' + ${#temporals.format(timetable.date, 'dd/MM/yyyy')}"></span>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>

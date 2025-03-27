@@ -151,7 +151,7 @@
 </section>
 
 <section class="filter-form">
-    <form method="get" th:action="@{/DieuChinhLichHoc}">
+    <form method="get" th:action="@{/ThoiKhoaBieu}">
         <label for="year">Chọn thời điểm:</label>
         <select id="year" name="year" onchange="this.form.submit()">
             <option th:each="year : ${years}"

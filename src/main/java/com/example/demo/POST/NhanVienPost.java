@@ -1359,6 +1359,9 @@ public class NhanVienPost {
             int addedWeeks = 0;
             int totalSlotsAdded = 0;
 
+            // Danh sách để tính startTime và endTime
+            List<Timetable> allNewTimetables = new ArrayList<>(baseTimetables);
+
             // Lặp lại lịch học cho đến khi hết slotQuantity
             LocalDate currentMonday = monday;
             for (int i = 0; i < maxWeeksToRepeat && usedSlots < slotQuantity; i++) {
@@ -1419,11 +1422,37 @@ public class NhanVienPost {
 
                     usedSlots++;
                     totalSlotsAdded++;
+                    allNewTimetables.add(newTimetable); // Thêm vào danh sách để tính startTime/endTime
                 }
 
                 if (i > 0) { // Không đếm tuần đầu tiên là tuần lặp lại
                     addedWeeks++;
                 }
+            }
+
+            // Cập nhật startTime và endTime cho Room
+            if (!allNewTimetables.isEmpty()) {
+                // Sắp xếp danh sách Timetable theo ngày và slot để tìm slot đầu tiên và cuối cùng
+                allNewTimetables.sort((t1, t2) -> {
+                    int dateCompare = t1.getDate().compareTo(t2.getDate());
+                    if (dateCompare != 0) {
+                        return dateCompare;
+                    }
+                    return t1.getSlot().getStartTime().compareTo(t2.getSlot().getStartTime());
+                });
+
+                // Slot đầu tiên (sớm nhất)
+                Timetable firstTimetable = allNewTimetables.get(0);
+                LocalDateTime startTime = LocalDateTime.of(firstTimetable.getDate(), firstTimetable.getSlot().getStartTime());
+                room.setStartTime(startTime);
+
+                // Slot cuối cùng (muộn nhất)
+                Timetable lastTimetable = allNewTimetables.get(allNewTimetables.size() - 1);
+                LocalDateTime endTime = LocalDateTime.of(lastTimetable.getDate(), lastTimetable.getSlot().getEndTime());
+                room.setEndTime(endTime);
+
+                // Cập nhật Room vào database
+                entityManager.merge(room);
             }
 
             redirectAttributes.addAttribute("success", "ScheduleSaved");
@@ -1436,7 +1465,7 @@ public class NhanVienPost {
             e.printStackTrace();
         }
 
-        return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+        return "redirect:/ThoiKhoaBieu?year=" + year + "&week=" + week;
     }
 
     @PostMapping("/XoaLichHoc")
@@ -1451,14 +1480,54 @@ public class NhanVienPost {
         Timetable timetable = entityManager.find(Timetable.class, timetableId);
         if (timetable == null) {
             redirectAttributes.addAttribute("error", "InvalidTimetable");
-            return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+            return "redirect:/ThoiKhoaBieu?year=" + year + "&week=" + week;
         }
 
-        // Xóa chỉ timetable này
+        // Lấy Room trước khi xóa timetable
+        Room room = timetable.getRoom();
+        String roomId = room.getRoomId();
+
+        // Xóa timetable
         entityManager.remove(timetable);
 
+        // Lấy tất cả các timetable còn lại của Room
+        List<Timetable> remainingTimetables = entityManager.createQuery(
+                        "FROM Timetable t WHERE t.room.roomId = :roomId",
+                        Timetable.class)
+                .setParameter("roomId", roomId)
+                .getResultList();
+
+        // Cập nhật startTime và endTime của Room
+        if (remainingTimetables.isEmpty()) {
+            // Nếu không còn timetable nào, đặt startTime và endTime về null
+            room.setStartTime(null);
+            room.setEndTime(null);
+        } else {
+            // Sắp xếp danh sách Timetable theo ngày và slot để tìm slot đầu tiên và cuối cùng
+            remainingTimetables.sort((t1, t2) -> {
+                int dateCompare = t1.getDate().compareTo(t2.getDate());
+                if (dateCompare != 0) {
+                    return dateCompare;
+                }
+                return t1.getSlot().getStartTime().compareTo(t2.getSlot().getStartTime());
+            });
+
+            // Slot đầu tiên (sớm nhất)
+            Timetable firstTimetable = remainingTimetables.get(0);
+            LocalDateTime startTime = LocalDateTime.of(firstTimetable.getDate(), firstTimetable.getSlot().getStartTime());
+            room.setStartTime(startTime);
+
+            // Slot cuối cùng (muộn nhất)
+            Timetable lastTimetable = remainingTimetables.get(remainingTimetables.size() - 1);
+            LocalDateTime endTime = LocalDateTime.of(lastTimetable.getDate(), lastTimetable.getSlot().getEndTime());
+            room.setEndTime(endTime);
+        }
+
+        // Cập nhật Room vào database
+        entityManager.merge(room);
+
         redirectAttributes.addAttribute("success", "ScheduleDeleted");
-        return "redirect:/DieuChinhLichHoc?year=" + year + "&week=" + week;
+        return "redirect:/ThoiKhoaBieu?year=" + year + "&week=" + week;
     }
 
     @PostMapping("/DiemDanh")
