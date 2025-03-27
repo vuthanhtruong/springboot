@@ -1,6 +1,6 @@
 package com.example.demo.UserDetailsService;
 
-import com.example.demo.OOP.Teachers;
+import com.example.demo.ModelOOP.Teachers;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

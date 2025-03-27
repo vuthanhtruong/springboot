@@ -1,6 +1,6 @@
 package com.example.demo.UserDetailsService;
 
-import com.example.demo.OOP.Admin;
+import com.example.demo.ModelOOP.Admin;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

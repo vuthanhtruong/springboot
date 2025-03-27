@@ -1,7 +1,7 @@
 package com.example.demo.config;
 
-import com.example.demo.FaceController.FaceRecognitionService;
-import com.example.demo.OOP.Person;
+import com.example.demo.ControllerFace.FaceRecognitionService;
+import com.example.demo.ModelOOP.Person;
 import com.example.demo.UserDetailsService.AdminUserDetailsService;
 import com.example.demo.UserDetailsService.EmployeeUserDetailsService;
 import com.example.demo.UserDetailsService.StudentUserDetailsService;

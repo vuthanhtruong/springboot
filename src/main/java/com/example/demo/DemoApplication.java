@@ -1,8 +1,8 @@
 package com.example.demo;
 
-import com.example.demo.OOP.Admin;
-import com.example.demo.OOP.Events;
-import com.example.demo.OOP.Slots;
+import com.example.demo.ModelOOP.Admin;
+import com.example.demo.ModelOOP.Events;
+import com.example.demo.ModelOOP.Slots;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;
