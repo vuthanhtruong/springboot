@@ -136,6 +136,7 @@
             <span th:case="'RoomNotFound'">Không tìm thấy phòng!</span>
             <span th:case="'InvalidDate'">Không thể xác định ngày cho lịch học!</span>
             <span th:case="'SaveFailed'">Lưu lịch học thất bại!</span>
+            <span th:case="'SlotAlreadyUsedByAnotherRoom'">Slot đã được sử dụng bởi phòng khác trong ngày này!</span>
         </p>
     </div>
     <div class="success-message" th:if="${param.success}">
@@ -208,11 +209,9 @@
                             <div th:if="${timetable.slot.slotId == slot.slotId and timetable.dayOfWeek.name() == day}">
                                 <div th:with="foundTimetable=true">
                                     <div class="room-info">
-                                        <!-- Link đến chi tiết buổi học -->
                                         <a style="color: #2980B9; text-decoration: none;"
                                            th:href="@{/ChiTietBuoiHoc(timetableId=${timetable.timetableId})}"
                                            th:text="'Phòng: ' + ${timetable.room.roomName}"></a>
-                                        <!-- Form xóa lịch học -->
                                         <form method="post" style="display:inline;" th:action="@{/XoaLichHoc}">
                                             <input name="timetableId" th:value="${timetable.timetableId}" type="hidden">
                                             <input name="year" th:value="${selectedYear}" type="hidden">

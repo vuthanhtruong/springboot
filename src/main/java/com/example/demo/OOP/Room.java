@@ -53,7 +53,6 @@ public class Room {
     public Room(String roomId, String roomName, Boolean status, Employees employee, LocalDateTime startTime, LocalDateTime endTime) {
         this.roomId = roomId;
         this.roomName = roomName;
-
         this.employee = employee;
         this.startTime = startTime;
         this.endTime = endTime;
