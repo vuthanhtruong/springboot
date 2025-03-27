@@ -163,7 +163,7 @@
         <select id="week" name="week" onchange="this.form.submit()">
             <option th:each="week : ${weeks}"
                     th:selected="${week == selectedWeek}"
-                    th:text="'WEEK ' + ${week} + '/03'"
+                    th:text="'WEEK ' + ${week}"
                     th:value="${week}">
             </option>
         </select>
@@ -212,16 +212,6 @@
                                         <a style="color: #2980B9; text-decoration: none;"
                                            th:href="@{/ChiTietBuoiHoc(timetableId=${timetable.timetableId})}"
                                            th:text="'Phòng: ' + ${timetable.room.roomName}"></a>
-                                        <br>
-                                        <!-- Thông tin slot -->
-                                        <span th:text="'Slot: ' + ${timetable.slot.slotName}"></span>
-                                        <br>
-                                        <!-- Thời gian -->
-                                        <span th:text="'Thời gian: ' + ${#temporals.format(timetable.slot.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(timetable.slot.endTime, 'HH:mm')}"></span>
-                                        <br>
-                                        <!-- Ngày -->
-                                        <span th:text="'Ngày: ' + ${#temporals.format(timetable.date, 'dd/MM/yyyy')}"></span>
-                                        <br>
                                         <!-- Form xóa lịch học -->
                                         <form method="post" style="display:inline;" th:action="@{/XoaLichHoc}">
                                             <input name="timetableId" th:value="${timetable.timetableId}" type="hidden">
