@@ -48,10 +48,30 @@
         </div>
     </section>
 
+    <!-- Form lọc -->
+    <section class="filter-form">
+        <form method="get" th:action="@{/ThoiKhoaBieu}">
+            <label for="year"><i class="fas fa-calendar-alt"></i> Năm:</label>
+            <select id="year" name="year" onchange="this.form.submit()">
+                <option th:each="year : ${years}" th:selected="${year == selectedYear}" th:text="'YEAR ' + ${year}"
+                        th:value="${year}"></option>
+            </select>
+            <label for="week">Tuần:</label>
+            <select id="week" name="week" onchange="this.form.submit()">
+                <option th:each="week : ${weeks}" th:selected="${week == selectedWeek}" th:text="'WEEK ' + ${week}"
+                        th:value="${week}"></option>
+            </select>
+            <button type="submit">Xem</button>
+        </form>
+        <p>Debug: Selected Year = <span th:text="${selectedYear}"></span>, Selected Week = <span
+                th:text="${selectedWeek}"></span>, Monday = <span th:text="${mondayDate}"></span></p>
+    </section>
+
     <section class="no-schedule" th:if="${timetables == null or timetables.isEmpty()}">
         <p><i class="fas fa-info-circle"></i> Không có lịch học nào cho tuần này.</p>
     </section>
 
+    <!-- Form chính -->
     <section class="table-container">
         <form method="post" th:action="@{/LuuLichHocNhieuSlot}">
             <input name="year" th:value="${selectedYear}" type="hidden">
@@ -64,30 +84,7 @@
                     <th th:each="date : ${weekDates}" th:text="${date}"></th>
                 </tr>
                 <tr>
-                    <th>
-                        <section class="filter-form">
-                            <form method="get" th:action="@{/ThoiKhoaBieu}">
-                                <div class="filter-container">
-                                    <div class="dropdown-group">
-                                        <select id="year" name="year" onchange="this.form.submit()">
-                                            <option th:each="year : ${years}"
-                                                    th:selected="${year == selectedYear}"
-                                                    th:text="'YEAR ' + ${year}"
-                                                    th:value="${year}">
-                                            </option>
-                                        </select>
-                                        <select id="week" name="week" onchange="this.form.submit()">
-                                            <option th:each="week : ${weeks}"
-                                                    th:selected="${week == selectedWeek}"
-                                                    th:text="'WEEK ' + ${week}"
-                                                    th:value="${week}">
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </form>
-                        </section>
-                    </th>
+                    <th></th>
                     <th th:each="day : ${daysOfWeek}" th:text="${day.substring(0, 3)}"></th>
                 </tr>
                 </thead>

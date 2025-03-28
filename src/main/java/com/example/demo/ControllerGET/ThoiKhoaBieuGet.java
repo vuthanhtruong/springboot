@@ -33,64 +33,49 @@ public class ThoiKhoaBieuGet {
             ModelMap model,
             HttpSession session) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
+        String employeeId = authentication.getName();
 
-        // Tìm Employee trong database
         Employees employee = entityManager.find(Employees.class, employeeId);
         if (employee == null) {
             model.addAttribute("error", "Không tìm thấy nhân viên!");
             return "errorPage";
         }
 
-        // Xử lý year và week
         LocalDate today = LocalDate.now();
-        int currentYear = today.getYear();
-        int currentWeek = today.get(WeekFields.ISO.weekOfWeekBasedYear());
+        if (year == null) year = today.getYear();
+        if (week == null) week = today.get(WeekFields.ISO.weekOfWeekBasedYear());
 
-        if (year == null) year = currentYear;
-        if (week == null) week = currentWeek;
+        System.out.println("Year: " + year + ", Week: " + week); // Debug
 
-        // Tạo danh sách years và weeks cho form lọc
         List<Integer> years = new ArrayList<>();
-        for (int i = currentYear - 5; i <= currentYear + 5; i++) {
+        for (int i = today.getYear() - 5; i <= today.getYear() + 5; i++) {
             years.add(i);
         }
+        LocalDate firstDayOfYear = LocalDate.of(year, 1, 1);
+        int maxWeeks = firstDayOfYear.with(WeekFields.ISO.weekOfWeekBasedYear(), 1).lengthOfYear() / 7 + 1;
         List<Integer> weeks = new ArrayList<>();
-        for (int i = 1; i <= 53; i++) {
+        for (int i = 1; i <= maxWeeks; i++) {
             weeks.add(i);
         }
 
-        // Tính toán ngày đầu tuần (thứ Hai) của tuần được chọn
-        LocalDate firstDayOfYear = LocalDate.of(year, 1, 1);
-        LocalDate monday = firstDayOfYear.with(WeekFields.ISO.weekOfWeekBasedYear(), week)
-                .with(WeekFields.ISO.dayOfWeek(), 1); // Thứ Hai
-        LocalDate sunday = monday.plusDays(6); // Chủ Nhật
+        if (week > maxWeeks) week = maxWeeks;
+        if (week < 1) week = 1;
 
-        // Tạo danh sách ngày trong tuần (dd/MM)
+        LocalDate monday = firstDayOfYear.with(WeekFields.ISO.weekOfWeekBasedYear(), week)
+                .with(WeekFields.ISO.dayOfWeek(), 1);
+        LocalDate sunday = monday.plusDays(6);
+        System.out.println("Monday: " + monday + ", Sunday: " + sunday); // Debug
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM");
         List<String> weekDates = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
             weekDates.add(monday.plusDays(i).format(formatter));
         }
 
-        // Tạo chuỗi ngày tháng đầy đủ cho khoảng thời gian (dd/MM/yyyy - dd/MM/yyyy)
-        DateTimeFormatter fullFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String weekRangeFull = monday.format(fullFormatter) + " - " + sunday.format(fullFormatter);
+        String weekRangeFull = monday.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " - " + sunday.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-        // Tạo chuỗi ngày đầu tuần (thứ Hai) với định dạng dd/MM
-        String mondayDate = monday.format(formatter);
-
-        // Lưu weekDates vào session để sử dụng trong NhanVienPost
-        session.setAttribute("weekDates", weekDates);
-
-        // Lấy danh sách tất cả Slots (Slot 1 đến Slot 6)
-        List<Slots> slots = entityManager.createQuery("FROM Slots ORDER BY slotId ASC", Slots.class)
-                .getResultList();
-
-        // Lấy danh sách tất cả Rooms (bao gồm cả Rooms và OnlineRooms)
+        List<Slots> slots = entityManager.createQuery("FROM Slots ORDER BY slotId ASC", Slots.class).getResultList();
         List<Room> allRooms = entityManager.createQuery("FROM Room", Room.class).getResultList();
-
-        // Lấy danh sách Timetable của nhân viên này trong tuần được chọn
         List<Timetable> timetables = entityManager.createQuery(
                         "FROM Timetable t WHERE t.editor.id = :employeeId AND t.date BETWEEN :startDate AND :endDate",
                         Timetable.class)
@@ -99,10 +84,8 @@ public class ThoiKhoaBieuGet {
                 .setParameter("endDate", sunday)
                 .getResultList();
 
-        // Tạo danh sách các ngày trong tuần (MONDAY đến SUNDAY)
         List<String> daysOfWeek = Arrays.asList("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY");
 
-        // Đưa dữ liệu vào model để hiển thị trong view
         model.addAttribute("employee", employee);
         model.addAttribute("slots", slots);
         model.addAttribute("timetables", timetables);
@@ -115,7 +98,7 @@ public class ThoiKhoaBieuGet {
         model.addAttribute("selectedWeek", week);
         model.addAttribute("weekRange", monday.format(formatter) + " TO " + sunday.format(formatter));
         model.addAttribute("weekRangeFull", weekRangeFull);
-        model.addAttribute("mondayDate", mondayDate); // Thêm ngày đầu tuần
+        model.addAttribute("mondayDate", monday.format(formatter));
 
         return "DieuChinhLichHoc";
     }
