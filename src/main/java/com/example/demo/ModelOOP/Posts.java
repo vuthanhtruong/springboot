@@ -32,7 +32,7 @@ public class Posts {
     @Column(name = "Content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "RoomID", nullable = false, foreignKey = @ForeignKey(name = "FK_Posts_Room"))
     @OnDelete(action = OnDeleteAction.CASCADE) // Đảm bảo DB cũng xóa bài viết khi phòng bị xóa
     private Room room;
@@ -51,7 +51,6 @@ public class Posts {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Comments> comments = new ArrayList<>();
 
     public Posts(Person creator, String content, Room room, Events event) {

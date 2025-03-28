@@ -1,0 +1,43 @@
+<div class="post-list">
+    <h2>Bài Đăng Trong Lớp</h2>
+    <ul>
+        <a th:href="@{'/ChiTietLopHocBanThamGia/' + ${room?.roomId}}">
+            <i class="fas fa-user"></i> Quay lại
+        </a>
+        <li th:each="post : ${posts}">
+            <p><strong>👤 Người đăng:</strong> <span
+                    th:text="${post.creator?.firstName + ' ' + post.creator?.lastName}"></span></p>
+            <p><strong>📝 Nội dung:</strong> <span th:text="${post.content}"></span></p>
+            <p><strong>Thời gian đăng:</strong> <span
+                    th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+
+            <!-- 📂 Tài liệu đính kèm -->
+            <div class="document-list" th:if="${not #lists.isEmpty(post.documents)}">
+                <h4>📄 Tài liệu đính kèm:</h4>
+                <ul>
+                    <li th:each="document : ${post.documents}">
+                        <a class="btn btn-download" th:download="${document.documentTitle}"
+                           th:href="@{'/api/files/download/' + ${document.documentId}}">
+                            📥 Tải xuống
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Nút sửa bài đăng -->
+            <div class="edit-post">
+                <a class="btn btn-edit" th:href="@{'/SuaBaiDangCaNhan/' + ${post.postId}}">
+                    ✏️ Sửa bài đăng
+                </a>
+            </div>
+
+            <div class="delete-post">
+                <a class="btn btn-delete"
+                   onclick="return confirm('Bạn có chắc chắn muốn xóa bài đăng này?');"
+                   th:href="@{'/XoaBaiDangCaNhan/' + ${post.postId} + '?roomId=' + ${post.room.roomId}}">
+                    🗑️ Xóa bài đăng
+                </a>
+            </div>
+        </li>
+    </ul>
+</div>

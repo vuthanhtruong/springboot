@@ -7,6 +7,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "Students")
 @PrimaryKeyJoinColumn(name = "ID") // Liên kết với khóa chính của Person
@@ -17,6 +19,9 @@ public class Students extends Person {
 
     @Column(name = "Password", nullable = false, length = 255)
     private String password;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDate createdDate = LocalDate.now();
 
     @Column(name = "MIS_ID", length = 50)
     private String misId;

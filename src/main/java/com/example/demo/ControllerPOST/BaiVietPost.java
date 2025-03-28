@@ -62,7 +62,7 @@ public class BaiVietPost {
             newPost.setCreatedAt(LocalDateTime.now());
 
             // 🏫 Lấy phòng học
-            Rooms room = entityManager.find(Rooms.class, roomId);
+            Room room = entityManager.find(Room.class, roomId);
             if (room == null) {
                 throw new IllegalArgumentException("Không tìm thấy phòng học với ID: " + roomId);
             }
@@ -114,4 +114,85 @@ public class BaiVietPost {
         return "redirect:/ChiTietLopHocBanThamGia/" + roomId;
     }
 
+    @Transactional
+    @PostMapping("/UpdateBaiPost")
+    public String updatePost(
+            @RequestParam("postId") Long postId,
+            @RequestParam("postContent") String postContent,
+            @RequestParam("roomId") String roomId,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            log.info("🔄 Cập nhật bài đăng với ID: {}", postId);
+
+            // 📌 Tìm bài đăng cần cập nhật
+            Posts existingPost = entityManager.find(Posts.class, postId);
+            if (existingPost == null) {
+                throw new IllegalArgumentException("Không tìm thấy bài đăng với ID: " + postId);
+            }
+
+            // 📝 Cập nhật nội dung bài đăng
+            existingPost.setContent(postContent);
+            entityManager.merge(existingPost);
+            log.info("✅ Nội dung bài đăng đã được cập nhật.");
+
+            // 📂 Xử lý tệp đính kèm mới (nếu có)
+            if (file != null && !file.isEmpty()) {
+                byte[] fileData = file.getBytes();
+                log.info("📏 Kích thước tệp (bytes): {}", fileData.length);
+
+                if (fileData.length == 0) {
+                    throw new IOException("❌ Tệp rỗng hoặc không đọc được.");
+                }
+
+                // 📌 Tìm tài liệu cũ liên kết với bài đăng (nếu có)
+                Documents existingDocument = entityManager.createQuery(
+                                "SELECT d FROM Documents d WHERE d.post.postId = :postId", Documents.class)
+                        .setParameter("postId", postId)
+                        .getResultStream()
+                        .findFirst()
+                        .orElse(null);
+
+                if (existingDocument != null) {
+                    // Xóa tài liệu cũ
+                    log.info("🗑 Đang xóa tài liệu cũ với ID: {}", existingDocument.getDocumentId());
+                    entityManager.remove(existingDocument);
+                    entityManager.flush(); // Đảm bảo tài liệu cũ được xóa ngay lập tức
+                    log.info("✅ Tài liệu cũ đã được xóa.");
+                }
+
+                // Tạo tài liệu mới
+                Documents newDocument = new Documents();
+                newDocument.setDocumentTitle(file.getOriginalFilename());
+                newDocument.setFileData(fileData);
+                newDocument.setFilePath(uploadDir + File.separator + file.getOriginalFilename());
+                newDocument.setCreator(existingPost.getCreator());
+                newDocument.setPost(existingPost);
+
+                // 📅 Gán sự kiện "Tệp tin đính kèm"
+                Events fileEvent = entityManager.find(Events.class, 4);
+                newDocument.setEvent(fileEvent);
+
+                entityManager.persist(newDocument);
+                log.info("✅ Document mới đã lưu với ID: {}", newDocument.getDocumentId());
+            }
+
+            redirectAttributes.addFlashAttribute("message", "Bài đăng đã được cập nhật thành công!");
+
+        } catch (IOException e) {
+            log.error("❌ Lỗi khi xử lý tệp: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xử lý tệp: " + e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        } catch (Exception e) {
+            log.error("🚫 Lỗi không mong muốn: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Lỗi hệ thống: " + e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+
+        // 🛠 Điều hướng về trang chi tiết bài đăng
+        return "redirect:/BaiDangCaNhan/" + roomId;
+    }
+
 }
+

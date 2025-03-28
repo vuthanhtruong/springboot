@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <a th:href="@{'/ChiTietLopHocBanThamGia/' + ${room?.roomId}}">
+        <i class="fas fa-user"></i> Quay lại
+    </a>
+    <title>Cập Nhật Bài Đăng</title>
+</head>
+
+<body>
+<h1>Cập Nhật Bài Đăng</h1>
+
+<!-- Hiển thị thông tin bài đăng -->
+<form enctype="multipart/form-data" method="post" th:action="@{'/UpdateBaiPost'}">
+    <!-- Ẩn ID bài đăng -->
+    <input name="postId" th:value="${post.postId}" type="hidden">
+
+    <!-- Ẩn roomId để gửi lên Server -->
+    <input name="roomId" th:value="${post.room.roomId}" type="hidden">
+
+    <!-- Nội dung bài đăng -->
+    <label for="postContent">Nội dung:</label>
+    <textarea id="postContent" name="postContent" required th:text="${post.content}"></textarea>
+
+    <!-- Tệp đính kèm -->
+    <div th:if="${document != null}">
+        <p>📄 Tài liệu hiện tại: <span th:text="${document.documentTitle}"></span></p>
+    </div>
+    <label for="file">🔄 Chọn tệp mới (nếu cần):</label>
+    <input accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip,.mp4,.avi,.mov" id="file" name="file" type="file">
+
+    <button type="submit">Cập Nhật</button>
+</form>
+
+<a href="/BaiDangCaNhan">Quay lại</a>
+</body>
+
+</html>

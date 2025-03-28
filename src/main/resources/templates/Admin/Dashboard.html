@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+    <!-- Sidebar -->
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <a class="brand-link" href="#">
+            <span class="brand-text font-weight-light">MIS</span>
+        </a>
+        <div class="sidebar">
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" role="menu">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/Dashboard">
+                            <i class="nav-icon fas fa-chart-line"></i>
+                            <p>Dashboard</p>
+                        </a>
+                        <a class="nav-link active" href="/TrangChuAdmin">
+                            <i class="nav-icon fas fa-chart-line"></i>
+                            <p>Admin Control</p>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+    <!-- Nội dung Dashboard -->
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>Dashboard</h1>
+        </section>
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <!-- Thẻ thông số -->
+                    <div class="col-lg-4 col-6">
+                        <div class="small-box bg-info">
+                            <div class="inner">
+                                <h3 id="totalStudents" th:text="${totalStudents}">0</h3>
+                                <p>Tổng số học viên</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-6">
+                        <div class="small-box bg-success">
+                            <div class="inner">
+                                <h3 id="totalTeachers" th:text="${totalTeachers}">0</h3>
+                                <p>Tổng số giáo viên</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-6">
+                        <div class="small-box bg-warning">
+                            <div class="inner">
+                                <h3 id="totalEmployees" th:text="${totalEmployees}">0</h3>
+                                <p>Tổng số nhân viên</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-6">
+                        <div class="small-box bg-warning">
+                            <div class="inner">
+                                <h3 id="totalBlog" th:text="${totalBlog}">0</h3>
+                                <p>Tổng số bài Blogs</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-chalkboard-blogs"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-6">
+                        <div class="small-box bg-info">
+                            <div class="inner">
+                                <h3 id="totalOnRooms" th:text="${OnRoom}">0</h3>
+                                <p>Tổng số Phòng Học Online</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-chalkboard-OnRoom"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-6">
+                        <div class="small-box bg-success">
+                            <div class="inner">
+                                <h3 id="totalOffRooms" th:text="${OffRoom}">0</h3>
+                                <p>Tổng số bài Phòng Học Offline</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-chalkboard-OffRoom"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Biểu đồ -->
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Số lượng người truy cập 24h qua</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="visitorChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Thêm biểu đồ cột cho người đăng ký mới -->
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Người đăng ký mới trong 24h</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="newRegistrationsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Script cập nhật số liệu và biểu đồ -->
+<script>
+    var visitorChart;
+    var newRegistrationsChart;
+
+    function updateDashboard() {
+        $.getJSON("/api/Dashboard/stats", function (data) {
+            // Cập nhật số liệu
+            $("#totalStudents").text(data.totalStudents);
+            $("#totalTeachers").text(data.totalTeachers);
+            $("#totalEmployees").text(data.totalEmployees);
+            $("#totalBlog").text(data.totalBlog);
+            $("#totalOnRooms").text(data.OnRoom);
+            $("#totalOffRooms").text(data.OffRoom)
+
+            // Cập nhật biểu đồ nguời truy cập
+            if (visitorChart) {
+                visitorChart.data.datasets[0].data.push(data.visitor);
+                visitorChart.data.datasets[0].label = "Tổng số người truy cập trong 24h qua: " + data.visitor;
+                visitorChart.data.labels.push(new Date().toLocaleTimeString());
+                if (visitorChart.data.datasets[0].data.length > 10) {
+                    visitorChart.data.datasets[0].data.shift();
+                    visitorChart.data.labels.shift();
+                }
+                visitorChart.update();
+            }
+
+            // Cập nhật biểu đồ người đăng ký mới
+            if (newRegistrationsChart) {
+                newRegistrationsChart.data.datasets[0].data = [
+                    data.newEmployees,
+                    data.newTeachers,
+                    data.newStudents
+                ];
+                newRegistrationsChart.update();
+            }
+        }).fail(function () {
+            console.error("Không thể tải dữ liệu từ API");
+        });
+    }
+
+    $(document).ready(function () {
+        // Biểu đồ người truy cập
+        var ctxVisitor = document.getElementById('visitorChart').getContext('2d');
+        visitorChart = new Chart(ctxVisitor, {
+            type: "line",
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Tổng số người truy cập trong 24h qua: 0",
+                    backgroundColor: "rgba(0,0,255,0.1)",
+                    borderColor: "rgba(0,0,255,1.0)",
+                    data: []
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {title: {display: true, text: "Thời gian"}},
+                    y: {
+                        title: {display: true, text: "Số lượng truy cập"},
+                        beginAtZero: true,
+                        ticks: {precision: 0, Stepsize: 1}
+                    }
+                }
+            }
+        });
+
+        // Biểu đồ người đăng ký mới
+        var ctxNewRegistrations = document.getElementById('newRegistrationsChart').getContext('2d');
+        newRegistrationsChart = new Chart(ctxNewRegistrations, {
+            type: "bar",
+            data: {
+                labels: ["Nhân viên", "Giáo viên", "Học sinh"],
+                datasets: [{
+                    label: "Số lượng người đăng ký mới",
+                    data: [0, 0, 0], // Dữ liệu ban đầu
+                    backgroundColor: [
+                        "rgba(255, 159, 64, 0.7)",
+                        "rgba(75, 192, 192, 0.7)",
+                        "rgba(54, 162, 235, 0.7)"
+                    ],
+                    borderColor: [
+                        "rgba(255, 159, 64, 1)",
+                        "rgba(75, 192, 192, 1)",
+                        "rgba(54, 162, 235, 1)"
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {title: {display: true, text: "Đối tượng"}},
+                    y: {title: {display: true, text: "Số lượng"}, beginAtZero: true, ticks: {precision: 0, Stepsize: 1}}
+                }
+            }
+        });
+
+        updateDashboard();
+        setInterval(updateDashboard, 5000);
+    });
+</script>
+
+</body>
+
+</html>

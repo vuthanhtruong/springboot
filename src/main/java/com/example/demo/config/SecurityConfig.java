@@ -29,7 +29,8 @@ public class SecurityConfig {
                                         "/ThemHocSinh",
                                         "/XoaHocSinh/**",
                                         "/XoaGiaoVien/**",
-                                        "/XoaNhanVien/**"
+                                        "/XoaNhanVien/**",
+                                        "/Dashboard"
                                 ).hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.POST,
 
@@ -96,7 +97,7 @@ public class SecurityConfig {
 
                                 .requestMatchers(HttpMethod.POST, "/DiemDanh")
                                 .hasAnyRole("TEACHER", "EMPLOYEE")
-                                .requestMatchers(HttpMethod.GET, "/ThoiKhoaBieuNguoiDung")
+                                .requestMatchers(HttpMethod.GET, "/ThoiKhoaBieuNguoiDung", "/SuaBaiDangCaNhan/**", "/XoaBaiDangCaNhan/**")
                                 .hasAnyRole("TEACHER", "STUDENT")
 
 

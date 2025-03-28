@@ -43,13 +43,17 @@
     <!-- 📝 Đăng bài mới -->
     <div class="post-section">
         <h2>Đăng Bài Mới</h2>
+        <a th:href="@{'/BaiDangCaNhan/' + ${room?.roomId}}">
+            <i class="fas fa-user"></i> Bài Đăng Cá Nhân
+        </a>
         <form action="/BaiPost" enctype="multipart/form-data" method="POST">
             <input name="roomId" th:value="${room?.roomId}" type="hidden">
             <textarea name="postContent" placeholder="Nhập nội dung bài đăng..." required></textarea>
 
             <div class="file-upload">
                 <label for="file">📎 Tải tệp lên:</label>
-                <input accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip,.mp4,.avi,.mov" id="file" name="file" type="file">
+                <input accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip,.mp4,.avi,.mov" id="file" name="file"
+                       type="file">
             </div>
 
             <button type="submit">🚀 Đăng Bài</button>
@@ -90,7 +94,8 @@
                             </p>
                             <p><strong>💬 Nội dung:</strong> <span th:text="${comment.text}"></span></p>
                             <p><strong>⏳ Thời gian:</strong> <span
-                                    th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+                                    th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                            </p>
                         </li>
                     </ul>
                     <form action="/BinhLuan" method="POST">
@@ -142,4 +147,5 @@
 </style>
 
 </body>
+
 </html>
