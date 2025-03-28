@@ -47,7 +47,7 @@ public class LoginController {
             System.out.println("❌ Không tìm thấy quyền hợp lệ, đăng xuất...");
             request.logout();
             redirectAttributes.addAttribute("roleError", "Không tìm thấy quyền hợp lệ");
-            return "redirect:/DangNhap";
+            return "redirect:/TrangChu";
         }
 
         return "redirect:" + redirectUrl;

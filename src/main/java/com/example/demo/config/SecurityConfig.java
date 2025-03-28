@@ -89,9 +89,10 @@ public class SecurityConfig {
                                         "/ChiTietTinNhan/**",
                                         "/XoaKhuonMat",
                                         "/XoaGiongNoi",
-                                        "/ChiTietBuoiHoc"
+                                        "/ChiTietBuoiHoc",
+                                        "/redirect"
                                 ).hasAnyRole("TEACHER", "STUDENT", "ADMIN", "EMPLOYEE")
-                                .requestMatchers(HttpMethod.POST, "/BaiPost",
+                                .requestMatchers(HttpMethod.POST, "/BaiPost", "/auth/verify-face-login",
                                         "/BinhLuan", "/register-face", "/XoaKhuonMat", "/DangKyKhuonMat", "/DangKyGiongNoi", "/LuuThongTinCaNhan")
                                 .hasAnyRole("TEACHER", "STUDENT", "ADMIN", "EMPLOYEE")
 
