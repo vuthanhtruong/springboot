@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class LoginController {
@@ -29,10 +30,10 @@ public class LoginController {
 
     // Xử lý redirect sau khi đăng nhập thành công (username/password)
     @GetMapping("/redirect")
-    public String redirectAfterLogin(Authentication authentication, HttpServletRequest request, Model model)
+    public String redirectAfterLogin(Authentication authentication, HttpServletRequest request, RedirectAttributes redirectAttributes)
             throws ServletException {
         if (authentication == null || !authentication.isAuthenticated()) {
-            model.addAttribute("usernamePasswordError", "Tài khoản hoặc mật khẩu không chính xác");
+            redirectAttributes.addAttribute("usernamePasswordError", "Tài khoản hoặc mật khẩu không chính xác");
             return "redirect:/TrangChu";
         }
 
@@ -45,7 +46,7 @@ public class LoginController {
         if (redirectUrl == null) {
             System.out.println("❌ Không tìm thấy quyền hợp lệ, đăng xuất...");
             request.logout();
-            model.addAttribute("roleError", "Không tìm thấy quyền hợp lệ");
+            redirectAttributes.addAttribute("roleError", "Không tìm thấy quyền hợp lệ");
             return "redirect:/DangNhap";
         }
 
@@ -78,9 +79,9 @@ public class LoginController {
 
     // Xử lý đăng nhập bằng giọng nói
     @PostMapping("/DangNhapBangGiongNoi")
-    public String dangNhapBangGiongNoi(@RequestParam("voiceData") String voiceData, Model model) {
+    public String dangNhapBangGiongNoi(@RequestParam("voiceData") String voiceData, RedirectAttributes redirectAttributes) {
         if (voiceData == null || voiceData.isEmpty()) {
-            model.addAttribute("voiceError", "Giọng nói không hợp lệ");
+            redirectAttributes.addAttribute("voiceError", "Giọng nói không hợp lệ");
             return "redirect:/TrangChu";
         }
         System.out.println("Received voice data length: " + voiceData.length());
@@ -95,7 +96,7 @@ public class LoginController {
             return "redirect:" + (redirectUrl != null ? redirectUrl : "/TrangChu");
         } catch (AuthenticationException e) {
             e.printStackTrace();
-            model.addAttribute("voiceError", "Giọng nói không khớp hoặc không tìm thấy người dùng");
+            redirectAttributes.addAttribute("voiceError", "Giọng nói không khớp hoặc không tìm thấy người dùng");
             return "redirect:/TrangChu";
         }
     }
