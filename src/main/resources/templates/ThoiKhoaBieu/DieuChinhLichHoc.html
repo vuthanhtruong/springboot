@@ -16,17 +16,8 @@
         <h1>Điều Chỉnh Lịch Học</h1>
     </header>
 
-
     <nav class="home-button">
         <a th:href="@{/TrangChuNhanVien}"><i class="fas fa-home"></i> Quay về trang chủ</a>
-        <div class="submit-section">
-            <label for="roomId"><i class="fas fa-building"></i> Chọn phòng:</label>
-            <select id="roomId" name="roomId" required>
-                <option value="">-- Chọn phòng --</option>
-                <option th:each="room : ${allRooms}" th:text="${room.roomName}" th:value="${room.roomId}"></option>
-            </select>
-            <button class="submit-button" type="submit"><i class="fas fa-save"></i> Lưu tất cả</button>
-        </div>
     </nav>
 
     <section class="messages">
@@ -56,7 +47,6 @@
             <p th:text="${param.success == 'ScheduleDeleted' ? 'Lịch học đã được xóa thành công!' : ''}"></p>
         </div>
     </section>
-
 
     <section class="no-schedule" th:if="${timetables == null or timetables.isEmpty()}">
         <p><i class="fas fa-info-circle"></i> Không có lịch học nào cho tuần này.</p>
@@ -151,6 +141,15 @@
                 </tr>
                 </tbody>
             </table>
+
+            <div class="submit-section">
+                <label for="roomId"><i class="fas fa-building"></i> Chọn phòng:</label>
+                <select id="roomId" name="roomId" required>
+                    <option value="">-- Chọn phòng --</option>
+                    <option th:each="room : ${allRooms}" th:text="${room.roomName}" th:value="${room.roomId}"></option>
+                </select>
+                <button class="submit-button" type="submit"><i class="fas fa-save"></i> Lưu tất cả</button>
+            </div>
         </form>
     </section>
 </div>
