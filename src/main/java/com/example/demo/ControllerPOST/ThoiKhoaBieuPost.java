@@ -454,8 +454,6 @@ public class ThoiKhoaBieuPost {
         // Lấy Room trước khi xóa timetable
         Room room = timetable.getRoom();
         String roomId = room.getRoomId();
-        Slots slot = timetable.getSlot(); // Lấy slot để kiểm tra sau này nếu cần
-        LocalDate deletedDate = timetable.getDate(); // Lưu ngày của slot bị xóa
 
         // Xóa timetable
         entityManager.remove(timetable);
@@ -495,15 +493,6 @@ public class ThoiKhoaBieuPost {
 
         // Cập nhật Room vào database
         entityManager.merge(room);
-
-        // Kiểm tra slotQuantity để đảm bảo có thể thêm lại slot vào ngày khác
-        int usedSlots = remainingTimetables.size();
-        int slotQuantity = room.getSlotQuantity() != null ? room.getSlotQuantity() : Integer.MAX_VALUE;
-        if (usedSlots < slotQuantity) {
-            redirectAttributes.addAttribute("info", "SlotAvailableForReuse");
-        } else {
-            redirectAttributes.addAttribute("warning", "RoomSlotLimitReached");
-        }
 
         redirectAttributes.addAttribute("success", "ScheduleDeleted");
         return "redirect:/ThoiKhoaBieu?year=" + year + "&week=" + week;
