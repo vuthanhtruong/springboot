@@ -73,6 +73,13 @@ public class ThoiKhoaBieuGet {
             weekDates.add(monday.plusDays(i).format(formatter));
         }
 
+        // Tạo chuỗi ngày tháng đầy đủ cho khoảng thời gian (dd/MM/yyyy - dd/MM/yyyy)
+        DateTimeFormatter fullFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String weekRangeFull = monday.format(fullFormatter) + " - " + sunday.format(fullFormatter);
+
+        // Tạo chuỗi ngày đầu tuần (thứ Hai) với định dạng dd/MM
+        String mondayDate = monday.format(formatter);
+
         // Lưu weekDates vào session để sử dụng trong NhanVienPost
         session.setAttribute("weekDates", weekDates);
 
@@ -98,7 +105,7 @@ public class ThoiKhoaBieuGet {
         // Đưa dữ liệu vào model để hiển thị trong view
         model.addAttribute("employee", employee);
         model.addAttribute("slots", slots);
-        model.addAttribute("timetables", timetables); // Truyền danh sách timetables
+        model.addAttribute("timetables", timetables);
         model.addAttribute("allRooms", allRooms);
         model.addAttribute("weekDates", weekDates);
         model.addAttribute("daysOfWeek", daysOfWeek);
@@ -107,6 +114,8 @@ public class ThoiKhoaBieuGet {
         model.addAttribute("selectedYear", year);
         model.addAttribute("selectedWeek", week);
         model.addAttribute("weekRange", monday.format(formatter) + " TO " + sunday.format(formatter));
+        model.addAttribute("weekRangeFull", weekRangeFull);
+        model.addAttribute("mondayDate", mondayDate); // Thêm ngày đầu tuần
 
         return "DieuChinhLichHoc";
     }
