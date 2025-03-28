@@ -250,14 +250,145 @@
     // Hàm lấy geonameId của quốc gia
     function getCountryGeonameId(countryCode) {
         const countryIds = {
-            "VN": 1562822, // Việt Nam
-            "US": 6252001, // Hoa Kỳ
-            "JP": 1861060, // Nhật Bản
-            "CN": 1814991, // Trung Quốc
-            "FR": 3017382  // Pháp
+            "AF": 1149361, // Afghanistan
+            "AL": 783754, // Albania
+            "DZ": 2589581, // Algeria
+            "AD": 3041565, // Andorra
+            "AO": 3351879, // Angola
+            "AG": 3576396, // Antigua and Barbuda
+            "AR": 3865483, // Argentina
+            "AM": 174982, // Armenia
+            "AU": 2077456, // Australia
+            "AT": 2782113, // Austria
+            "AZ": 587116, // Azerbaijan
+            "BS": 3572887, // Bahamas
+            "BH": 290291, // Bahrain
+            "BD": 1210997, // Bangladesh
+            "BB": 3374084, // Barbados
+            "BY": 630336, // Belarus
+            "BE": 2802361, // Belgium
+            "BZ": 3582678, // Belize
+            "BJ": 2395170, // Benin
+            "BT": 1252634, // Bhutan
+            "BO": 3923057, // Bolivia
+            "BA": 3277605, // Bosnia and Herzegovina
+            "BW": 933860, // Botswana
+            "BR": 3469034, // Brazil
+            "BN": 1820814, // Brunei
+            "BG": 732800, // Bulgaria
+            "BF": 2361809, // Burkina Faso
+            "BI": 433561, // Burundi
+            "KH": 1831722, // Cambodia
+            "CM": 2233387, // Cameroon
+            "CA": 6251999, // Canada
+            "CV": 3374766, // Cape Verde
+            "CF": 239880, // Central African Republic
+            "TD": 2434508, // Chad
+            "CL": 3895114, // Chile
+            "CN": 1814991, // China
+            "CO": 3686110, // Colombia
+            "KM": 921929, // Comoros
+            "CD": 203312, // Congo (Democratic Republic)
+            "CG": 2260494, // Congo (Republic)
+            "CR": 3624060, // Costa Rica
+            "HR": 3202326, // Croatia
+            "CU": 3562981, // Cuba
+            "CY": 146669, // Cyprus
+            "CZ": 3077311, // Czechia
+            "DK": 2623032, // Denmark
+            "DJ": 223816, // Djibouti
+            "DO": 3508796, // Dominican Republic
+            "EC": 3658394, // Ecuador
+            "EG": 357994, // Egypt
+            "SV": 3585968, // El Salvador
+            "GQ": 2309096, // Equatorial Guinea
+            "ER": 338010, // Eritrea
+            "EE": 453733, // Estonia
+            "ET": 337996, // Ethiopia
+            "FJ": 2205218, // Fiji
+            "FI": 660013, // Finland
+            "FR": 3017382, // France
+            "GA": 2400553, // Gabon
+            "GM": 2413451, // Gambia
+            "GE": 614540, // Georgia
+            "DE": 2921044, // Germany
+            "GH": 2300660, // Ghana
+            "GR": 390903, // Greece
+            "GT": 3595528, // Guatemala
+            "GN": 2420477, // Guinea
+            "GY": 3378535, // Guyana
+            "HT": 3723988, // Haiti
+            "HN": 3608932, // Honduras
+            "HU": 719819, // Hungary
+            "IS": 2629691, // Iceland
+            "IN": 1269750, // India
+            "ID": 1643084, // Indonesia
+            "IR": 130758, // Iran
+            "IQ": 99237, // Iraq
+            "IE": 2963597, // Ireland
+            "IT": 3175395, // Italy
+            "JP": 1861060, // Japan
+            "JO": 248816, // Jordan
+            "KZ": 1522867, // Kazakhstan
+            "KE": 192950, // Kenya
+            "KR": 1835841, // South Korea
+            "KW": 285570, // Kuwait
+            "KG": 1527747, // Kyrgyzstan
+            "LA": 1655842, // Laos
+            "LV": 458258, // Latvia
+            "LB": 272103, // Lebanon
+            "LY": 2215636, // Libya
+            "LT": 597427, // Lithuania
+            "LU": 2960313, // Luxembourg
+            "MG": 1062947, // Madagascar
+            "MW": 927384, // Malawi
+            "MY": 1733045, // Malaysia
+            "MV": 1282028, // Maldives
+            "ML": 2453866, // Mali
+            "MT": 2562770, // Malta
+            "MX": 3996063, // Mexico
+            "MD": 617790, // Moldova
+            "MC": 2993457, // Monaco
+            "MN": 2029969, // Mongolia
+            "MA": 2542007, // Morocco
+            "MZ": 1036973, // Mozambique
+            "MM": 1327865, // Myanmar
+            "NA": 3355338, // Namibia
+            "NP": 1282988, // Nepal
+            "NL": 2750405, // Netherlands
+            "NZ": 2186224, // New Zealand
+            "NG": 2328926, // Nigeria
+            "NO": 3144096, // Norway
+            "OM": 286963, // Oman
+            "PK": 1168579, // Pakistan
+            "PA": 3703430, // Panama
+            "PY": 3437598, // Paraguay
+            "PE": 3932488, // Peru
+            "PH": 1694008, // Philippines
+            "PL": 798544, // Poland
+            "PT": 2264397, // Portugal
+            "QA": 289688, // Qatar
+            "RO": 798549, // Romania
+            "RU": 2017370, // Russia
+            "SA": 102358, // Saudi Arabia
+            "SG": 1880251, // Singapore
+            "ZA": 953987, // South Africa
+            "ES": 2510769, // Spain
+            "SE": 2661886, // Sweden
+            "CH": 2658434, // Switzerland
+            "TH": 1605651, // Thailand
+            "TR": 298795, // Turkey
+            "UA": 690791, // Ukraine
+            "AE": 290557, // United Arab Emirates
+            "GB": 2635167, // United Kingdom
+            "US": 6252001, // United States
+            "VN": 1562822, // Vietnam
+            "ZW": 878675  // Zimbabwe
         };
+
         return countryIds[countryCode] || null;
     }
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
