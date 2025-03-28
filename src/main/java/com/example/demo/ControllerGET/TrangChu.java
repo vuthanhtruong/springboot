@@ -1,5 +1,6 @@
 package com.example.demo.ControllerGET;
 
+
 import com.example.demo.ModelOOP.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -33,6 +34,8 @@ public class TrangChu {
 
     @GetMapping("/TrangChu")
     public String TrangChu(HttpSession session) {
+        Dashboard dashboard = new Dashboard();
+        entityManager.persist(dashboard);
         return "TrangChu";
     }
 
@@ -101,6 +104,5 @@ public class TrangChu {
         System.out.println("Redirecting to default: /TrangChu");
         return "redirect:/TrangChu";
     }
-
 
 }
