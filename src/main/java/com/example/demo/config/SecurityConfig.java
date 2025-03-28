@@ -147,6 +147,7 @@ public class SecurityConfig {
                                         "/DangKyGiaoVien",
                                         "/DangKyNhanVien",
                                         "/*.css",
+                                        "/js/**",
                                         "/auth/QuenMatKhau",
                                         "/auth/verify-otp",
                                         "/auth/DatLaiMatKhau",
