@@ -1,9 +1,6 @@
 package com.example.demo.ControllerPOST;
 
-import com.example.demo.ModelOOP.Admin;
-import com.example.demo.ModelOOP.Employees;
-import com.example.demo.ModelOOP.Person;
-import com.example.demo.ModelOOP.Teachers;
+import com.example.demo.ModelOOP.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -26,7 +23,7 @@ public class GiaoVienPost {
     private EntityManager entityManager;
 
     @PostMapping("/DangKyGiaoVien")
-    @Transactional(rollbackOn = Exception.class) // Tự động quản lý giao dịch, rollback nếu có lỗi
+    @Transactional(rollbackOn = Exception.class)
     public String dangKyGiaoVien(
             @RequestParam("TeacherID") String teacherID,
             @RequestParam("FirstName") String firstName,
@@ -34,6 +31,13 @@ public class GiaoVienPost {
             @RequestParam("Email") String email,
             @RequestParam("PhoneNumber") String phoneNumber,
             @RequestParam("BirthDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
+            @RequestParam("Gender") Gender gender,
+            @RequestParam(value = "Country", required = false) String country,
+            @RequestParam(value = "Province", required = false) String province,
+            @RequestParam(value = "District", required = false) String district,
+            @RequestParam(value = "Ward", required = false) String ward,
+            @RequestParam(value = "Street", required = false) String street,
+            @RequestParam(value = "PostalCode", required = false) String postalCode,
             @RequestParam(value = "MisID", required = false) String misID,
             @RequestParam("Password") String password,
             @RequestParam("ConfirmPassword") String confirmPassword,
@@ -73,11 +77,12 @@ public class GiaoVienPost {
             model.addAttribute("emailError", "Email này đã được sử dụng.");
             return "DangKyGiaoVien";
         }
+
         // Kiểm tra định dạng số điện thoại
-        if (!phoneNumber.matches("^[0-9]+$")) { // Kiểm tra toàn số
+        if (!phoneNumber.matches("^[0-9]+$")) {
             model.addAttribute("phoneError", "Số điện thoại chỉ được chứa chữ số!");
             return "DangKyGiaoVien";
-        } else if (!phoneNumber.matches("^\\d{9,10}$")) { // Kiểm tra độ dài
+        } else if (!phoneNumber.matches("^\\d{9,10}$")) {
             model.addAttribute("phoneError", "Số điện thoại phải có 9-10 chữ số!");
             return "DangKyGiaoVien";
         }
@@ -91,7 +96,7 @@ public class GiaoVienPost {
             return "DangKyGiaoVien";
         }
 
-        // Lấy Admin (giả sử vẫn lấy Admin đầu tiên)
+        // Lấy Admin
         List<Admin> adminList = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
         if (adminList.isEmpty()) {
             model.addAttribute("adminError", "Không tìm thấy Admin.");
@@ -114,12 +119,19 @@ public class GiaoVienPost {
         giaoVien.setEmail(email);
         giaoVien.setPhoneNumber(phoneNumber);
         giaoVien.setBirthDate(birthDate);
+        giaoVien.setGender(gender);
+        giaoVien.setCountry(country); // Lưu quốc gia
+        giaoVien.setProvince(province); // Lưu tỉnh/thành phố
+        giaoVien.setDistrict(district); // Lưu quận/huyện
+        giaoVien.setWard(ward); // Lưu xã/phường
+        giaoVien.setStreet(street); // Lưu đường, số nhà
+        giaoVien.setPostalCode(postalCode); // Lưu mã bưu điện
         giaoVien.setMisID(misID);
-        giaoVien.setPassword(password); // Mật khẩu đã được mã hóa trong setter của Teachers
+        giaoVien.setPassword(password); // Mã hóa mật khẩu
         giaoVien.setEmployee(selectedEmployee);
         giaoVien.setAdmin(admin);
 
-        // Lưu giáo viên (giao dịch được quản lý bởi @Transactional)
+        // Lưu giáo viên
         entityManager.persist(giaoVien);
         System.out.println("Đăng ký giáo viên thành công! Gán cho nhân viên: " + selectedEmployee.getId());
 

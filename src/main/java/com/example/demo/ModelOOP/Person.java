@@ -35,7 +35,12 @@ public class Person {
 
     @Column(name = "BirthDate", nullable = true)
     @Past(message = "Ngày sinh phải là một ngày trong quá khứ")
-    private LocalDate birthDate; // Ngày sinh (yyyy-MM-dd)
+    private LocalDate birthDate;
+
+    @Column(name = "Gender", nullable = true)
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
     @Lob
     @Column(name = "FaceData", columnDefinition = "LONGTEXT", nullable = true)
     private String faceData;
@@ -43,6 +48,27 @@ public class Person {
     @Lob
     @Column(name = "VoiceData", columnDefinition = "LONGTEXT", nullable = true)
     private String voiceData;
+
+    @Column(name = "Country", nullable = true, length = 100)
+    private String country; // Quốc gia
+
+    @Column(name = "Province", nullable = true, length = 100)
+    private String province; // Tỉnh/Bang
+
+    @Column(name = "City", nullable = true, length = 100)
+    private String city; // Thành phố
+
+    @Column(name = "District", nullable = true, length = 100)
+    private String district; // Quận/Huyện
+
+    @Column(name = "Ward", nullable = true, length = 100)
+    private String ward; // Xã/Phường
+
+    @Column(name = "Street", nullable = true, length = 255)
+    private String street; // Đường, số nhà
+
+    @Column(name = "PostalCode", nullable = true, length = 20)
+    private String postalCode; // Mã bưu điện
 
     public String getFullName() {
         return firstName + " " + lastName;

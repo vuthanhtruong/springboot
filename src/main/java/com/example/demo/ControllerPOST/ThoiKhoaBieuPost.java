@@ -23,7 +23,6 @@ import java.util.Map;
 @Controller
 @RequestMapping("/")
 @Transactional
-
 public class ThoiKhoaBieuPost {
     @PersistenceContext
     private EntityManager entityManager;
@@ -67,7 +66,7 @@ public class ThoiKhoaBieuPost {
         LocalDate sunday = monday.plusDays(6); // Chủ Nhật
 
         // Tính ngày cụ thể dựa trên day (MONDAY, TUESDAY, ...)
-        int dayOffset = Timetable.DayOfWeek.valueOf(day).ordinal();
+        int dayOffset = DayOfWeek.valueOf(day).ordinal();
         LocalDate date = monday.plusDays(dayOffset);
 
         // Kiểm tra xem lịch học đã tồn tại cho slot và ngày này chưa
@@ -75,7 +74,7 @@ public class ThoiKhoaBieuPost {
                         "FROM Timetable t WHERE t.slot.slotId = :slotId AND t.dayOfWeek = :dayOfWeek AND t.date = :date",
                         Timetable.class)
                 .setParameter("slotId", slotId)
-                .setParameter("dayOfWeek", Timetable.DayOfWeek.valueOf(day))
+                .setParameter("dayOfWeek", DayOfWeek.valueOf(day))
                 .setParameter("date", date)
                 .getResultList();
 
@@ -110,24 +109,23 @@ public class ThoiKhoaBieuPost {
 
         // Nếu đã đạt slotQuantity, xóa bớt slot cũ
         if (usedSlots >= slotQuantity) {
-            // Sắp xếp theo ngày để xóa slot cũ nhất
             roomTimetables.sort(Comparator.comparing(Timetable::getDate));
             Timetable oldestTimetable = roomTimetables.get(0);
             entityManager.remove(oldestTimetable);
-            usedSlots--; // Giảm số slot đã sử dụng
+            usedSlots--;
         }
 
         // Tạo lịch học cho tuần hiện tại
         Timetable timetable = new Timetable();
         timetable.setSlot(slot);
-        timetable.setDayOfWeek(Timetable.DayOfWeek.valueOf(day));
+        timetable.setDayOfWeek(DayOfWeek.valueOf(day));
         timetable.setDate(date);
         timetable.setRoom(room);
         timetable.setEditor(employee);
         entityManager.persist(timetable);
-        usedSlots++; // Cập nhật số slot đã sử dụng
+        usedSlots++;
 
-        // Lấy tất cả lịch học của Room trong tuần hiện tại (bao gồm lịch vừa thêm)
+        // Lấy tất cả lịch học của Room trong tuần hiện tại
         List<Timetable> weeklyTimetables = entityManager.createQuery(
                         "FROM Timetable t WHERE t.room.roomId = :roomId AND t.date BETWEEN :startDate AND :endDate",
                         Timetable.class)
@@ -139,19 +137,18 @@ public class ThoiKhoaBieuPost {
         // Tính số lần lặp tối đa dựa trên slotQuantity
         int slotsPerWeek = weeklyTimetables.size();
         if (slotsPerWeek == 0) {
-            slotsPerWeek = 1; // Đảm bảo không chia cho 0
+            slotsPerWeek = 1;
         }
         int remainingSlots = slotQuantity - usedSlots;
-        int maxWeeksToRepeat = remainingSlots / slotsPerWeek; // Số tuần tối đa có thể lặp lại
-        int addedWeeks = 0; // Đếm số tuần đã thêm lịch
+        int maxWeeksToRepeat = remainingSlots / slotsPerWeek;
+        int addedWeeks = 0;
 
         // Tự động lặp lại toàn bộ lịch học của Room cho các tuần tiếp theo
         LocalDate currentMonday = monday;
         for (int i = 0; i < maxWeeksToRepeat; i++) {
-            currentMonday = currentMonday.plusWeeks(1); // Tăng lên 1 tuần
+            currentMonday = currentMonday.plusWeeks(1);
             LocalDate currentSunday = currentMonday.plusDays(6);
 
-            // Kiểm tra xem có lịch nào trong tuần này đã tồn tại cho Room chưa
             List<Timetable> futureTimetables = entityManager.createQuery(
                             "FROM Timetable t WHERE t.room.roomId = :roomId AND t.date BETWEEN :startDate AND :endDate",
                             Timetable.class)
@@ -161,16 +158,14 @@ public class ThoiKhoaBieuPost {
                     .getResultList();
 
             if (!futureTimetables.isEmpty()) {
-                continue; // Bỏ qua nếu đã có lịch trong tuần này
+                continue;
             }
 
-            // Lặp lại tất cả các slot của tuần hiện tại
             boolean canScheduleWeek = true;
             for (Timetable weeklyTimetable : weeklyTimetables) {
                 LocalDate newDate = currentMonday.plusDays(weeklyTimetable.getDayOfWeek().ordinal());
                 Long weeklySlotId = weeklyTimetable.getSlot().getSlotId();
 
-                // Kiểm tra xem phòng đã được sử dụng trong slot này chưa
                 List<Timetable> futureConflictingTimetables = entityManager.createQuery(
                                 "FROM Timetable t WHERE t.room.roomId = :roomId AND t.slot.slotId = :slotId AND t.date = :date",
                                 Timetable.class)
@@ -181,15 +176,14 @@ public class ThoiKhoaBieuPost {
 
                 if (!futureConflictingTimetables.isEmpty()) {
                     canScheduleWeek = false;
-                    break; // Nếu có xung đột, bỏ qua tuần này
+                    break;
                 }
             }
 
             if (!canScheduleWeek) {
-                continue; // Bỏ qua tuần này nếu có xung đột
+                continue;
             }
 
-            // Tạo lịch học cho tất cả slot trong tuần
             for (Timetable weeklyTimetable : weeklyTimetables) {
                 LocalDate newDate = currentMonday.plusDays(weeklyTimetable.getDayOfWeek().ordinal());
                 Timetable futureTimetable = new Timetable();
@@ -199,9 +193,8 @@ public class ThoiKhoaBieuPost {
                 futureTimetable.setRoom(room);
                 futureTimetable.setEditor(employee);
                 entityManager.persist(futureTimetable);
-                usedSlots++; // Cập nhật số slot đã sử dụng
+                usedSlots++;
 
-                // Nếu vượt quá slotQuantity, xóa slot cũ
                 if (usedSlots > slotQuantity) {
                     roomTimetables = entityManager.createQuery(
                                     "FROM Timetable t WHERE t.room.roomId = :roomId",
@@ -215,7 +208,7 @@ public class ThoiKhoaBieuPost {
                 }
             }
 
-            addedWeeks++; // Tăng số tuần đã thêm
+            addedWeeks++;
         }
 
         redirectAttributes.addAttribute("success", "ScheduleSaved");
@@ -266,9 +259,8 @@ public class ThoiKhoaBieuPost {
                         continue;
                     }
 
-                    LocalDate date = monday.plusDays(Timetable.DayOfWeek.valueOf(day).ordinal());
+                    LocalDate date = monday.plusDays(DayOfWeek.valueOf(day).ordinal());
 
-                    // Kiểm tra xung đột trong cùng room
                     List<Timetable> roomConflicts = entityManager.createQuery(
                                     "FROM Timetable t WHERE t.room.roomId = :roomId AND t.slot.slotId = :slotId AND t.date = :date",
                                     Timetable.class)
@@ -282,7 +274,6 @@ public class ThoiKhoaBieuPost {
                         return "redirect:/ThoiKhoaBieu?year=" + year + "&week=" + week;
                     }
 
-                    // Kiểm tra xem slot này đã được sử dụng bởi room khác trong ngày đó chưa
                     List<Timetable> slotConflicts = entityManager.createQuery(
                                     "FROM Timetable t WHERE t.slot.slotId = :slotId AND t.date = :date AND t.room.roomId != :roomId",
                                     Timetable.class)
@@ -298,7 +289,7 @@ public class ThoiKhoaBieuPost {
 
                     Timetable timetable = new Timetable();
                     timetable.setSlot(slot);
-                    timetable.setDayOfWeek(Timetable.DayOfWeek.valueOf(day));
+                    timetable.setDayOfWeek(DayOfWeek.valueOf(day));
                     timetable.setDate(date);
                     timetable.setRoom(room);
                     timetable.setEditor(employee);
@@ -343,7 +334,6 @@ public class ThoiKhoaBieuPost {
                     continue;
                 }
 
-                boolean canScheduleWeek = true;
                 for (Timetable baseTimetable : baseTimetables) {
                     LocalDate newDate = currentMonday.plusDays(baseTimetable.getDayOfWeek().ordinal());
                     Long slotId = baseTimetable.getSlot().getSlotId();
@@ -373,10 +363,6 @@ public class ThoiKhoaBieuPost {
                         redirectAttributes.addAttribute("error", "SlotAlreadyUsedByAnotherRoom");
                         return "redirect:/ThoiKhoaBieu?year=" + year + "&week=" + week;
                     }
-                }
-
-                if (!canScheduleWeek) {
-                    continue;
                 }
 
                 for (Timetable baseTimetable : baseTimetables) {
@@ -444,34 +430,27 @@ public class ThoiKhoaBieuPost {
             @RequestParam("week") Integer week,
             RedirectAttributes redirectAttributes) {
 
-        // Tìm timetable cụ thể theo timetableId
         Timetable timetable = entityManager.find(Timetable.class, timetableId);
         if (timetable == null) {
             redirectAttributes.addAttribute("error", "InvalidTimetable");
             return "redirect:/ThoiKhoaBieu?year=" + year + "&week=" + week;
         }
 
-        // Lấy Room trước khi xóa timetable
         Room room = timetable.getRoom();
         String roomId = room.getRoomId();
 
-        // Xóa timetable
         entityManager.remove(timetable);
 
-        // Lấy tất cả các timetable còn lại của Room
         List<Timetable> remainingTimetables = entityManager.createQuery(
                         "FROM Timetable t WHERE t.room.roomId = :roomId",
                         Timetable.class)
                 .setParameter("roomId", roomId)
                 .getResultList();
 
-        // Cập nhật startTime và endTime của Room
         if (remainingTimetables.isEmpty()) {
-            // Nếu không còn timetable nào, đặt startTime và endTime về null
             room.setStartTime(null);
             room.setEndTime(null);
         } else {
-            // Sắp xếp danh sách Timetable theo ngày và slot để tìm slot đầu tiên và cuối cùng
             remainingTimetables.sort((t1, t2) -> {
                 int dateCompare = t1.getDate().compareTo(t2.getDate());
                 if (dateCompare != 0) {
@@ -480,18 +459,15 @@ public class ThoiKhoaBieuPost {
                 return t1.getSlot().getStartTime().compareTo(t2.getSlot().getStartTime());
             });
 
-            // Slot đầu tiên (sớm nhất)
             Timetable firstTimetable = remainingTimetables.get(0);
             LocalDateTime startTime = LocalDateTime.of(firstTimetable.getDate(), firstTimetable.getSlot().getStartTime());
             room.setStartTime(startTime);
 
-            // Slot cuối cùng (muộn nhất)
             Timetable lastTimetable = remainingTimetables.get(remainingTimetables.size() - 1);
             LocalDateTime endTime = LocalDateTime.of(lastTimetable.getDate(), lastTimetable.getSlot().getEndTime());
             room.setEndTime(endTime);
         }
 
-        // Cập nhật Room vào database
         entityManager.merge(room);
 
         redirectAttributes.addAttribute("success", "ScheduleDeleted");
@@ -505,19 +481,16 @@ public class ThoiKhoaBieuPost {
             @RequestParam Map<String, String> allParams,
             RedirectAttributes redirectAttributes) {
 
-        // Lấy thông tin người dùng đăng nhập
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
         try {
-            // Tìm Timetable
             Timetable timetable = entityManager.find(Timetable.class, timetableId);
             if (timetable == null) {
                 redirectAttributes.addAttribute("error", "TimetableNotFound");
                 return "redirect:/ChiTietBuoiHoc?timetableId=" + timetableId;
             }
 
-            // Lấy giáo viên từ ClassroomDetails
             List<Teachers> teachers = entityManager.createQuery(
                             "SELECT DISTINCT cd.member FROM ClassroomDetails cd WHERE cd.room.roomId = :roomId AND TYPE(cd.member) = Teachers",
                             Teachers.class)
@@ -530,7 +503,6 @@ public class ThoiKhoaBieuPost {
                 return "redirect:/ChiTietBuoiHoc?timetableId=" + timetableId;
             }
 
-            // Kiểm tra quyền của người dùng (Teachers hoặc Employees)
             Teachers markingTeacher = entityManager.find(Teachers.class, userId);
             Employees markingEmployee = entityManager.find(Employees.class, userId);
             if (markingTeacher == null && markingEmployee == null) {
@@ -538,46 +510,40 @@ public class ThoiKhoaBieuPost {
                 return "redirect:/ChiTietBuoiHoc?timetableId=" + timetableId;
             }
 
-            // Lấy danh sách học sinh trong phòng
             List<Students> students = entityManager.createQuery(
                             "SELECT DISTINCT cd.member FROM ClassroomDetails cd WHERE cd.room.roomId = :roomId AND TYPE(cd.member) = Students",
                             Students.class)
                     .setParameter("roomId", timetable.getRoom().getRoomId())
                     .getResultList();
 
-            // Lấy danh sách điểm danh hiện tại để cập nhật hoặc xóa
             List<Attendances> existingAttendances = entityManager.createQuery(
                             "FROM Attendances a WHERE a.timetable.timetableId = :timetableId",
                             Attendances.class)
                     .setParameter("timetableId", timetableId)
                     .getResultList();
 
-            // Xóa các bản ghi điểm danh cũ (ghi đè toàn bộ)
             for (Attendances attendance : existingAttendances) {
                 entityManager.remove(attendance);
             }
 
-            // Lưu điểm danh mới cho từng học sinh
             for (Students student : students) {
                 String statusKey = "status_" + student.getId();
                 String noteKey = "note_" + student.getId();
                 String status = allParams.getOrDefault(statusKey, "Absent");
                 String note = allParams.get(noteKey);
 
-                // Nếu nhân viên điểm danh hộ, thêm ghi chú với tên nhân viên
                 if (markingEmployee != null) {
-                    String employeeName = markingEmployee.getLastName() + " " + markingEmployee.getFirstName(); // Giả sử có các trường này
+                    String employeeName = markingEmployee.getLastName() + " " + markingEmployee.getFirstName();
                     String employeeNote = "Nhân viên " + employeeName + " điểm danh hộ vì giáo viên quên điểm danh";
                     if (note == null || note.trim().isEmpty()) {
-                        note = employeeNote; // Nếu không có ghi chú, dùng ghi chú của nhân viên
+                        note = employeeNote;
                     } else {
-                        note = note + " - " + employeeNote; // Nếu đã có ghi chú, nối thêm
+                        note = note + " - " + employeeNote;
                     }
                 }
 
-                // Tạo bản ghi Attendance mới
                 Attendances attendance = new Attendances(
-                        teacher, // Giáo viên từ ClassroomDetails
+                        teacher,
                         student,
                         timetable.getSlot(),
                         status,

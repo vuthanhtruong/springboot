@@ -45,60 +45,63 @@ public class NhanVienPost {
     private JavaMailSender mailSender; // Không khai báo lại ở nơi khác
 
 
-    @Transactional
     @PostMapping("/DangKyNhanVien")
-    public String DangKyNhanVien(@RequestParam String EmployeeID,
-                                 @RequestParam String FirstName,
-                                 @RequestParam String LastName,
-                                 @RequestParam String Email,
-                                 @RequestParam String PhoneNumber,
-                                 @RequestParam String Password,
-                                 @RequestParam String ConfirmPassword,
-                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate DateOfBirth,
-                                 Model model) {
+    @Transactional(rollbackOn = Exception.class)
+    public String DangKyNhanVien(
+            @RequestParam("EmployeeID") String employeeID,
+            @RequestParam("FirstName") String firstName,
+            @RequestParam("LastName") String lastName,
+            @RequestParam("Email") String email,
+            @RequestParam("PhoneNumber") String phoneNumber,
+            @RequestParam("Password") String password,
+            @RequestParam("ConfirmPassword") String confirmPassword,
+            @RequestParam("DateOfBirth") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateOfBirth,
+            @RequestParam("Gender") Gender gender,
+            @RequestParam(value = "Country", required = false) String country,
+            @RequestParam(value = "Province", required = false) String province,
+            @RequestParam(value = "District", required = false) String district,
+            @RequestParam(value = "Ward", required = false) String ward,
+            @RequestParam(value = "Street", required = false) String street,
+            @RequestParam(value = "PostalCode", required = false) String postalCode,
+            Model model) {
 
         System.out.println("Bắt đầu đăng ký nhân viên...");
 
         // Kiểm tra EmployeeID đã tồn tại chưa
-        if (entityManager.find(Person.class, EmployeeID) != null) {
+        if (entityManager.find(Person.class, employeeID) != null) {
             model.addAttribute("employeeIDError", "Mã nhân viên đã tồn tại.");
             return "DangKyNhanVien";
         }
 
         // Kiểm tra Email có hợp lệ không
-        if (!Email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+        if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
             model.addAttribute("emailFormatError", "Email không hợp lệ.");
-            return "DangKyNhanVien";
-        }
-        // Kiểm tra định dạng số điện thoại
-        if (!PhoneNumber.matches("^[0-9]+$")) { // Kiểm tra toàn số
-            model.addAttribute("phoneError", "Số điện thoại chỉ được chứa chữ số!");
-            return "DangKyNhanVien";
-        } else if (!PhoneNumber.matches("^\\d{9,10}$")) { // Kiểm tra độ dài
-            model.addAttribute("phoneError", "Số điện thoại phải có 9-10 chữ số!");
             return "DangKyNhanVien";
         }
 
         // Kiểm tra Email đã tồn tại chưa
         List<Person> existingEmployeesByEmail = entityManager.createQuery(
                         "SELECT e FROM Person e WHERE e.email = :email", Person.class)
-                .setParameter("email", Email)
+                .setParameter("email", email)
                 .getResultList();
         if (!existingEmployeesByEmail.isEmpty()) {
             model.addAttribute("emailError", "Email này đã được sử dụng.");
             return "DangKyNhanVien";
         }
 
-        // Kiểm tra số điện thoại (chỉ chứa số, tối thiểu 10 chữ số)
-        if (!PhoneNumber.matches("\\d{10,}")) {
-            model.addAttribute("phoneError", "Số điện thoại không hợp lệ (phải có ít nhất 10 chữ số).");
+        // Kiểm tra định dạng số điện thoại
+        if (!phoneNumber.matches("^[0-9]+$")) {
+            model.addAttribute("phoneError", "Số điện thoại chỉ được chứa chữ số!");
+            return "DangKyNhanVien";
+        } else if (!phoneNumber.matches("^\\d{9,10}$")) {
+            model.addAttribute("phoneError", "Số điện thoại phải có 9-10 chữ số!");
             return "DangKyNhanVien";
         }
 
         // Kiểm tra số điện thoại đã tồn tại chưa
         List<Person> existingEmployeesByPhone = entityManager.createQuery(
                         "SELECT e FROM Person e WHERE e.phoneNumber = :phoneNumber", Person.class)
-                .setParameter("phoneNumber", PhoneNumber)
+                .setParameter("phoneNumber", phoneNumber)
                 .getResultList();
         if (!existingEmployeesByPhone.isEmpty()) {
             model.addAttribute("phoneDuplicateError", "Số điện thoại này đã được sử dụng.");
@@ -106,26 +109,32 @@ public class NhanVienPost {
         }
 
         // Kiểm tra mật khẩu có khớp không
-        if (!Password.equals(ConfirmPassword)) {
+        if (!password.equals(confirmPassword)) {
             model.addAttribute("passwordError", "Mật khẩu không khớp.");
             return "DangKyNhanVien";
         }
 
-        // Kiểm tra độ mạnh của mật khẩu (ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt)
-        if (!isValidPassword(Password)) {
+        // Kiểm tra độ mạnh của mật khẩu
+        if (!isValidPassword(password)) {
             model.addAttribute("passwordStrengthError", "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.");
             return "DangKyNhanVien";
         }
 
         // Kiểm tra tuổi (phải >= 18 tuổi)
         LocalDate today = LocalDate.now();
-        int age = Period.between(DateOfBirth, today).getYears();
+        int age = Period.between(dateOfBirth, today).getYears();
         if (age < 18) {
             model.addAttribute("dobError", "Bạn phải từ 18 tuổi trở lên để đăng ký.");
             return "DangKyNhanVien";
         }
 
-        // Lấy Admin (nếu không có admin -> lỗi)
+        // Kiểm tra ngày sinh có hợp lệ không (phải trong quá khứ)
+        if (dateOfBirth.isAfter(LocalDate.now())) {
+            model.addAttribute("dobError", "Ngày sinh không hợp lệ.");
+            return "DangKyNhanVien";
+        }
+
+        // Lấy Admin
         List<Admin> admins = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
         if (admins.isEmpty()) {
             model.addAttribute("adminError", "Không tìm thấy Admin.");
@@ -135,13 +144,20 @@ public class NhanVienPost {
 
         // Tạo nhân viên mới
         Employees employees = new Employees();
-        employees.setId(EmployeeID);
-        employees.setFirstName(FirstName);
-        employees.setLastName(LastName);
-        employees.setEmail(Email);
-        employees.setPassword(Password); // Lưu mật khẩu đã mã hóa
-        employees.setPhoneNumber(PhoneNumber);
-        employees.setBirthDate(DateOfBirth);
+        employees.setId(employeeID);
+        employees.setFirstName(firstName);
+        employees.setLastName(lastName);
+        employees.setEmail(email);
+        employees.setPassword(password); // Mã hóa mật khẩu
+        employees.setPhoneNumber(phoneNumber);
+        employees.setBirthDate(dateOfBirth);
+        employees.setGender(gender);
+        employees.setCountry(country); // Lưu quốc gia
+        employees.setProvince(province); // Lưu tỉnh/thành phố
+        employees.setDistrict(district); // Lưu quận/huyện
+        employees.setWard(ward); // Lưu xã/phường
+        employees.setStreet(street); // Lưu đường, số nhà
+        employees.setPostalCode(postalCode); // Lưu mã bưu điện
         employees.setAdmin(admin);
 
         try {
@@ -149,7 +165,7 @@ public class NhanVienPost {
             System.out.println("Đăng ký nhân viên thành công!");
         } catch (Exception e) {
             System.out.println("Lỗi khi lưu nhân viên: " + e.getMessage());
-            model.addAttribute("databaseError", "Lỗi khi lưu dữ liệu.");
+            model.addAttribute("databaseError", "Lỗi khi lưu dữ liệu: " + e.getMessage());
             return "DangKyNhanVien";
         }
 

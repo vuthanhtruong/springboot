@@ -31,7 +31,7 @@ public class StudentPost {
     private EntityManager entityManager;
 
     @PostMapping("/DangKyHocSinh")
-    @Transactional(rollbackOn = Exception.class) // Quản lý giao dịch tự động
+    @Transactional(rollbackOn = Exception.class)
     public String dangKyHocSinh(
             @RequestParam("StudentID") String studentID,
             @RequestParam("FirstName") String firstName,
@@ -42,6 +42,13 @@ public class StudentPost {
             @RequestParam(value = "MisId", required = false) String misId,
             @RequestParam("Password") String password,
             @RequestParam("ConfirmPassword") String confirmPassword,
+            @RequestParam("Gender") Gender gender,
+            @RequestParam(value = "Country", required = false) String country,
+            @RequestParam(value = "Province", required = false) String province,
+            @RequestParam(value = "District", required = false) String district,
+            @RequestParam(value = "Ward", required = false) String ward,
+            @RequestParam(value = "Street", required = false) String street,
+            @RequestParam(value = "PostalCode", required = false) String postalCode,
             RedirectAttributes redirectAttributes) {
 
         System.out.println("Bắt đầu đăng ký học sinh...");
@@ -67,11 +74,12 @@ public class StudentPost {
             redirectAttributes.addFlashAttribute("errorEmail", "Email đã tồn tại!");
             return "redirect:/DangKyHocSinh";
         }
+
         // Kiểm tra định dạng số điện thoại
-        if (!phoneNumber.matches("^[0-9]+$")) { // Chỉ kiểm tra có phải toàn số không
+        if (!phoneNumber.matches("^[0-9]+$")) {
             redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại chỉ được chứa chữ số!");
             return "redirect:/DangKyHocSinh";
-        } else if (!phoneNumber.matches("^\\d{9,10}$")) { // Kiểm tra độ dài
+        } else if (!phoneNumber.matches("^\\d{9,10}$")) {
             redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại phải có 9-10 chữ số!");
             return "redirect:/DangKyHocSinh";
         }
@@ -92,14 +100,20 @@ public class StudentPost {
             return "redirect:/DangKyHocSinh";
         }
 
-        // Kiểm tra độ tuổi hợp lệ (ít nhất 6 tuổi)
+        // Kiểm tra ngày sinh có hợp lệ không (phải trong quá khứ)
         LocalDate today = LocalDate.now();
+        if (birthDate.isAfter(today)) {
+            redirectAttributes.addFlashAttribute("errorBirthDate", "Ngày sinh không hợp lệ!");
+            return "redirect:/DangKyHocSinh";
+        }
+
+        // Kiểm tra độ tuổi hợp lệ (ít nhất 6 tuổi)
         if (ChronoUnit.YEARS.between(birthDate, today) < 6) {
             redirectAttributes.addFlashAttribute("errorBirthDate", "Học sinh phải từ 6 tuổi trở lên!");
             return "redirect:/DangKyHocSinh";
         }
 
-        // Lấy Admin (giả sử chỉ có một admin)
+        // Lấy Admin
         List<Admin> adminList = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
         if (adminList.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorAdmin", "Không tìm thấy Admin!");
@@ -123,15 +137,27 @@ public class StudentPost {
         student.setPhoneNumber(phoneNumber);
         student.setBirthDate(birthDate);
         student.setMisId(misId);
-        student.setPassword(password); // Mật khẩu đã được mã hóa trong setter của Students
+        student.setPassword(password); // Mã hóa mật khẩu
+        student.setGender(gender);
+        student.setCountry(country); // Lưu quốc gia
+        student.setProvince(province); // Lưu tỉnh/thành phố
+        student.setDistrict(district); // Lưu quận/huyện
+        student.setWard(ward); // Lưu xã/phường
+        student.setStreet(street); // Lưu đường, số nhà
+        student.setPostalCode(postalCode); // Lưu mã bưu điện
         student.setEmployee(selectedEmployee);
         student.setAdmin(admin);
 
-        // Lưu vào database (giao dịch được quản lý bởi @Transactional)
-        entityManager.persist(student);
-        System.out.println("Đăng ký học sinh thành công! Gán cho nhân viên: " + selectedEmployee.getId());
+        // Lưu vào database
+        try {
+            entityManager.persist(student);
+            System.out.println("Đăng ký học sinh thành công! Gán cho nhân viên: " + selectedEmployee.getId());
+        } catch (Exception e) {
+            System.out.println("Lỗi khi lưu học sinh: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi lưu dữ liệu: " + e.getMessage());
+            return "redirect:/DangKyHocSinh";
+        }
 
-        // Chuyển hướng đến trang chủ với thông báo thành công
         redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công! Vui lòng đăng nhập.");
         return "redirect:/TrangChu";
     }
