@@ -201,6 +201,16 @@ public class ThoiKhoaBieuGet {
             @RequestParam(value = "year", required = false) Integer year,
             @RequestParam(value = "week", required = false) Integer week,
             Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        // Tìm Employee trong database
+        Person person = entityManager.find(Person.class, userId);
+        if (person instanceof Teachers) {
+            model.addAttribute("URL", "/TrangChuGiaoVien");
+        } else {
+            model.addAttribute("URL", "/TrangChuHocSinh");
+        }
 
         // Xử lý giá trị mặc định trong phương thức
         LocalDate now = LocalDate.now();
@@ -210,10 +220,6 @@ public class ThoiKhoaBieuGet {
         if (week == null) {
             week = now.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
         }
-
-        // Lấy thông tin người dùng đăng nhập
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
 
         // Kiểm tra xem người dùng là giáo viên hay học sinh
         Teachers teacher = entityManager.find(Teachers.class, userId);
