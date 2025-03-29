@@ -38,7 +38,7 @@
                         <span th:text="${teacher.phoneNumber}">Số điện thoại</span>
                         <!-- Message Button -->
                         <a class="btn btn-message"
-                           th:href="@{/ChiTietTinNhan/{id}(id=${teacher.id})}">Gửi Tin Nhắn</a>
+                           th:href="@{/ChiTietTinNhan(id=${teacher.id})}">Gửi Tin Nhắn</a>
                     </div>
                 </li>
             </th:block>
@@ -57,7 +57,7 @@
                         <span th:text="${student.phoneNumber}">Số điện thoại</span>
                         <!-- Message Button -->
                         <a class="btn btn-message"
-                           th:href="@{/ChiTietTinNhan/{id}(id=${student.id})}">Gửi Tin Nhắn</a>
+                           th:href="@{/ChiTietTinNhan(id=${student.id})}">Gửi Tin Nhắn</a>
                     </div>
                 </li>
             </th:block>

@@ -147,4 +147,57 @@ public class MessageController {
 
         return "ChiTietTinNhan";
     }
+
+    @MessageMapping("/deleteMessage")
+    @Transactional
+    public void deleteMessage(ChatMessage chatMessage) {
+        try {
+            Optional<Person> sender = personRepository.findById(chatMessage.getSenderId());
+            Optional<Messages> messageOpt = entityManager.createQuery(
+                            "FROM Messages m WHERE m.messagesID = :messageId AND m.sender = :sender", Messages.class)
+                    .setParameter("messageId", Integer.parseInt(chatMessage.getMessageId()))
+                    .setParameter("sender", sender.get())
+                    .getResultList().stream().findFirst();
+
+            if (messageOpt.isPresent()) {
+                Messages message = messageOpt.get();
+                message.setText("Người dùng này đã xóa tin nhắn"); // Cập nhật nội dung tin nhắn
+                entityManager.merge(message);
+                entityManager.flush();
+
+                System.out.println("✅ Tin nhắn đã được cập nhật thành 'Người dùng này đã xóa tin nhắn' với ID: " + message.getMessagesID());
+
+                ChatMessage response = new ChatMessage(
+                        chatMessage.getSenderId(),
+                        message.getRecipient().getId(), // Gửi lại cho recipient
+                        message.getText(),
+                        message.getDatetime().toString()
+                );
+                response.setAction("delete"); // Thêm action để frontend nhận diện
+                response.setMessageId(String.valueOf(message.getMessagesID())); // Truyền messageId
+
+                // Gửi thông báo tới người nhận
+                messagingTemplate.convertAndSendToUser(
+                        message.getRecipient().getId(),
+                        "/queue/messages",
+                        response
+                );
+                System.out.println("📤 Đã gửi thông báo xóa tới /user/" + message.getRecipient().getId() + "/queue/messages");
+
+                // Gửi thông báo lại cho người gửi
+                messagingTemplate.convertAndSendToUser(
+                        chatMessage.getSenderId(),
+                        "/queue/messages",
+                        response
+                );
+                System.out.println("📤 Đã gửi thông báo xóa tới /user/" + chatMessage.getSenderId() + "/queue/messages");
+            } else {
+                System.out.println("⚠️ Không tìm thấy tin nhắn hoặc không có quyền xóa");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("❌ Lỗi khi xóa tin nhắn: " + e.getMessage());
+        }
+    }
+
 }

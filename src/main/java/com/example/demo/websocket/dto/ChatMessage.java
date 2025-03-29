@@ -5,6 +5,8 @@ public class ChatMessage {
     private String recipientId;
     private String content;
     private String timestamp;
+    private String action; // Thêm nếu cần gửi loại hành động
+    private String messageId; // Thêm thuộc tính này
 
     // Constructors
     public ChatMessage() {
@@ -15,6 +17,14 @@ public class ChatMessage {
         this.recipientId = recipientId;
         this.content = content;
         this.timestamp = timestamp;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     // Getters và Setters
@@ -48,5 +58,13 @@ public class ChatMessage {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
     }
 }

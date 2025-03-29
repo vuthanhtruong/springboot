@@ -45,6 +45,7 @@
             margin: 10px 0;
             padding: 10px;
             border-radius: 5px;
+            position: relative;
         }
 
         .message-box.right {
@@ -55,6 +56,14 @@
         .message-box.left {
             background-color: #f5f5f5;
             align-self: flex-start;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            color: red;
         }
     </style>
 </head>
@@ -82,12 +91,15 @@
         <!-- Hiển thị tin nhắn khi có chatPartner -->
         <div id="messagesContainer" th:if="${chatPartner != null}">
             <div class="message-box" th:classappend="${message.sender.id == currentUser.id} ? 'right' : 'left'"
-                 th:each="message : ${messages}">
+                 th:each="message : ${messages}" th:id="'message-' + ${message.messagesID}">
                 <div class="message-header">
                     <span th:text="${message.sender.id == currentUser.id ? 'Bạn' : chatPartner.firstName + ' ' + chatPartner.lastName}"></span>
                 </div>
                 <div class="message-time" th:text="${#temporals.format(message.datetime, 'dd/MM/yyyy HH:mm')}"></div>
                 <div class="message-text" th:text="${message.text}"></div>
+                <!-- Nút xóa -->
+                <span class="delete-btn" onclick="deleteMessage(this)"
+                      th:data-message-id="${message.messagesID}" th:if="${message.sender.id == currentUser.id}">X</span>
             </div>
         </div>
         <!-- Thông báo khi chưa chọn liên hệ -->
@@ -107,7 +119,6 @@
         </div>
     </div>
 </div>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const socket = new SockJS("/ws");
@@ -118,7 +129,11 @@
 
             stompClient.subscribe("/user/queue/messages", function (message) {
                 const content = JSON.parse(message.body);
-                appendMessage(content.senderId, content.content, content.timestamp);
+                if (content.action === "delete") {
+                    updateMessageAsDeleted(content.messageId);
+                } else {
+                    appendMessage(content.senderId, content.content, content.timestamp, content.messageId);
+                }
             });
         });
 
@@ -143,7 +158,7 @@
             });
         }
 
-        function appendMessage(senderId, content, timestamp) {
+        function appendMessage(senderId, content, timestamp, messageId) {
             var currentUserId = document.getElementById("currentUserId")?.value;
             var chatPartnerId = document.getElementById("chatPartnerId")?.value;
             var chatPartnerName = document.querySelector(".message-box.left .message-header span")?.textContent || "Người đối thoại";
@@ -152,10 +167,11 @@
             var isCurrentUser = senderId == currentUserId;
 
             var messageHTML = `
-            <div class="message-box ${isCurrentUser ? 'right' : 'left'}">
+            <div class="message-box ${isCurrentUser ? 'right' : 'left'}" id="message-${messageId}">
                 <div class="message-header">${sender}</div>
                 <div class="message-time">${new Date(timestamp).toLocaleString('vi-VN')}</div>
                 <div class="message-text">${content}</div>
+                ${isCurrentUser ? `<span class="delete-btn" data-message-id="${messageId}" onclick="deleteMessage(this)">X</span>` : ''}
             </div>`;
 
             var messagesContainer = document.getElementById("messagesContainer");
@@ -165,12 +181,34 @@
             }
         }
 
+        function updateMessageAsDeleted(messageId) {
+            const messageElement = document.getElementById(`message-${messageId}`);
+            if (messageElement) {
+                const textElement = messageElement.querySelector(".message-text");
+                textElement.textContent = "Người dùng này đã xóa tin nhắn";
+                const deleteBtn = messageElement.querySelector(".delete-btn");
+                if (deleteBtn) {
+                    deleteBtn.remove(); // Xóa nút "X" sau khi tin nhắn đã bị xóa
+                }
+            }
+        }
+
         function scrollToBottom() {
             var container = document.getElementById("messagesContainer");
             if (container) {
                 container.scrollTop = container.scrollHeight;
             }
         }
+
+        window.deleteMessage = function (element) {
+            const messageId = element.getAttribute("data-message-id");
+            const senderId = document.getElementById("currentUserId").value;
+
+            stompClient.send("/app/deleteMessage", {}, JSON.stringify({
+                messageId: messageId,
+                senderId: senderId
+            }));
+        };
 
         // Cuộn xuống cuối nếu có tin nhắn
         if (document.getElementById("messagesContainer")) {
