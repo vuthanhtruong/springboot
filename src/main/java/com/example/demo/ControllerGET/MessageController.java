@@ -17,7 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -93,60 +93,56 @@ public class MessageController {
         }
     }
 
-    @GetMapping("/TinNhanCuaBan")
-    public String TinNhanCuaBan(HttpSession session, ModelMap model) {
+    @GetMapping("/ChiTietTinNhan")
+    public String ChiTietTinNhan(HttpSession session, ModelMap model,
+                                 @RequestParam(value = "id", required = false) String chatPartnerId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        Person person = entityManager.find(Person.class, userId);
+        Person currentUser = entityManager.find(Person.class, userId);
 
-        if (person == null) {
-            return "redirect:/login";
+        if (currentUser == null) {
+            return "redirect:/TinNhanCuaBan?error=UserNotFound";
         }
 
-        List<Messages> messages = entityManager.createQuery(
+        // Lấy danh sách tất cả tin nhắn của currentUser để tạo danh sách liên hệ
+        List<Messages> allMessages = entityManager.createQuery(
                         "FROM Messages m WHERE m.sender = :user OR m.recipient = :user", Messages.class)
-                .setParameter("user", person)
+                .setParameter("user", currentUser)
                 .getResultList();
 
+        // Tạo danh sách liên hệ (contacts)
         Set<Person> contacts = new HashSet<>();
-        for (Messages message : messages) {
-            if (!message.getSender().equals(person)) {
+        for (Messages message : allMessages) {
+            if (!message.getSender().equals(currentUser)) {
                 contacts.add(message.getSender());
             }
-            if (!message.getRecipient().equals(person)) {
+            if (!message.getRecipient().equals(currentUser)) {
                 contacts.add(message.getRecipient());
             }
         }
 
-        model.addAttribute("trangchu", person instanceof Students ? "TrangChuHocSinh" : "TrangChuGiaoVien");
-        model.addAttribute("contacts", contacts);
-
-        return "TinNhanCuaBan";
-    }
-
-    @GetMapping("/ChiTietTinNhan/{id}")
-    public String ChiTietTinNhan(HttpSession session, ModelMap model, @PathVariable("id") String id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
-        Person currentUser = entityManager.find(Person.class, userId);
-        Person chatPartner = entityManager.find(Person.class, id);
-
-        if (currentUser == null || chatPartner == null) {
-            return "redirect:/TinNhanCuaBan?error=UserNotFound";
+        // Xử lý tin nhắn với chatPartner nếu có chatPartnerId
+        List<Messages> messages = null;
+        Person chatPartner = null;
+        if (chatPartnerId != null && !chatPartnerId.isEmpty()) {
+            chatPartner = entityManager.find(Person.class, chatPartnerId);
+            if (chatPartner != null) {
+                messages = entityManager.createQuery(
+                                "FROM Messages m WHERE " +
+                                        "(m.sender = :currentUser AND m.recipient = :chatPartner) " +
+                                        "OR (m.sender = :chatPartner AND m.recipient = :currentUser) " +
+                                        "ORDER BY m.datetime ASC", Messages.class)
+                        .setParameter("currentUser", currentUser)
+                        .setParameter("chatPartner", chatPartner)
+                        .getResultList();
+            }
         }
 
-        List<Messages> messages = entityManager.createQuery(
-                        "FROM Messages m WHERE " +
-                                "(m.sender = :currentUser AND m.recipient = :chatPartner) " +
-                                "OR (m.sender = :chatPartner AND m.recipient = :currentUser) " +
-                                "ORDER BY m.datetime ASC", Messages.class)
-                .setParameter("currentUser", currentUser)
-                .setParameter("chatPartner", chatPartner)
-                .getResultList();
-
+        // Thêm các thuộc tính vào model để hiển thị trên giao diện
         model.addAttribute("currentUser", currentUser);
-        model.addAttribute("chatPartner", chatPartner);
-        model.addAttribute("messages", messages);
+        model.addAttribute("chatPartner", chatPartner); // Có thể null nếu không chọn
+        model.addAttribute("messages", messages); // Có thể null nếu không chọn
+        model.addAttribute("contacts", contacts); // Danh sách liên hệ luôn có
         model.addAttribute("trangchu", currentUser instanceof Students ? "TrangChuHocSinh" : "TrangChuGiaoVien");
 
         return "ChiTietTinNhan";
