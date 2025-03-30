@@ -15,6 +15,25 @@
         <a class="btn btn-back" th:href="@{/DanhSachLopHoc}">🔙 Quay lại danh sách lớp học</a>
         <a class="btn btn-home" th:href="@{${homePage}}">🏠 Quay lại trang chủ</a>
     </div>
+    <!-- 🎤 Mục Feedback -->
+    <div class="feedback-section" th:if="${feedback}">
+        <h2>📢 Đánh giá giáo viên</h2>
+        <form action="/GuiNhanXetGiaoVien" method="POST">
+            <input name="roomId" th:value="${room?.roomId}" type="hidden">
+            <input name="reviewerId" th:value="${#authentication.principal.username}" type="hidden">
+
+            <label for="teacher">👩‍🏫 Chọn giáo viên:</label>
+            <select id="teacher" name="teacherId" required>
+                <option th:each="teacher : ${teachers}" th:text="${teacher.firstName + ' ' + teacher.lastName}"
+                        th:value="${teacher.teacherId}"></option>
+            </select>
+
+            <label for="text">📝 Nhập nhận xét:</label>
+            <textarea id="text" name="text" placeholder="Nhập đánh giá của bạn..." required></textarea>
+
+            <button type="submit">📩 Gửi đánh giá</button>
+        </form>
+    </div>
     <a class="btn btn-members" th:href="@{'/ThanhVienTrongLopHocCuaBan/' + ${room?.roomId}}">👥 Thành viên trong
         lớp</a>
 </header>

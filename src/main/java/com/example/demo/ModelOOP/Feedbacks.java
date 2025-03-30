@@ -39,6 +39,12 @@ public class Feedbacks {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Events event;
 
+    // Liên kết với bảng Room
+    @ManyToOne
+    @JoinColumn(name = "RoomID", nullable = false, foreignKey = @ForeignKey(name = "FK_Feedbacks_Room"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Room room;
+
     @Column(name = "Text", nullable = false, columnDefinition = "TEXT")
     private String text;
 
@@ -50,11 +56,12 @@ public class Feedbacks {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Feedbacks(Students reviewer, Teachers teacher, Employees receiver, Events event, String text) {
+    public Feedbacks(Students reviewer, Teachers teacher, Employees receiver, Events event, Room room, String text) {
         this.reviewer = reviewer;
         this.teacher = teacher;
         this.receiver = receiver;
         this.event = event;
+        this.room = room;
         this.text = text;
         this.createdAt = LocalDateTime.now();
     }
@@ -98,6 +105,14 @@ public class Feedbacks {
 
     public void setEvent(Events event) {
         this.event = event;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     public String getText() {

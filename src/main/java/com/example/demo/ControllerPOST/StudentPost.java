@@ -191,39 +191,68 @@ public class StudentPost {
 
     @PostMapping("/GuiNhanXetGiaoVien")
     @Transactional
-    public String guiNhanXetGiaoVien(@RequestParam("teacherId") String teacherId,
+    public String guiNhanXetGiaoVien(@RequestParam("teacherId") Long teacherId,
+                                     @RequestParam("roomId") String roomId,
                                      @RequestParam("text") String text,
                                      HttpSession session,
                                      RedirectAttributes redirectAttributes) {
         try {
-            log.info("📝 Nhận xét giáo viên với ID: {}", teacherId);
+            log.info("📝 Nhận xét giáo viên với ID: {}, phòng học: {}", teacherId, roomId);
 
+            // Lấy ID học sinh từ phiên đăng nhập
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String studentId = authentication.getName();
-            Person person = entityManager.find(Person.class, studentId);
-            Students student = (Students) person; // Lấy ID học sinh từ session
-            // Lấy thông tin giáo viên từ database
+
+            // Kiểm tra nếu sinh viên chưa đăng nhập
+            if (studentId == null || studentId.isEmpty()) {
+                throw new IllegalArgumentException("Bạn chưa đăng nhập!");
+            }
+
+            // Tìm sinh viên trong database
+            Students student = entityManager.find(Students.class, studentId);
+            if (student == null) {
+                throw new IllegalArgumentException("Không tìm thấy học sinh với ID: " + studentId);
+            }
+
+            // Tìm giáo viên
             Teachers teacher = entityManager.find(Teachers.class, teacherId);
             if (teacher == null) {
                 throw new IllegalArgumentException("Không tìm thấy giáo viên với ID: " + teacherId);
             }
+
+            // Tìm phòng học
+            Room room = entityManager.find(Room.class, roomId);
+            if (room == null) {
+                throw new IllegalArgumentException("Không tìm thấy phòng học với ID: " + roomId);
+            }
+
+            // Lấy nhân viên nhận phản hồi (nếu có)
+            Employees receiver = student.getEmployee(); // Hoặc entityManager.find(Employees.class, someId);
+
             // Tạo nhận xét mới
             Feedbacks feedback = new Feedbacks();
             feedback.setReviewer(student);
             feedback.setTeacher(teacher);
-            feedback.setReceiver(student.getEmployee());
-            feedback.setText(text);
+            feedback.setReceiver(receiver);
+            feedback.setText(text.trim());
+            feedback.setRoom(room);
             feedback.setCreatedAt(LocalDateTime.now());
 
+            // Xác định sự kiện phản hồi
             Events events = entityManager.find(Events.class, 3);
             feedback.setEvent(events);
 
-            // Lưu vào database
+            // Lưu nhận xét vào database
             entityManager.persist(feedback);
             log.info("✅ Nhận xét đã được lưu thành công.");
 
             // Gửi thông báo về giao diện
             redirectAttributes.addFlashAttribute("message", "Nhận xét của bạn đã được gửi!");
+
+        } catch (IllegalArgumentException e) {
+            log.warn("⚠️ Lỗi kiểm tra dữ liệu: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 
         } catch (Exception e) {
             log.error("❌ Lỗi khi gửi nhận xét: {}", e.getMessage(), e);
@@ -232,5 +261,6 @@ public class StudentPost {
         }
         return "redirect:/TrangChuHocSinh";
     }
+
 
 }

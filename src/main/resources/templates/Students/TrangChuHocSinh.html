@@ -29,23 +29,6 @@
             <div class="nav-item"><a class="text-danger" href="/DangXuat"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</a>
             </div>
         </nav>
-
-        <div class="teacher-feedback">
-            <h3><i class="fas fa-star"></i> Nhận Xét Giáo Viên</h3>
-            <form action="/GuiNhanXetGiaoVien" method="POST">
-                <label for="teacher">Chọn Giáo Viên:</label>
-                <select class="form-select" id="teacher" name="teacherId" required>
-                    <option value="">-- Chọn giáo viên --</option>
-                    <option th:each="teacher : ${teachers}" th:text="${teacher.firstName + ' ' + teacher.lastName}"
-                            th:value="${teacher.id}"></option>
-                </select>
-                <label for="comment">Nhận xét:</label>
-                <textarea class="form-control" id="comment" name="text" placeholder="Viết nhận xét của bạn..." required
-                          rows="3"></textarea>
-                <button class="btn btn-primary mt-2" type="submit"><i class="fas fa-paper-plane"></i> Gửi Nhận Xét
-                </button>
-            </form>
-        </div>
     </div>
 
     <!-- Phần thông báo sự kiện (phải) -->

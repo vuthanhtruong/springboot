@@ -73,6 +73,41 @@ public class DanhSachLopHocGet {
 
     @GetMapping("ChiTietLopHocBanThamGia/{id}")
     public String ChiTietLopHocBanThamGia(@PathVariable String id, Model model, Authentication authentication) {
+
+        Boolean feedback = false;
+        long totalSessions = entityManager.createQuery(
+                        "SELECT COUNT(t) FROM Timetable t WHERE t.room.roomId = :roomId", Long.class)
+                .setParameter("roomId", id)
+                .getSingleResult();
+
+        long completedSessions = entityManager.createQuery(
+                        "SELECT COUNT(a) FROM Attendances a WHERE a.timetable.room.roomId = :roomId AND a.status IN ('Present', 'Absent')",
+                        Long.class)
+                .setParameter("roomId", id)
+                .getSingleResult();
+        if (totalSessions > 0) {
+            double progress = ((double) completedSessions / totalSessions) * 100;
+
+            if (progress >= 25.0) { // Chỉ cần >= 25% là cho phép feedback
+                feedback = true;
+            }
+        }
+        if (feedback) {
+            List<Teachers> teachers = entityManager.createQuery(
+                            "FROM Teachers", Teachers.class)
+                    .getResultList();
+            List<ClassroomDetails> classroomDetails = entityManager.createQuery("from ClassroomDetails ", ClassroomDetails.class).getResultList();
+            for (ClassroomDetails classroomDetail : classroomDetails) {
+                for (Teachers teacher : teachers) {
+                    if (classroomDetail.getMember().getId() == teacher.getId()) {
+                        model.addAttribute("teachers", teachers);
+                    }
+                }
+            }
+        }
+        model.addAttribute("feedback", feedback);
+
+
         String username = authentication.getName();
 
         Person member = entityManager.find(Person.class, username);
