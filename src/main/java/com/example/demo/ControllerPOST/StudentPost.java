@@ -261,6 +261,4 @@ public class StudentPost {
         }
         return "redirect:/TrangChuHocSinh";
     }
-
-
 }
