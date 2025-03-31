@@ -287,11 +287,15 @@ public class NhanVienPost {
     }
 
     @PostMapping("/CapNhatSoSlot")
-    public String capNhatSoSlot(@RequestParam("roomId") String roomId, @RequestParam("slotQuantity") Integer slotQuantity) {
+    public String capNhatSoSlot(@RequestParam("roomId") String roomId, @RequestParam("slotQuantity") Integer slotQuantity, RedirectAttributes redirectAttributes) {
         Room room = entityManager.find(Room.class, roomId);
         if (room != null) {
             room.setSlotQuantity(slotQuantity);
             entityManager.merge(room);
+        }
+        if (room.getSlotQuantity() == null || room.getSlotQuantity() <= 0) {
+            redirectAttributes.addFlashAttribute("error", "Số lượng slot không được null hoặc bé hơn 0");
+            return "redirect:/BoTriLopHoc";
         }
         return "redirect:/BoTriLopHoc";
     }

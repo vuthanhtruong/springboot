@@ -227,6 +227,12 @@ public class ThoiKhoaBieuPost {
             @RequestParam Map<String, String> allParams,
             RedirectAttributes redirectAttributes) {
 
+        Room roomtest = entityManager.find(Room.class, roomId);
+        if (roomtest.getSlotQuantity() == null) {
+            redirectAttributes.addFlashAttribute("error", "Slot Quantity is null");
+            return "redirect:/ThoiKhoaBieu?year=" + year + "&week=" + week;
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName();
 
@@ -419,58 +425,6 @@ public class ThoiKhoaBieuPost {
             e.printStackTrace();
         }
 
-        return "redirect:/ThoiKhoaBieu?year=" + year + "&week=" + week;
-    }
-
-    @PostMapping("/XoaLichHoc")
-    @Transactional
-    public String xoaLichHoc(
-            @RequestParam("timetableId") Long timetableId,
-            @RequestParam("year") Integer year,
-            @RequestParam("week") Integer week,
-            RedirectAttributes redirectAttributes) {
-
-        Timetable timetable = entityManager.find(Timetable.class, timetableId);
-        if (timetable == null) {
-            redirectAttributes.addAttribute("error", "InvalidTimetable");
-            return "redirect:/ThoiKhoaBieu?year=" + year + "&week=" + week;
-        }
-
-        Room room = timetable.getRoom();
-        String roomId = room.getRoomId();
-
-        entityManager.remove(timetable);
-
-        List<Timetable> remainingTimetables = entityManager.createQuery(
-                        "FROM Timetable t WHERE t.room.roomId = :roomId",
-                        Timetable.class)
-                .setParameter("roomId", roomId)
-                .getResultList();
-
-        if (remainingTimetables.isEmpty()) {
-            room.setStartTime(null);
-            room.setEndTime(null);
-        } else {
-            remainingTimetables.sort((t1, t2) -> {
-                int dateCompare = t1.getDate().compareTo(t2.getDate());
-                if (dateCompare != 0) {
-                    return dateCompare;
-                }
-                return t1.getSlot().getStartTime().compareTo(t2.getSlot().getStartTime());
-            });
-
-            Timetable firstTimetable = remainingTimetables.get(0);
-            LocalDateTime startTime = LocalDateTime.of(firstTimetable.getDate(), firstTimetable.getSlot().getStartTime());
-            room.setStartTime(startTime);
-
-            Timetable lastTimetable = remainingTimetables.get(remainingTimetables.size() - 1);
-            LocalDateTime endTime = LocalDateTime.of(lastTimetable.getDate(), lastTimetable.getSlot().getEndTime());
-            room.setEndTime(endTime);
-        }
-
-        entityManager.merge(room);
-
-        redirectAttributes.addAttribute("success", "ScheduleDeleted");
         return "redirect:/ThoiKhoaBieu?year=" + year + "&week=" + week;
     }
 
