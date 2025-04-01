@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Chi Tiết Lớp Học</title>
     <link href="/ChiTietLopHocGiaoVien.css" rel="stylesheet">
 </head>
-
 <body>
 <header>
     <h1>Chi Tiết Lớp Học</h1>
@@ -15,31 +13,25 @@
         <a class="btn btn-back" th:href="@{/DanhSachLopHoc}">🔙 Quay lại danh sách lớp học</a>
         <a class="btn btn-home" th:href="@{${homePage}}">🏠 Quay lại trang chủ</a>
     </div>
-    <!-- 🎤 Mục Feedback -->
     <div class="feedback-section" th:if="${feedback}">
         <h2>📢 Đánh giá giáo viên</h2>
         <form action="/GuiNhanXetGiaoVien" method="POST">
             <input name="roomId" th:value="${room?.roomId}" type="hidden">
             <input name="reviewerId" th:value="${#authentication.principal.username}" type="hidden">
-
             <label for="teacher">👩‍🏫 Chọn giáo viên:</label>
             <select id="teacher" name="teacherId" required>
                 <option th:each="teacher : ${teachers}" th:text="${teacher.firstName + ' ' + teacher.lastName}"
                         th:value="${teacher.teacherId}"></option>
             </select>
-
             <label for="text">📝 Nhập nhận xét:</label>
             <textarea id="text" name="text" placeholder="Nhập đánh giá của bạn..." required></textarea>
-
             <button type="submit">📩 Gửi đánh giá</button>
         </form>
     </div>
-    <a class="btn btn-members" th:href="@{'/ThanhVienTrongLopHocCuaBan/' + ${room?.roomId}}">👥 Thành viên trong
-        lớp</a>
+    <a class="btn btn-members" th:href="@{'/ThanhVienTrongLopHocCuaBan/' + ${room?.roomId}}">👥 Thành viên trong lớp</a>
 </header>
 
 <div class="container">
-    <!-- 🏫 Thông Tin Lớp Học -->
     <div class="class-detail">
         <h2>Thông Tin Lớp Học</h2>
         <p><strong>Tên lớp học:</strong> <span th:text="${room?.roomName ?: 'Không xác định'}"></span></p>
@@ -59,27 +51,27 @@
         </p>
     </div>
 
-    <!-- 📝 Đăng bài mới -->
     <div class="post-section">
         <h2>Đăng Bài Mới</h2>
-        <a th:href="@{'/BaiDangCaNhan/' + ${room?.roomId}}">
-            <i class="fas fa-user"></i> Bài Đăng Cá Nhân
-        </a>
-        <form action="/BaiPost" enctype="multipart/form-data" method="POST">
+        <a th:href="@{'/BaiDangCaNhan/' + ${room?.roomId}}"><i class="fas fa-user"></i> Bài Đăng Cá Nhân</a>
+        <form action="/BaiPost" enctype="multipart/form-data" id="postForm" method="POST">
             <input name="roomId" th:value="${room?.roomId}" type="hidden">
             <textarea name="postContent" placeholder="Nhập nội dung bài đăng..." required></textarea>
 
             <div class="file-upload">
-                <label for="file">📎 Tải tệp lên:</label>
-                <input accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip,.mp4,.avi,.mov" id="file" name="file"
-                       type="file">
+                <label for="files">📎 Tải tệp lên:</label>
+                <input accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip,.mp4,.avi,.mov"
+                       id="files"
+                       name="files"
+                       onchange="addFiles(this.files)"
+                       type="file"> <!-- Xóa multiple, thêm onchange -->
+                <ul id="fileList" style="list-style: none; padding: 0;"></ul> <!-- Hiển thị danh sách file -->
             </div>
 
             <button type="submit">🚀 Đăng Bài</button>
         </form>
     </div>
 
-    <!-- 📄 Danh sách bài đăng -->
     <div class="post-list">
         <h2>Bài Đăng Trong Lớp</h2>
         <ul>
@@ -89,21 +81,15 @@
                 <p><strong>📝 Nội dung:</strong> <span th:text="${post.content}"></span></p>
                 <p><strong>Thời gian đăng:</strong> <span
                         th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
-
-                <!-- 📂 Tài liệu đính kèm -->
                 <div class="document-list" th:if="${not #lists.isEmpty(post.documents)}">
                     <h4>📄 Tài liệu đính kèm:</h4>
                     <ul>
                         <li th:each="document : ${post.documents}">
                             <a class="btn btn-download" th:download="${document.documentTitle}"
-                               th:href="@{'/api/files/download/' + ${document.documentId}}">
-                                📥 Tải xuống
-                            </a>
+                               th:href="@{'/api/files/download/' + ${document.documentId}}">📥 Tải xuống</a>
                         </li>
                     </ul>
                 </div>
-
-                <!-- 💬 Mục bình luận -->
                 <div class="comment-section">
                     <h3>💬 Bình luận</h3>
                     <ul class="comment-list">
@@ -113,8 +99,7 @@
                             </p>
                             <p><strong>💬 Nội dung:</strong> <span th:text="${comment.text}"></span></p>
                             <p><strong>⏳ Thời gian:</strong> <span
-                                    th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
-                            </p>
+                                    th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
                         </li>
                     </ul>
                     <form action="/BinhLuan" method="POST">
@@ -127,7 +112,6 @@
             </li>
         </ul>
     </div>
-
 </div>
 
 <style>
@@ -165,6 +149,52 @@
     }
 </style>
 
-</body>
+<script>
+    let selectedFiles = []; // Danh sách file tích lũy
 
+    function addFiles(files) {
+        for (let file of files) {
+            // Kiểm tra trùng lặp
+            if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                selectedFiles.push(file);
+            }
+        }
+        updateFileList();
+    }
+
+    function updateFileList() {
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = ''; // Xóa danh sách cũ
+        selectedFiles.forEach((file, index) => {
+            const li = document.createElement('li');
+            li.textContent = `${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = 'Xóa';
+            removeBtn.onclick = () => {
+                selectedFiles.splice(index, 1);
+                updateFileList();
+            };
+            li.appendChild(removeBtn);
+            fileList.appendChild(li);
+        });
+    }
+
+    document.getElementById('postForm').onsubmit = function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        // Xóa các file cũ từ input
+        formData.delete('files');
+        // Thêm tất cả file từ selectedFiles
+        selectedFiles.forEach(file => formData.append('files', file));
+        fetch('/BaiPost', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            if (response.redirected) {
+                window.location.href = response.url; // Điều hướng theo redirect
+            }
+        });
+    };
+</script>
+</body>
 </html>
