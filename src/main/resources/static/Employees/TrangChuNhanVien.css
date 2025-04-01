@@ -1,171 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+/* Import font */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
 
+/* Variables */
 :root {
-    --bg-gradient: linear-gradient(135deg, #1a002b, #657dcf, #240046);
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --border-glass: rgba(255, 255, 255, 0.3);
-    --shadow-glass: rgba(0, 0, 0, 0.2);
-    --neon-blue: #00eaff;
-    --neon-purple: #9d00ff;
-    --neon-pink: #ff0080;
-    --neon-green: #00ff88;
-    --neon-orange: #ff8800;
+    --primary: #4361ee;
+    --secondary: #3a0ca3;
+    --accent: #4cc9f0;
+    --success: #2ecc71;
+    --warning: #f7b731;
+    --danger: #fc5c65;
+    --surface: #ffffff;
+    --text: #2d3436;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Orbitron', sans-serif;
-}
-
+/* Base styles */
 body {
-    background: var(--bg-gradient);
-    color: white;
-    text-align: center;
-    padding: 40px;
-    animation: fadeIn 1s ease-in-out;
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    background: radial-gradient(circle at 0% 0%, rgba(67, 97, 238, 0.1), transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(76, 201, 240, 0.1), transparent 50%),
+    #f8f9fa;
 }
 
-h1, h2 {
-    text-transform: uppercase;
-    text-shadow: 0 0 20px var(--neon-blue);
-    margin-bottom: 20px;
-}
-
-h2 {
-    font-size: 22px;
-    color: var(--neon-green);
-    text-shadow: 0 0 12px var(--neon-green);
-}
-
+/* Container */
 .container {
-    max-width: 90%;
-    margin: auto;
-    background: var(--glass-bg);
-    padding: 30px;
-    border-radius: 15px;
-    border: 2px solid var(--border-glass);
-    box-shadow: 0 0 15px var(--shadow-glass);
-    backdrop-filter: blur(12px);
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    box-shadow: 0 0 0 1px rgba(67, 97, 238, 0.05),
+    0 20px 40px rgba(67, 97, 238, 0.1);
+    animation: container-appear 0.6s ease-out;
 }
 
-/* Button Styles */
-.btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 12px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s;
-    border: none;
-    width: 100%;
-    box-shadow: 0 0 10px var(--shadow-glass);
-    color: white;
-}
-
-.btn i {
-    margin-right: 10px;
-    font-size: 22px;
-}
-
-.btn-outline-primary {
-    background: transparent;
-    border: 2px solid var(--neon-blue);
-    box-shadow: 0 0 12px var(--neon-blue);
-}
-
-.btn-outline-primary:hover {
-    background: var(--neon-blue);
-    color: black;
-    box-shadow: 0 0 20px var(--neon-blue);
-}
-
-.btn-outline-success {
-    background: transparent;
-    border: 2px solid var(--neon-green);
-    box-shadow: 0 0 12px var(--neon-green);
-}
-
-.btn-outline-success:hover {
-    background: var(--neon-green);
-    color: black;
-    box-shadow: 0 0 20px var(--neon-green);
-}
-
-.btn-outline-warning {
-    background: transparent;
-    border: 2px solid var(--neon-orange);
-    box-shadow: 0 0 12px var(--neon-orange);
-}
-
-.btn-outline-warning:hover {
-    background: var(--neon-orange);
-    color: black;
-    box-shadow: 0 0 20px var(--neon-orange);
-}
-
-.btn-outline-info {
-    background: transparent;
-    border: 2px solid var(--neon-purple);
-    box-shadow: 0 0 12px var(--neon-purple);
-}
-
-.btn-outline-info:hover {
-    background: var(--neon-purple);
-    color: white;
-    box-shadow: 0 0 20px var(--neon-purple);
-}
-
-.btn-outline-dark {
-    background: transparent;
-    border: 2px solid var(--neon-pink);
-    box-shadow: 0 0 12px var(--neon-pink);
-}
-
-.btn-outline-dark:hover {
-    background: var(--neon-pink);
-    color: white;
-    box-shadow: 0 0 20px var(--neon-pink);
-}
-
-.btn-danger {
-    background: var(--neon-pink);
-    box-shadow: 0 0 15px var(--neon-pink);
-    color: white;
-}
-
-.btn-danger:hover {
-    background: var(--neon-purple);
-    box-shadow: 0 0 20px var(--neon-purple);
-}
-
-/* Card Grid Layout */
-.row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.col-md-6, .col-md-12 {
-    width: 45%;
-}
-
-.col-md-12 {
-    width: 100%;
-}
-
-/* Animations */
-@keyframes fadeIn {
+@keyframes container-appear {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
@@ -173,237 +47,143 @@ h2 {
     }
 }
 
-/* Tăng độ đậm cho nút */
-.btn {
-    font-size: 20px;
+/* Header section */
+.text-center {
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-size: 2.8rem;
     font-weight: 700;
-    padding: 18px;
-    border-radius: 15px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-    width: 100%;
-    box-shadow: 0 0 15px var(--shadow-glass);
-    color: white;
-    border-width: 3px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
-.btn i {
-    font-size: 24px;
+h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text);
+    margin: 1rem 0;
 }
 
-/* Màu sắc và hiệu ứng hover */
-.btn-outline-primary {
-    background: transparent;
-    border: 3px solid var(--neon-blue);
-    box-shadow: 0 0 15px var(--neon-blue);
+h2 span {
+    font-weight: 600;
 }
 
-.btn-outline-primary:hover {
-    background: var(--neon-blue);
-    color: black;
-    box-shadow: 0 0 25px var(--neon-blue);
+h2 a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.btn-outline-success {
-    background: transparent;
-    border: 3px solid var(--neon-green);
-    box-shadow: 0 0 15px var(--neon-green);
+h2 a:hover {
+    color: var(--accent);
 }
 
-.btn-outline-success:hover {
-    background: var(--neon-green);
-    color: black;
-    box-shadow: 0 0 25px var(--neon-green);
+/* Row and buttons */
+.row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
 }
 
-.btn-outline-warning {
-    background: transparent;
-    border: 3px solid var(--neon-orange);
-    box-shadow: 0 0 15px var(--neon-orange);
-}
-
-.btn-outline-warning:hover {
-    background: var(--neon-orange);
-    color: black;
-    box-shadow: 0 0 25px var(--neon-orange);
-}
-
-.btn-outline-info {
-    background: transparent;
-    border: 3px solid var(--neon-purple);
-    box-shadow: 0 0 15px var(--neon-purple);
-}
-
-.btn-outline-info:hover {
-    background: var(--neon-purple);
-    color: white;
-    box-shadow: 0 0 25px var(--neon-purple);
-}
-
-.btn-outline-dark {
-    background: transparent;
-    border: 3px solid var(--neon-pink);
-    box-shadow: 0 0 15px var(--neon-pink);
-}
-
-.btn-outline-dark:hover {
-    background: var(--neon-pink);
-    color: white;
-    box-shadow: 0 0 25px var(--neon-pink);
-}
-
-.btn-danger {
-    background: var(--neon-pink);
-    box-shadow: 0 0 20px var(--neon-pink);
-    color: white;
-    border: 3px solid var(--neon-pink);
-}
-
-.btn-danger:hover {
-    background: var(--neon-purple);
-    box-shadow: 0 0 30px var(--neon-purple);
-}
-
-/* Cập nhật nút để đậm và nổi bật hơn */
 .btn {
-    font-size: 22px;
-    font-weight: 800;
-    padding: 20px;
-    border-radius: 15px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-    width: 100%;
-    box-shadow: 0 0 20px var(--shadow-glass);
-    color: white;
-    border-width: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 1.5rem;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02),
+    0 10px 15px rgba(0, 0, 0, 0.03);
 }
 
-.btn i {
-    font-size: 26px;
+.btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.03),
+    0 20px 25px rgba(0, 0, 0, 0.04);
 }
 
-/* Màu sắc và hiệu ứng hover */
 .btn-outline-primary {
-    background: transparent;
-    border: 4px solid var(--neon-blue);
-    box-shadow: 0 0 20px var(--neon-blue);
-}
-
-.btn-outline-primary:hover {
-    background: var(--neon-blue);
-    color: black;
-    box-shadow: 0 0 30px var(--neon-blue);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
 }
 
 .btn-outline-success {
-    background: transparent;
-    border: 4px solid var(--neon-green);
-    box-shadow: 0 0 20px var(--neon-green);
-}
-
-.btn-outline-success:hover {
-    background: var(--neon-green);
-    color: black;
-    box-shadow: 0 0 30px var(--neon-green);
+    background: linear-gradient(135deg, var(--success), #27ae60);
+    color: white;
 }
 
 .btn-outline-warning {
-    background: transparent;
-    border: 4px solid var(--neon-orange);
-    box-shadow: 0 0 20px var(--neon-orange);
-}
-
-.btn-outline-warning:hover {
-    background: var(--neon-orange);
-    color: black;
-    box-shadow: 0 0 30px var(--neon-orange);
+    background: linear-gradient(135deg, var(--warning), #e67e22);
+    color: white;
 }
 
 .btn-outline-info {
-    background: transparent;
-    border: 4px solid var(--neon-purple);
-    box-shadow: 0 0 20px var(--neon-purple);
-}
-
-.btn-outline-info:hover {
-    background: var(--neon-purple);
+    background: linear-gradient(135deg, var(--accent), var(--primary));
     color: white;
-    box-shadow: 0 0 30px var(--neon-purple);
 }
 
 .btn-outline-dark {
-    background: transparent;
-    border: 4px solid var(--neon-pink);
-    box-shadow: 0 0 20px var(--neon-pink);
+    background: linear-gradient(135deg, #636e72, #2d3436);
+    color: white;
 }
 
-.btn-outline-dark:hover {
-    background: var(--neon-pink);
+.btn-outline-secondary {
+    background: linear-gradient(135deg, #b2bec3, #636e72);
     color: white;
-    box-shadow: 0 0 30px var(--neon-pink);
 }
 
 .btn-danger {
-    background: var(--neon-pink);
-    box-shadow: 0 0 25px var(--neon-pink);
+    background: linear-gradient(135deg, var(--danger), #e74c3c);
     color: white;
-    border: 4px solid var(--neon-pink);
 }
 
-.btn-danger:hover {
-    background: var(--neon-purple);
-    box-shadow: 0 0 35px var(--neon-purple);
+.btn:hover {
+    filter: brightness(1.1);
 }
 
-/* Cập nhật nút để luôn đậm mà không cần hover */
-.btn {
-    font-size: 22px;
-    font-weight: 800;
-    padding: 20px;
-    border-radius: 15px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-    width: 100%;
-    color: white;
-    border-width: 4px;
+.icon {
+    font-size: 1.3rem;
 }
 
-/* Các màu sắc cho nút */
-.btn-outline-primary {
-    background: transparent;
-    border: 4px solid var(--neon-blue);
-    box-shadow: 0 0 30px var(--neon-blue);
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.2rem;
+    }
+
+    .btn {
+        padding: 1.2rem;
+        font-size: 1rem;
+    }
 }
 
-.btn-outline-success {
-    background: transparent;
-    border: 4px solid var(--neon-green);
-    box-shadow: 0 0 30px var(--neon-green);
-}
-
-.btn-outline-warning {
-    background: transparent;
-    border: 4px solid var(--neon-orange);
-    box-shadow: 0 0 30px var(--neon-orange);
-}
-
-.btn-outline-info {
-    background: transparent;
-    border: 4px solid var(--neon-purple);
-    box-shadow: 0 0 30px var(--neon-purple);
-}
-
-.btn-outline-dark {
-    background: transparent;
-    border: 4px solid var(--neon-pink);
-    box-shadow: 0 0 30px var(--neon-pink);
-}
-
-.btn-danger {
-    background: var(--neon-pink);
-    border: 4px solid var(--neon-pink);
-    box-shadow: 0 0 35px var(--neon-pink);
+/* Selection */
+::selection {
+    background: rgba(67, 97, 238, 0.2);
+    color: var(--primary);
 }

@@ -1,243 +1,45 @@
 /* Import font */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
 
+/* Variables */
 :root {
-    --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --border-glass: rgba(255, 255, 255, 0.3);
-    --shadow-glass: rgba(0, 0, 0, 0.6);
-    --neon-blue: #00eaff;
-    --neon-purple: #9d00ff;
-    --neon-pink: #ff0080;
-    --neon-green: #00ff88;
-    --neon-orange: #ff8800;
-    --text-color: #ffffff;
+    --primary: #4361ee;
+    --secondary: #3a0ca3;
+    --accent: #4cc9f0;
+    --success: #2ecc71;
+    --warning: #f7b731;
+    --danger: #fc5c65;
+    --surface: #ffffff;
+    --text: #2d3436;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Orbitron', sans-serif;
-}
-
-/* Background toàn trang */
+/* Base styles */
 body {
-    background: var(--bg-gradient);
-    color: var(--text-color);
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    font-family: 'Outfit', sans-serif;
     min-height: 100vh;
-    flex-direction: column;
-    padding: 30px;
-    animation: fadeIn 1s ease-in-out;
+    margin: 0;
+    background: radial-gradient(circle at 0% 0%, rgba(67, 97, 238, 0.1), transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(76, 201, 240, 0.1), transparent 50%),
+    #f8f9fa;
 }
 
-/* Container chính */
+/* Container */
 .container {
-    width: 90%;
     max-width: 1200px;
-    background: var(--glass-bg);
-    padding: 40px;
-    border-radius: 20px;
-    border: 2px solid var(--border-glass);
-    box-shadow: 0 0 30px var(--shadow-glass);
+    margin: 2rem auto;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
-    transition: 0.4s;
+    border-radius: 24px;
+    box-shadow: 0 0 0 1px rgba(67, 97, 238, 0.05),
+    0 20px 40px rgba(67, 97, 238, 0.1);
+    animation: container-appear 0.6s ease-out;
 }
 
-/* Hiệu ứng hover trên container */
-.container:hover {
-    box-shadow: 0 0 40px var(--neon-blue);
-    transform: scale(1.02);
-}
-
-/* Header */
-.header {
-    margin-bottom: 20px;
-}
-
-.header h2 {
-    text-transform: uppercase;
-    font-size: 26px;
-    text-shadow: 0 0 20px var(--neon-blue), 0 0 30px var(--neon-purple);
-    animation: glowAnimation 1.5s infinite alternate;
-}
-
-@keyframes glowAnimation {
-    from {
-        text-shadow: 0 0 20px var(--neon-blue), 0 0 30px var(--neon-purple);
-    }
-    to {
-        text-shadow: 0 0 30px var(--neon-pink), 0 0 50px var(--neon-green);
-    }
-}
-
-/* Thông tin Admin */
-.header div {
-    font-size: 14px;
-    margin-top: 10px;
-}
-
-/* Nút điều hướng */
-.header a {
-    display: inline-block;
-    padding: 10px 15px;
-    font-size: 14px;
-    font-weight: bold;
-    color: black;
-    background: var(--neon-blue);
-    border-radius: 25px;
-    transition: 0.3s;
-    text-decoration: none;
-    box-shadow: 0 0 12px var(--neon-blue);
-    margin-left: 10px;
-}
-
-.header a:hover {
-    background: var(--neon-pink);
-    box-shadow: 0 0 20px var(--neon-pink);
-}
-
-/* ====== Layout Chính ====== */
-.main-content {
-    display: flex;
-    width: 100%;
-    gap: 20px;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-/* Dashboard bên trái */
-.dashboard {
-    flex: 2;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-}
-
-/* Blog bên phải */
-.blog-section {
-    flex: 1;
-    background: var(--glass-bg);
-    border: 2px solid var(--border-glass);
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 0 20px var(--shadow-glass);
-    backdrop-filter: blur(15px);
-    max-width: 350px;
-    text-align: left;
-    align-self: flex-start;
-}
-
-/* Card chung */
-.card {
-    background: var(--glass-bg);
-    border: 2px solid var(--border-glass);
-    border-radius: 15px;
-    padding: 20px;
-    width: 250px;
-    text-align: center;
-    box-shadow: 0 0 20px var(--shadow-glass);
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    cursor: pointer;
-    backdrop-filter: blur(15px);
-}
-
-/* Hiệu ứng hover */
-.card:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 25px var(--neon-blue), 0 0 35px var(--neon-purple);
-}
-
-/* Tiêu đề trong card */
-.card h3 {
-    font-size: 20px;
-    color: var(--neon-green);
-    text-shadow: 0 0 10px var(--neon-green);
-}
-
-/* Mô tả trong card */
-.card p {
-    font-size: 14px;
-    margin: 10px 0;
-}
-
-/* Nút Xem chi tiết */
-.card a {
-    display: inline-block;
-    padding: 12px 18px;
-    font-size: 14px;
-    font-weight: bold;
-    color: black;
-    background: var(--neon-blue);
-    border-radius: 25px;
-    transition: 0.3s;
-    text-decoration: none;
-    box-shadow: 0 0 12px var(--neon-blue);
-}
-
-.card a:hover {
-    background: var(--neon-pink);
-    box-shadow: 0 0 20px var(--neon-pink);
-}
-
-/* Blog Section */
-.blog-section h3 {
-    font-size: 20px;
-    color: var(--neon-orange);
-    text-shadow: 0 0 10px var(--neon-orange);
-}
-
-.blog-section ul {
-    list-style: none;
-    margin-top: 10px;
-}
-
-.blog-section li {
-    background: var(--glass-bg);
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    border-left: 5px solid var(--neon-blue);
-    transition: 0.3s;
-}
-
-.blog-section li:hover {
-    border-left: 5px solid var(--neon-pink);
-}
-
-/* Phân trang */
-.pagination {
-    margin-top: 15px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.pagination button {
-    background: var(--neon-purple);
-    color: black;
-    font-weight: bold;
-    border: none;
-    padding: 10px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.pagination button:hover {
-    background: var(--neon-pink);
-    box-shadow: 0 0 10px var(--neon-pink);
-}
-
-/* Hiệu ứng xuất hiện */
-@keyframes fadeIn {
+@keyframes container-appear {
     from {
         opacity: 0;
-        transform: translateY(-15px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
@@ -245,14 +47,196 @@ body {
     }
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-    .main-content {
-        flex-direction: column;
-        align-items: center;
-    }
+/* Header */
+.header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(67, 97, 238, 0.1);
+}
 
-    .blog-section {
-        max-width: 100%;
+.header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 0 0 1rem 0;
+}
+
+.header h2 i {
+    margin-right: 0.5rem;
+}
+
+.header div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.header span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header a {
+    color: var(--primary);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header a:hover {
+    color: var(--accent);
+    transform: translateX(2px);
+}
+
+/* Main content */
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
     }
+}
+
+/* Dashboard cards */
+.dashboard {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.card {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02),
+    0 10px 15px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.03),
+    0 20px 25px rgba(0, 0, 0, 0.04);
+}
+
+.card h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card p {
+    margin: 0 0 1rem 0;
+    color: rgba(45, 52, 54, 0.8);
+}
+
+.card a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.card a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+}
+
+/* Blog section */
+.blog-section {
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 16px;
+}
+
+.blog-section h3 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#blog-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+}
+
+#blog-list li {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+    animation: alert-slide 0.4s ease-out;
+}
+
+#blog-list strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+#blog-list span {
+    color: rgba(45, 52, 54, 0.8);
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pagination button {
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pagination button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+}
+
+.pagination span {
+    font-weight: 500;
+    color: var(--text);
+}
+
+/* Selection */
+::selection {
+    background: rgba(67, 97, 238, 0.2);
+    color: var(--primary);
 }

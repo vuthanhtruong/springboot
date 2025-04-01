@@ -1,0 +1,205 @@
+/* Import font */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+
+/* Variables */
+:root {
+    --primary: #4361ee;
+    --secondary: #3a0ca3;
+    --accent: #4cc9f0;
+    --success: #2ecc71;
+    --warning: #f7b731;
+    --danger: #fc5c65;
+    --surface: #ffffff;
+    --text: #2d3436;
+}
+
+/* Base styles */
+body {
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    background: radial-gradient(circle at 0% 0%, rgba(67, 97, 238, 0.1), transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(76, 201, 240, 0.1), transparent 50%),
+    #f8f9fa;
+}
+
+/* Header */
+header {
+    padding: 2rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 0 0 1.5rem 0;
+}
+
+/* Buttons */
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--warning), #e67e22);
+    color: white;
+    box-shadow: 0 4px 15px rgba(247, 183, 49, 0.3);
+}
+
+.btn-tertiary {
+    background: linear-gradient(135deg, var(--success), #27ae60);
+    color: white;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Sections */
+.section {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 0 0 1px rgba(67, 97, 238, 0.05),
+    0 10px 20px rgba(67, 97, 238, 0.1);
+    transition: all 0.3s ease;
+}
+
+.section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 0 1px rgba(67, 97, 238, 0.1),
+    0 15px 30px rgba(67, 97, 238, 0.15);
+}
+
+.section h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 0 0 1.5rem 0;
+}
+
+/* Member list */
+.section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.section li {
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+    animation: alert-slide 0.4s ease-out;
+}
+
+@keyframes alert-slide {
+    from {
+        transform: translateX(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.member-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.member-info strong {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 1.1rem;
+}
+
+.member-info span {
+    color: rgba(45, 52, 54, 0.8);
+}
+
+/* Message button */
+.btn-message {
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+    color: white;
+    padding: 0.8rem 1.2rem;
+    margin-top: 1rem;
+    box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
+}
+
+.btn-message:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(76, 201, 240, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    header, .section {
+        padding: 1.5rem;
+    }
+
+    header h1, .section h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Selection */
+::selection {
+    background: rgba(67, 97, 238, 0.2);
+    color: var(--primary);
+}

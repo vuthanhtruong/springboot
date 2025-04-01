@@ -1,0 +1,452 @@
+/* Import font */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+
+/* Variables */
+:root {
+    --primary: #4361ee;
+    --secondary: #3a0ca3;
+    --accent: #4cc9f0;
+    --success: #2ecc71;
+    --warning: #f7b731;
+    --danger: #fc5c65;
+    --surface: #ffffff;
+    --text: #2d3436;
+}
+
+/* Base styles */
+body {
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    background: radial-gradient(circle at 0% 0%, rgba(67, 97, 238, 0.1), transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(76, 201, 240, 0.1), transparent 50%),
+    #f8f9fa;
+}
+
+/* Header */
+header {
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 0 0 1.5rem 0;
+}
+
+/* Back buttons */
+.back-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-back {
+    background: linear-gradient(135deg, var(--warning), #e67e22);
+    color: white;
+    box-shadow: 0 4px 15px rgba(247, 183, 49, 0.3);
+}
+
+.btn-home {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+}
+
+.btn-members {
+    background: linear-gradient(135deg, var(--success), #27ae60);
+    color: white;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+}
+
+/* Feedback section */
+.feedback-section {
+    margin: 2rem auto;
+    max-width: 600px;
+    padding: 2rem;
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+}
+
+.feedback-section h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 1.5rem;
+}
+
+.feedback-section label {
+    display: block;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.feedback-section select,
+.feedback-section textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.feedback-section textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.feedback-section select:focus,
+.feedback-section textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+}
+
+.feedback-section button {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.feedback-section button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+}
+
+/* Container */
+கிறதுContainer *
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+/* Class detail */
+.class-detail {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+}
+
+.class-detail h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 1.5rem;
+}
+
+.class-detail p {
+    margin: 0.8rem 0;
+    color: var(--text);
+}
+
+.class-detail strong {
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Post section */
+.post-section {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+}
+
+.post-section h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 1.5rem;
+}
+
+.post-section a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.post-section a:hover {
+    color: var(--accent);
+}
+
+.post-section textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1rem;
+    min-height: 120px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.post-section textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+}
+
+.file-upload {
+    margin: 1rem 0;
+}
+
+.file-upload label {
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.file-upload input[type="file"] {
+    padding: 0.5rem;
+}
+
+#fileList li {
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#fileList button {
+    background: var(--danger);
+    color: white;
+    border: none;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#fileList button:hover {
+    background: #e74c3c;
+}
+
+.post-section button {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.post-section button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+}
+
+/* Post list */
+.post-list {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+}
+
+.post-list h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 1.5rem;
+}
+
+.post-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.post-list li {
+    padding: 1.5rem;
+    background: var(--surface);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+}
+
+.post-list p {
+    margin: 0.8rem 0;
+    color: var(--text);
+}
+
+.post-list strong {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.post-list hr {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    opacity: 0.3;
+    margin: 1.5rem 0;
+}
+
+/* Document list */
+.document-list h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 1rem 0;
+}
+
+.document-list ul {
+    padding-left: 1rem;
+}
+
+.document-list li {
+    padding: 0.5rem 0;
+    box-shadow: none;
+    margin-bottom: 0;
+}
+
+.btn-download {
+    background: linear-gradient(135deg, var(--success), #27ae60);
+    color: white;
+    padding: 0.8rem 1.2rem;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+}
+
+.btn-download:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(46, 204, 113, 0.4);
+}
+
+/* Comment section */
+.comment-section h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 1.5rem 0 1rem;
+}
+
+.comment-list li {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: none;
+}
+
+.comment-section textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1rem;
+    min-height: 80px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.comment-section textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+}
+
+.comment-section button {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.comment-section button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    header, .feedback-section, .class-detail, .post-section, .post-list {
+        padding: 1.5rem;
+    }
+
+    header h1, .feedback-section h2, .class-detail h2, .post-section h2, .post-list h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Selection */
+::selection {
+    background: rgba(67, 97, 238, 0.2);
+    color: var(--primary);
+}
