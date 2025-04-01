@@ -57,17 +57,15 @@
         <form action="/BaiPost" enctype="multipart/form-data" id="postForm" method="POST">
             <input name="roomId" th:value="${room?.roomId}" type="hidden">
             <textarea name="postContent" placeholder="Nhập nội dung bài đăng..." required></textarea>
-
             <div class="file-upload">
                 <label for="files">📎 Tải tệp lên:</label>
                 <input accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip,.mp4,.avi,.mov"
                        id="files"
                        name="files"
                        onchange="addFiles(this.files)"
-                       type="file"> <!-- Xóa multiple, thêm onchange -->
-                <ul id="fileList" style="list-style: none; padding: 0;"></ul> <!-- Hiển thị danh sách file -->
+                       type="file">
+                <ul id="fileList" style="list-style: none; padding: 0;"></ul>
             </div>
-
             <button type="submit">🚀 Đăng Bài</button>
         </form>
     </div>
@@ -85,7 +83,15 @@
                     <h4>📄 Tài liệu đính kèm:</h4>
                     <ul>
                         <li th:each="document : ${post.documents}">
-                            <a class="btn btn-download" th:download="${document.documentTitle}"
+                            <!-- Hiển thị ảnh nếu là ảnh -->
+                            <div th:if="${document.documentTitle.matches('(?i).*\\.(png|jpg|jpeg)$')}">
+                                <img alt="${document.documentTitle}"
+                                     style="max-width: 300px; margin: 10px 0;"
+                                     th:src="@{'/api/files/' + ${document.documentId}}"/>
+                            </div>
+                            <!-- Link tải xuống cho tất cả file -->
+                            <a class="btn btn-download"
+                               th:download="${document.documentTitle}"
                                th:href="@{'/api/files/download/' + ${document.documentId}}">📥 Tải xuống</a>
                         </li>
                     </ul>
@@ -150,11 +156,10 @@
 </style>
 
 <script>
-    let selectedFiles = []; // Danh sách file tích lũy
+    let selectedFiles = [];
 
     function addFiles(files) {
         for (let file of files) {
-            // Kiểm tra trùng lặp
             if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
                 selectedFiles.push(file);
             }
@@ -164,7 +169,7 @@
 
     function updateFileList() {
         const fileList = document.getElementById('fileList');
-        fileList.innerHTML = ''; // Xóa danh sách cũ
+        fileList.innerHTML = '';
         selectedFiles.forEach((file, index) => {
             const li = document.createElement('li');
             li.textContent = `${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
@@ -182,16 +187,14 @@
     document.getElementById('postForm').onsubmit = function (e) {
         e.preventDefault();
         const formData = new FormData(this);
-        // Xóa các file cũ từ input
         formData.delete('files');
-        // Thêm tất cả file từ selectedFiles
         selectedFiles.forEach(file => formData.append('files', file));
         fetch('/BaiPost', {
             method: 'POST',
             body: formData
         }).then(response => {
             if (response.redirected) {
-                window.location.href = response.url; // Điều hướng theo redirect
+                window.location.href = response.url;
             }
         });
     };
