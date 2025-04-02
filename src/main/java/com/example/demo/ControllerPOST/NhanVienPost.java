@@ -762,13 +762,13 @@ public class NhanVienPost {
             throw new IllegalArgumentException("Không tìm thấy phòng với ID: " + roomId);
         }
 
-        if (teacherIds == null || teacherIds.isEmpty()) {
-            redirectAttributes.addFlashAttribute("Note", "Vui lòng chọn ít nhất 1 giáo viên");
+        if (teacherIds == null || teacherIds.isEmpty() || teacherIds.size() == 0) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng chọn ít nhất 1 giáo viên");
             return "redirect:/ChiTietLopHoc/" + roomId;
         }
 
         if (teacherIds.size() > 1) {
-            redirectAttributes.addFlashAttribute("Note", "Chỉ được phép thêm duy nhất 1 giáo viên");
+            redirectAttributes.addFlashAttribute("error", "Chỉ được phép thêm duy nhất 1 giáo viên");
             return "redirect:/ChiTietLopHoc/" + roomId;
         }
 
@@ -836,8 +836,10 @@ public class NhanVienPost {
         Employees employee = entityManager.find(Employees.class, employeeId);
         // Tìm Room theo roomId
 
-        if (studentIds == null || studentIds.isEmpty()) {
-            redirectAttributes.addFlashAttribute("Note", "Vui lòng chọn 1 hoặc nhiều học sinh");
+        if (studentIds == null || studentIds.isEmpty() || studentIds.size() == 0) {
+            System.out.println("Danh sách học sinh nhận được: " + studentIds);
+
+            redirectAttributes.addFlashAttribute("error", "Vui lòng chọn 1 hoặc nhiều học sinh");
             return "redirect:/ChiTietLopHoc/" + roomId;
         }
 

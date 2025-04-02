@@ -1,64 +1,65 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Chi Tiết Lớp Học</title>
-  <link rel="stylesheet" th:href="@{/ChiTietLopHoc.css}">
+    <meta charset="UTF-8">
+    <title>Chi Tiết Lớp Học</title>
+    <link rel="stylesheet" th:href="@{/ChiTietLopHoc.css}">
 </head>
 <body>
 <h2>Chi Tiết Lớp Học</h2>
-<a href="/BoTriLopHoc" class="btn-back">Quay lại</a>
+<a class="btn-back" href="/BoTriLopHoc">Quay lại</a>
 
 <div class="container">
+    <!-- Cột 1: Thêm Giáo Viên & Học Sinh -->
+    <div class="section">
+        <h3>Thêm Giáo Viên & Học Sinh</h3>
 
-  <!-- Cột 1: Thêm Giáo Viên & Học Sinh -->
-  <div class="section">
-    <h3>Thêm Giáo Viên & Học Sinh</h3>
+        <form method="post" th:action="@{/ThemGiaoVienVaoLop}">
+            <input name="roomId" th:value="${room.roomId}" type="hidden"/>
+            <label>Chọn Giáo Viên:</label>
+            <div th:each="teacher : ${allTeachers}">
+                <input name="teacherIds" th:checked="${#lists.contains(teachersInClass, teacher)}"
+                       th:value="${teacher.id}"
+                       type="checkbox"/>
+                <span th:text="${teacher.firstName + ' ' + teacher.lastName}"></span>
+            </div>
+            <button type="submit">Thêm Giáo Viên</button>
+        </form>
 
-    <form th:action="@{/ThemGiaoVienVaoLop}" method="post">
-      <input type="hidden" name="roomId" th:value="${room.roomId}" />
-      <label>Chọn Giáo Viên:</label>
-      <div th:each="teacher : ${allTeachers}">
-        <input type="checkbox" name="teacherIds" th:value="${teacher.id}"
-               th:checked="${#lists.contains(teachersInClass, teacher)}" />
-        <span th:text="${teacher.firstName + ' ' + teacher.lastName}"></span>
-      </div>
-      <button type="submit">Thêm Giáo Viên</button>
-    </form>
+        <form method="post" th:action="@{/ThemHocSinhVaoLop}">
+            <input name="roomId" th:value="${room.roomId}" type="hidden"/>
+            <label>Chọn Học Sinh:</label>
+            <div th:each="student : ${allStudents}">
+                <input name="studentIds" th:checked="${#lists.contains(studentsInClass, student)}"
+                       th:value="${student.id}"
+                       type="checkbox"/>
+                <span th:text="${student.firstName + ' ' + student.lastName}"></span>
+            </div>
+            <button type="submit">Thêm Học Sinh</button>
+        </form>
+    </div>
 
-    <form th:action="@{/ThemHocSinhVaoLop}" method="post">
-      <input type="hidden" name="roomId" th:value="${room.roomId}" />
-      <label>Chọn Học Sinh:</label>
-      <div th:each="student : ${allStudents}">
-        <input type="checkbox" name="studentIds" th:value="${student.id}"
-               th:checked="${#lists.contains(studentsInClass, student)}" />
-        <span th:text="${student.firstName + ' ' + student.lastName}"></span>
-      </div>
-      <button type="submit">Thêm Học Sinh</button>
-    </form>
-  </div>
+    <!-- Cột 2: Danh Sách Giáo Viên -->
+    <div class="section">
+        <h3>Danh Sách Giáo Viên</h3>
+        <ul>
+            <li th:each="teacher : ${teachersInClass}">
+                <span th:text="${teacher.firstName + ' ' + teacher.lastName}"></span>
+                <a class="btn-delete" th:href="@{/XoaGiaoVienTrongLop(teacherId=${teacher.id}, roomId=${room.roomId})}">[Xóa]</a>
+            </li>
+        </ul>
+    </div>
 
-  <!-- Cột 2: Danh Sách Giáo Viên -->
-  <div class="section">
-    <h3>Danh Sách Giáo Viên</h3>
-    <ul>
-      <li th:each="teacher : ${teachersInClass}">
-        <span th:text="${teacher.firstName + ' ' + teacher.lastName}"></span>
-        <a th:href="@{/XoaGiaoVienTrongLop(teacherId=${teacher.id}, roomId=${room.roomId})}" class="btn-delete">[Xóa]</a>
-      </li>
-    </ul>
-  </div>
-
-  <!-- Cột 3: Danh Sách Học Sinh -->
-  <div class="section">
-    <h3>Danh Sách Học Sinh</h3>
-    <ul>
-      <li th:each="student : ${studentsInClass}">
-        <span th:text="${student.firstName + ' ' + student.lastName}"></span>
-        <a th:href="@{/XoaHocSinhTrongLop(studentId=${student.id}, roomId=${room.roomId})}" class="btn-delete">[Xóa]</a>
-      </li>
-    </ul>
-  </div>
+    <!-- Cột 3: Danh Sách Học Sinh -->
+    <div class="section">
+        <h3>Danh Sách Học Sinh</h3>
+        <ul>
+            <li th:each="student : ${studentsInClass}">
+                <span th:text="${student.firstName + ' ' + student.lastName}"></span>
+                <a class="btn-delete" th:href="@{/XoaHocSinhTrongLop(studentId=${student.id}, roomId=${room.roomId})}">[Xóa]</a>
+            </li>
+        </ul>
+    </div>
 
 </div>
 </body>

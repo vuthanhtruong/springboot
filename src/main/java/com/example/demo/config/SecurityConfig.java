@@ -82,7 +82,10 @@ public class SecurityConfig {
                                         "/ThoiKhoaBieu",
                                         "/LuuLichHocNhieuSlot",
                                         "/LuuLichHoc",
-                                        "/XoaLichHoc"
+                                        "/XoaLichHoc",
+                                        "/ThemHocSinhVaoLop/**",
+                                        "/ThemGiaoVienVaoLop/**",
+                                        "/ChiTietLopHoc/**"
                                 ).hasRole("EMPLOYEE")
                                 .requestMatchers(HttpMethod.GET,
                                         "/TinNhanCuaBan",
