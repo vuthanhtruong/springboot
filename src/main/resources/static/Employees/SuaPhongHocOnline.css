@@ -22,7 +22,7 @@ body {
 }
 
 .container {
-    max-width: 600px;
+    max-width: 700px;
     margin: 2rem auto;
     padding: 2.5rem;
     background: rgba(255, 255, 255, 0.95);
@@ -59,10 +59,6 @@ body {
     text-align: center;
 }
 
-.mb-4 {
-    margin-bottom: 2.5rem;
-}
-
 h2 {
     font-size: 2rem;
     font-weight: 700;
@@ -70,6 +66,7 @@ h2 {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    margin-bottom: 2rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -104,13 +101,7 @@ h2 {
     color: var(--danger);
 }
 
-.alert-warning {
-    background: rgba(247, 183, 49, 0.1);
-    border-color: var(--warning);
-    color: var(--warning);
-}
-
-form {
+.form-container {
     background: var(--surface);
     padding: 2rem;
     border-radius: 20px;
@@ -119,7 +110,7 @@ form {
     transition: all 0.3s ease;
 }
 
-form:hover {
+.form-container:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 12px rgba(0, 0, 0, 0.03),
     0 20px 25px rgba(0, 0, 0, 0.04);
@@ -139,7 +130,7 @@ form:hover {
     gap: 0.5rem;
 }
 
-.form-control {
+.form-control, .form-select {
     width: 100%;
     padding: 1rem 1.2rem;
     border: 2px solid #e9ecef;
@@ -150,17 +141,15 @@ form:hover {
     background: #f8f9fa;
 }
 
-.form-control:focus {
+.form-control:focus, .form-select:focus {
     outline: none;
     border-color: var(--primary);
     background: white;
     box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
 }
 
-.form-control[readonly] {
-    background: #e9ecef;
-    cursor: not-allowed;
-    opacity: 0.8;
+.form-select {
+    cursor: pointer;
 }
 
 .btn {
@@ -230,7 +219,7 @@ form:hover {
         font-size: 1.8rem;
     }
 
-    form {
+    .form-container {
         padding: 1.5rem;
     }
 
