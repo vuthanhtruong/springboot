@@ -961,4 +961,34 @@ public class NhanVienGet {
         entityManager.createQuery("DELETE FROM Room").executeUpdate();
         return "redirect:/DanhSachPhongHoc"; // Chuyển hướng về danh sách phòng
     }
+
+    @GetMapping("/DanhSachThongBaoDaGui/{id}")
+    public String DanhSachThongBaoDaGui(@PathVariable("id") String roomId, ModelMap model, HttpSession session) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
+
+        // Tìm Employee trong database
+        Employees employee = entityManager.find(Employees.class, employeeId);
+        if (employee == null) {
+            return "redirect:/BoTriLopHoc?error=EmployeeNotFound";
+        }
+
+        // Tìm Room theo roomId
+        Room room = entityManager.find(Room.class, roomId);
+        if (room == null) {
+            return "redirect:/BoTriLopHoc?error=RoomNotFound";
+        }
+
+        // Lấy danh sách thông báo đã gửi cho phòng học này
+        List<ScheduleNotifications> notifications = entityManager.createQuery(
+                        "FROM ScheduleNotifications s WHERE s.room = :room ORDER BY s.id DESC", ScheduleNotifications.class)
+                .setParameter("room", room)
+                .getResultList();
+
+        // Đưa dữ liệu vào model
+        model.addAttribute("room", room);
+        model.addAttribute("notifications", notifications);
+
+        return "DanhSachThongBaoDaGui"; // Trả về trang hiển thị danh sách thông báo
+    }
 }

@@ -26,6 +26,7 @@
                 <th>Tổng Số Slot</th>
                 <th>Chi Tiết</th>
                 <th>Hành Động</th>
+                <th>Thông Báo Đã Gửi</th> <!-- Cột mới -->
             </tr>
             </thead>
             <tbody>
@@ -62,6 +63,11 @@
                         Gửi Thông Báo
                     </a>
                 </td>
+                <td>
+                    <a class="btn btn-success btn-sm" th:href="@{/DanhSachThongBaoDaGui/{id}(id=${room.roomId})}">
+                        Xem Thông Báo Đã Gửi
+                    </a>
+                </td>
             </tr>
             </tbody>
         </table>
@@ -79,6 +85,7 @@
                 <th>Tổng Số Slot</th>
                 <th>Chi Tiết</th>
                 <th>Hành Động</th>
+                <th>Thông Báo Đã Gửi</th> <!-- Cột mới -->
             </tr>
             </thead>
             <tbody>
@@ -113,6 +120,11 @@
                 <td>
                     <a class="btn btn-warning btn-sm" th:href="@{/GuiThongBao/{id}(id=${room.roomId})}">
                         Gửi Thông Báo
+                    </a>
+                </td>
+                <td>
+                    <a class="btn btn-success btn-sm" th:href="@{/DanhSachThongBaoDaGui/{id}(id=${room.roomId})}">
+                        Xem Thông Báo Đã Gửi
                     </a>
                 </td>
             </tr>

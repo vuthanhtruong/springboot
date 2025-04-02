@@ -21,6 +21,7 @@ body {
     #f8f9fa;
 }
 
+/* Container styling */
 .container {
     max-width: 1400px;
     margin: 2rem auto;
@@ -61,7 +62,7 @@ body {
 }
 
 h1 {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     font-weight: 700;
     background: linear-gradient(135deg, var(--primary), var(--accent));
     -webkit-background-clip: text;
@@ -70,6 +71,58 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Utility classes */
+.text-center {
+    text-align: center;
+}
+
+.text-primary {
+    color: var(--primary);
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+.me-2 {
+    margin-right: 0.5rem;
+}
+
+.me-3 {
+    margin-right: 1rem;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+/* Button group */
+.btn-group {
+    display: flex;
     gap: 0.5rem;
 }
 
@@ -84,6 +137,8 @@ h1 {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .btn::after {
@@ -152,8 +207,25 @@ h1 {
     color: white;
 }
 
-/* Search Section */
-.search-section form {
+.btn-warning {
+    background: linear-gradient(135deg, var(--warning), #f0932b);
+    color: white;
+    box-shadow: 0 4px 15px rgba(247, 183, 49, 0.3);
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(247, 183, 49, 0.4);
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* Search section */
+.search-section {
     background: var(--surface);
     padding: 1.5rem;
     border-radius: 16px;
@@ -161,9 +233,14 @@ h1 {
     transition: all 0.3s ease;
 }
 
-.search-section form:hover {
+.search-section:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(67, 97, 238, 0.1);
+}
+
+.search-section form {
+    display: flex;
+    align-items: center;
 }
 
 .search-section label {
@@ -171,18 +248,7 @@ h1 {
     color: var(--text);
 }
 
-/* Filter Section */
-.d-flex form {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.d-flex label {
-    font-weight: 500;
-    color: var(--text);
-}
-
+/* Form elements */
 .form-select, .form-control {
     padding: 0.8rem 1rem;
     border: 2px solid #e9ecef;
@@ -204,9 +270,12 @@ h1 {
     cursor: pointer;
 }
 
-/* Table */
+/* Table section */
 .table-section {
     overflow-x: auto;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.05);
+    margin-bottom: 2rem;
 }
 
 .table {
@@ -214,9 +283,11 @@ h1 {
     border-collapse: separate;
     border-spacing: 0;
     background: var(--surface);
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.05);
     overflow: hidden;
+}
+
+.table-bordered {
+    border: 1px solid var(--gray);
 }
 
 .table-dark {
@@ -227,6 +298,7 @@ h1 {
     padding: 1.2rem;
     font-weight: 600;
     color: white;
+    text-align: left;
 }
 
 .table td {
@@ -245,31 +317,23 @@ h1 {
     transition: all 0.3s ease;
 }
 
+/* Action buttons */
 .action-buttons {
     display: flex;
+    justify-content: center;
     gap: 0.5rem;
-}
-
-.btn-sm {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-}
-
-.btn-warning {
-    background: linear-gradient(135deg, var(--warning), #f0932b);
-    color: white;
-    box-shadow: 0 4px 15px rgba(247, 183, 49, 0.3);
-}
-
-.btn-warning:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(247, 183, 49, 0.4);
-    color: white;
 }
 
 /* Pagination */
 .pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
     gap: 0.5rem;
+}
+
+.page-item {
+    display: inline-block;
 }
 
 .page-link {
@@ -279,6 +343,8 @@ h1 {
     border: 1px solid var(--gray);
     transition: all 0.3s ease;
     background: var(--surface);
+    text-decoration: none;
+    display: inline-block;
 }
 
 .page-link:hover {
@@ -298,6 +364,7 @@ h1 {
     cursor: not-allowed;
 }
 
+/* Responsive adjustments */
 @media (max-width: 768px) {
     .container {
         margin: 1rem;
@@ -316,7 +383,7 @@ h1 {
     .search-section form {
         flex-direction: column;
         align-items: stretch;
-        padding: 1rem;
+        gap: 1rem;
     }
 
     .d-flex {
