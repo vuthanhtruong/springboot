@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Feedback từ Học Sinh</title>
     <link rel="stylesheet" th:href="@{/FeedbackHocSinh.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
@@ -20,6 +20,7 @@
             <th>Người Đánh Giá</th>
             <th>Giáo Viên</th>
             <th>Nội Dung</th>
+            <th>PHòng</th>
             <th>Thời Gian</th>
         </tr>
         </thead>
@@ -29,13 +30,14 @@
             <td th:text="${feedback.reviewer.firstName} + ' ' + ${feedback.reviewer.lastName}"></td>
             <td th:text="${feedback.teacher.firstName} + ' ' + ${feedback.teacher.lastName}"></td>
             <td th:text="${feedback.text}"></td>
+            <td th:text="${feedback.getRoom().roomId}"></td>
             <td th:text="${#temporals.format(feedback.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
         </tr>
         </tbody>
     </table>
 
     <div class="text-center mt-4">
-        <a th:href="@{/TrangChuNhanVien}" class="btn btn-secondary">
+        <a class="btn btn-secondary" th:href="@{/TrangChuNhanVien}">
             <i class="fas fa-arrow-left"></i> Quay lại
         </a>
     </div>
