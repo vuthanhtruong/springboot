@@ -24,12 +24,6 @@
     <div class="alert alert-danger" th:if="${roleError}">
         <span th:text="${roleError}"></span>
     </div>
-
-    <!-- Hiển thị thông báo lỗi từ tham số URL (nếu có) -->
-    <div class="alert alert-danger" th:if="${param.error}">
-        <span th:text="${param.error[0]}"></span>
-    </div>
-
     <!-- Hiển thị thông báo thành công nếu có -->
     <div class="alert alert-success" th:if="${success}">
         <span th:text="${success}"></span>

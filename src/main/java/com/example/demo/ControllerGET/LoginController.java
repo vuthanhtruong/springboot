@@ -22,13 +22,14 @@ public class LoginController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    // Hiển thị trang đăng nhập chung
-    @GetMapping("/DangNhap")
-    public String showLoginPage() {
-        return "DangNhap"; // Trả về template DangNhap.html
+    @GetMapping("/login")
+    public String showLoginPage(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("usernamePasswordError", "Tài khoản hoặc mật khẩu không chính xác");
+        }
+        return "TrangChu";  // Trả về trang login.html
     }
 
-    // Xử lý redirect sau khi đăng nhập thành công (username/password)
     @GetMapping("/redirect")
     public String redirectAfterLogin(Authentication authentication, HttpServletRequest request, RedirectAttributes redirectAttributes)
             throws ServletException {
