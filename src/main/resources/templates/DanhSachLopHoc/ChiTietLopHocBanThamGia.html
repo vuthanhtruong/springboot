@@ -1,169 +1,139 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Chi Tiết Lớp Học</title>
-    <link href="/ChiTietLopHocBanThamGia.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/ChiTietLopHocBanThamGia.css}">
 </head>
 <body>
-<header>
+<!-- Header -->
+<header class="header">
     <h1>Chi Tiết Lớp Học</h1>
-    <div class="back-buttons">
-        <a class="btn btn-back" th:href="@{/DanhSachLopHoc}">🔙 Quay lại danh sách lớp học</a>
-        <a class="btn btn-home" th:href="@{${homePage}}">🏠 Quay lại trang chủ</a>
+    <div class="header-actions">
+        <a class="btn btn-back" th:href="@{/DanhSachLopHoc}"><i class="fas fa-arrow-left"></i> Quay lại danh sách</a>
+        <a class="btn btn-home" th:href="@{${homePage}}"><i class="fas fa-home"></i> Trang chủ</a>
+        <a class="btn btn-members" th:href="@{'/ThanhVienTrongLopHocCuaBan/' + ${room?.roomId}}"><i
+                class="fas fa-users"></i> Thành viên</a>
     </div>
-    <div class="feedback-section" th:if="${feedback}">
-        <h2>📢 Đánh giá giáo viên</h2>
-        <form action="/GuiNhanXetGiaoVien" method="POST">
-            <input name="roomId" th:value="${room?.roomId}" type="hidden">
-            <input name="reviewerId" th:value="${#authentication.principal.username}" type="hidden">
-            <label for="teacher">👩‍🏫 Chọn giáo viên:</label>
-            <select id="teacher" name="teacherId" required>
-                <option th:each="teacher : ${teachers}" th:text="${teacher.firstName + ' ' + teacher.lastName}"
-                        th:value="${teacher.teacherId}"></option>
-            </select>
-            <label for="text">📝 Nhập nhận xét:</label>
-            <textarea id="text" name="text" placeholder="Nhập đánh giá của bạn..." required></textarea>
-            <button type="submit">📩 Gửi đánh giá</button>
-        </form>
-    </div>
-    <a class="btn btn-members" th:href="@{'/ThanhVienTrongLopHocCuaBan/' + ${room?.roomId}}">👥 Thành viên trong lớp</a>
 </header>
 
+<!-- Main Container -->
 <div class="container">
-    <div class="class-detail">
-        <h2>Thông Tin Lớp Học</h2>
-        <p><strong>Tên lớp học:</strong> <span th:text="${room?.roomName ?: 'Không xác định'}"></span></p>
-        <p><strong>Địa chỉ/Link:</strong>
-            <span th:if="${roomMode}" th:text="${room.link}"></span>
-            <span th:text="${room.address}" th:unless="${roomMode}"></span>
-        </p>
-        <p><strong>Thời gian bắt đầu:</strong>
-            <span th:if="${room?.startTime != null}"
-                  th:text="${#temporals.format(room.startTime, 'yyyy-MM-dd HH:mm')}"></span>
-            <span th:if="${room?.startTime == null}">Chưa có</span>
-        </p>
-        <p><strong>Thời gian kết thúc:</strong>
-            <span th:if="${room?.endTime != null}"
-                  th:text="${#temporals.format(room.endTime, 'yyyy-MM-dd HH:mm')}"></span>
-            <span th:if="${room?.endTime == null}">Chưa có</span>
-        </p>
-    </div>
+    <!-- Sidebar: Class Info -->
+    <aside class="sidebar">
+        <div class="class-info">
+            <h2>Thông Tin Lớp</h2>
+            <p><strong>Tên lớp:</strong> <span th:text="${room?.roomName ?: 'Không xác định'}"></span></p>
+            <p><strong>Địa chỉ/Link:</strong>
+                <span th:if="${roomMode}" th:text="${room.link}"></span>
+                <span th:text="${room.address}" th:unless="${roomMode}"></span>
+            </p>
+            <p><strong>Thời gian bắt đầu:</strong>
+                <span th:if="${room?.startTime != null}"
+                      th:text="${#temporals.format(room.startTime, 'dd/MM/yyyy HH:mm')}"></span>
+                <span th:unless="${room?.startTime != null}">Chưa có</span>
+            </p>
+            <p><strong>Thời gian kết thúc:</strong>
+                <span th:if="${room?.endTime != null}"
+                      th:text="${#temporals.format(room.endTime, 'dd/MM/yyyy HH:mm')}"></span>
+                <span th:unless="${room?.endTime != null}">Chưa có</span>
+            </p>
+        </div>
 
-    <div class="post-section">
-        <h2>Đăng Bài Mới</h2>
-        <a th:href="@{'/BaiDangCaNhan/' + ${room?.roomId}}"><i class="fas fa-user"></i> Bài Đăng Cá Nhân</a>
-        <form action="/BaiPost" enctype="multipart/form-data" id="postForm" method="POST">
-            <input name="roomId" th:value="${room?.roomId}" type="hidden">
-            <textarea name="postContent" placeholder="Nhập nội dung bài đăng..." required></textarea>
-            <div class="file-upload">
-                <label for="files">📎 Tải tệp lên:</label>
-                <input accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip,.mp4,.avi,.mov"
-                       id="files"
-                       name="files"
-                       onchange="addFiles(this.files)"
-                       type="file">
-                <ul id="fileList" style="list-style: none; padding: 0;"></ul>
-            </div>
-            <button type="submit">🚀 Đăng Bài</button>
-        </form>
-    </div>
+        <!-- Feedback Section -->
+        <div class="feedback-section" th:if="${feedback}">
+            <h3><i class="fas fa-comment-alt"></i> Đánh giá giáo viên</h3>
+            <form action="/GuiNhanXetGiaoVien" method="POST">
+                <input name="roomId" th:value="${room?.roomId}" type="hidden">
+                <input name="reviewerId" th:value="${#authentication.principal.username}" type="hidden">
+                <select name="teacherId" required>
+                    <option th:each="teacher : ${teachers}" th:text="${teacher.firstName + ' ' + teacher.lastName}"
+                            th:value="${teacher.teacherId}"></option>
+                </select>
+                <textarea name="text" placeholder="Nhập đánh giá của bạn..." required></textarea>
+                <button type="submit"><i class="fas fa-paper-plane"></i> Gửi</button>
+            </form>
+        </div>
+    </aside>
 
-    <div class="post-list">
-        <h2>Bài Đăng Trong Lớp</h2>
-        <ul>
-            <li th:each="post : ${posts}">
-                <p><strong>👤 Người đăng:</strong> <span
-                        th:text="${post.creator?.firstName + ' ' + post.creator?.lastName}"></span></p>
-                <p><strong>📝 Nội dung:</strong> <span th:text="${post.content}"></span></p>
-                <p><strong>Thời gian đăng:</strong> <span
-                        th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
-                <div class="document-list" th:if="${not #lists.isEmpty(post.documents)}">
-                    <h4>📄 Tài liệu đính kèm:</h4>
+    <!-- Main Content: Posts -->
+    <main class="main-content">
+        <!-- Post Creation -->
+        <div class="post-create">
+            <h3>Đăng bài mới</h3>
+            <form action="/BaiPost" enctype="multipart/form-data" id="postForm" method="POST">
+                <input name="roomId" th:value="${room?.roomId}" type="hidden">
+                <textarea name="postContent" placeholder="Bạn đang nghĩ gì?" required></textarea>
+                <div class="file-upload">
+                    <label for="files"><i class="fas fa-paperclip"></i> Tải tệp</label>
+                    <input accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip,.mp4,.avi,.mov" id="files" name="files"
+                           onchange="addFiles(this.files)" type="file">
+                    <ul id="fileList"></ul>
+                </div>
+                <button type="submit"><i class="fas fa-rocket"></i> Đăng</button>
+            </form>
+            <a class="personal-post" th:href="@{'/BaiDangCaNhan/' + ${room?.roomId}}"><i class="fas fa-user"></i> Bài
+                đăng cá nhân</a>
+        </div>
+
+        <!-- Post List -->
+        <div class="post-list">
+            <div class="post" th:each="post : ${posts}">
+                <div class="post-header">
+                    <span class="post-author"
+                          th:text="${post.creator?.firstName + ' ' + post.creator?.lastName}"></span>
+                    <span class="post-time" th:text="${#temporals.format(post.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                </div>
+                <p class="post-content" th:text="${post.content}"></p>
+                <div class="post-documents" th:if="${not #lists.isEmpty(post.documents)}">
+                    <h4><i class="fas fa-file-alt"></i> Tài liệu</h4>
                     <ul>
                         <li th:each="document : ${post.documents}">
-                            <!-- Hiển thị ảnh nếu là ảnh -->
                             <div th:if="${document.documentTitle.matches('(?i).*\\.(png|jpg|jpeg)$')}">
-                                <img alt="${document.documentTitle}"
-                                     style="max-width: 300px; margin: 10px 0;"
-                                     th:src="@{'/api/files/' + ${document.documentId}}"/>
+                                <img alt="${document.documentTitle}" class="post-image"
+                                     th:src="@{'/api/files/' + ${document.documentId}}">
                             </div>
-                            <!-- Link tải xuống cho tất cả file -->
-                            <a class="btn btn-download"
+                            <a class="btn-download"
                                th:download="${document.documentTitle}"
-                               th:href="@{'/api/files/download/' + ${document.documentId}}">📥 Tải xuống</a>
+                               th:href="@{'/api/files/download/' + ${document.documentId}}"><i
+                                    class="fas fa-download"></i> Tải xuống</a>
                         </li>
                     </ul>
                 </div>
+                <div class="post-actions">
+                    <button class="btn-like"><i class="fas fa-thumbs-up"></i> Thích</button>
+                    <button class="btn-comment"><i class="fas fa-comment"></i> Bình luận</button>
+                </div>
                 <div class="comment-section">
-                    <h3>💬 Bình luận</h3>
                     <ul class="comment-list">
                         <li th:each="comment : ${post.comments}">
-                            <p><strong>👤 Người bình luận:</strong> <span
-                                    th:text="${comment.commenter?.firstName + ' ' + comment.commenter?.lastName}"></span>
-                            </p>
-                            <p><strong>💬 Nội dung:</strong> <span th:text="${comment.text}"></span></p>
-                            <p><strong>⏳ Thời gian:</strong> <span
-                                    th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+                            <span class="comment-author"
+                                  th:text="${comment.commenter?.firstName + ' ' + comment.commenter?.lastName}"></span>
+                            <p th:text="${comment.text}"></p>
+                            <span class="comment-time"
+                                  th:text="${#temporals.format(comment.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
                         </li>
                     </ul>
                     <form action="/BinhLuan" method="POST">
                         <input name="postId" th:value="${post.postId}" type="hidden">
-                        <textarea name="commentText" placeholder="Nhập bình luận..." required></textarea>
-                        <button type="submit">💬 Gửi Bình Luận</button>
+                        <textarea name="commentText" placeholder="Viết bình luận..." required></textarea>
+                        <button type="submit"><i class="fas fa-comment"></i> Gửi</button>
                     </form>
                 </div>
-                <hr>
-            </li>
-        </ul>
-    </div>
+            </div>
+        </div>
+    </main>
 </div>
 
-<style>
-    .back-buttons {
-        margin-top: 20px;
-        text-align: center;
-    }
-
-    .btn {
-        display: inline-block;
-        padding: 10px 15px;
-        margin: 10px;
-        font-size: 16px;
-        text-decoration: none;
-        border-radius: 5px;
-    }
-
-    .btn-back {
-        background-color: #f39c12;
-        color: white;
-    }
-
-    .btn-home {
-        background-color: #3498db;
-        color: white;
-    }
-
-    .btn-members {
-        background-color: #2ecc71;
-        color: white;
-    }
-
-    .btn:hover {
-        opacity: 0.8;
-    }
-</style>
-
+<!-- JavaScript -->
 <script>
     let selectedFiles = [];
 
     function addFiles(files) {
         for (let file of files) {
-            if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
-                selectedFiles.push(file);
-            }
+            if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) selectedFiles.push(file);
         }
         updateFileList();
     }
@@ -190,13 +160,8 @@
         const formData = new FormData(this);
         formData.delete('files');
         selectedFiles.forEach(file => formData.append('files', file));
-        fetch('/BaiPost', {
-            method: 'POST',
-            body: formData
-        }).then(response => {
-            if (response.redirected) {
-                window.location.href = response.url;
-            }
+        fetch('/BaiPost', {method: 'POST', body: formData}).then(response => {
+            if (response.redirected) window.location.href = response.url;
         });
     };
 </script>
