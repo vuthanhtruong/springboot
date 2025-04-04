@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Chi Tiết Buổi Học</title>
     <link href="/ChiTietBuoiHoc.css" rel="stylesheet">
-
 </head>
 <body>
 <h1>Chi Tiết Buổi Học</h1>
@@ -54,36 +53,32 @@
             <td th:text="${student.lastName}"></td>
             <td th:text="${student.firstName}"></td>
             <td>
-                <!-- Chỉ hiển thị radio buttons nếu không phải học sinh -->
+                <!-- Radio buttons cho giáo viên -->
                 <div class="attendance-radio-group" th:if="${!isStudent}">
                     <label class="radio-label">
-                        <input onchange="updateStatusDisplay(this)"
-                               th:checked="${attendanceMap[student.id]?.status == 'Present'}"
+                        <input th:checked="${attendanceMap[student.id]?.status == 'Present'}"
                                th:name="'status_' + ${student.id}"
                                th:value="Present"
                                type="radio">
                         <span>Có Mặt</span>
                     </label>
                     <label class="radio-label">
-                        <input onchange="updateStatusDisplay(this)"
-                               th:checked="${attendanceMap[student.id]?.status == 'Absent' or attendanceMap[student.id]?.status == null}"
+                        <input th:checked="${attendanceMap[student.id]?.status == 'Absent' or attendanceMap[student.id]?.status == null}"
                                th:name="'status_' + ${student.id}"
                                th:value="Absent"
                                type="radio">
                         <span>Vắng Mặt</span>
                     </label>
                 </div>
-                <!-- Trạng thái hiển thị cho tất cả -->
-                <span class="attendance-status"
-                      th:classappend="${attendanceMap[student.id]?.status == 'Present' ? 'status-present' : (attendanceMap[student.id]?.status == 'Absent' ? 'status-absent' : 'status-unknown')}"
+                <!-- Hiển thị trạng thái cho học sinh -->
+                <span th:classappend="${attendanceMap[student.id]?.status == 'Present' ? 'status-present' : (attendanceMap[student.id]?.status == 'Absent' ? 'status-absent' : 'status-unknown')}"
+                      th:if="${isStudent}"
                       th:text="${attendanceMap[student.id]?.status == 'Present' ? 'Có Mặt' : (attendanceMap[student.id]?.status == 'Absent' ? 'Vắng Mặt' : 'Chưa Điểm Danh')}"></span>
             </td>
             <td>
-                <!-- Chỉ hiển thị input ghi chú nếu không phải học sinh -->
                 <input th:if="${!isStudent}" th:name="'note_' + ${student.id}"
                        th:value="${attendanceMap[student.id]?.note}"
                        type="text">
-                <!-- Hiển thị ghi chú readonly cho học sinh -->
                 <span th:if="${isStudent}" th:text="${attendanceMap[student.id]?.note ?: ''}"></span>
             </td>
         </tr>
@@ -92,11 +87,10 @@
         </tr>
         </tbody>
     </table>
-    <!-- Nút Lưu chỉ hiển thị nếu không phải học sinh -->
     <button class="btn-save" th:if="${!isStudent}" type="submit">Lưu Điểm Danh</button>
 </form>
 
-<!-- Trường hợp là học sinh, chỉ hiển thị bảng mà không có form -->
+<!-- Hiển thị cho học sinh -->
 <div th:if="${isStudent}">
     <table>
         <thead>
@@ -114,13 +108,22 @@
             <td th:text="${student.lastName}"></td>
             <td th:text="${student.firstName}"></td>
             <td>
-                <span class="attendance-status"
-                      th:classappend="${attendanceMap[student.id]?.status == 'Present' ? 'status-present' : (attendanceMap[student.id]?.status == 'Absent' ? 'status-absent' : 'status-unknown')}"
-                      th:text="${attendanceMap[student.id]?.status == 'Present' ? 'Có Mặt' : (attendanceMap[student.id]?.status == 'Absent' ? 'Vắng Mặt' : 'Chưa Điểm Danh')}"></span>
-            </td>
-            <td>
-                <span th:text="${attendanceMap[student.id]?.note ?: ''}"></span>
-            </td>
+                <div class="attendance-radio-group" th:if="${!isStudent}">
+                    <label class="radio-label">
+                        <input th:checked="${student.attendance?.status == 'Present'}"
+                               th:name="'status_' + ${student.id}"
+                               th:value="Present"
+                               type="radio">
+                        <span>Có Mặt</span>
+                    </label>
+                    <label class="radio-label">
+                        <input th:checked="${student.attendance?.status == 'Absent' or student.attendance?.status == null}"
+                               th:name="'status_' + ${student.id}"
+                               th:value="Absent"
+                               type="radio">
+                        <span>Vắng Mặt</span>
+                    </label>
+                </div>
         </tr>
         <tr th:if="${#lists.isEmpty(students)}">
             <td colspan="5" style="text-align: center;">Không có học sinh trong lớp này.</td>
@@ -130,27 +133,8 @@
 </div>
 
 <!-- Nút quay lại -->
-<!-- Nút quay lại -->
 <a class="btn-back" th:href="@{${backUrl}(year=${#temporals.format(timetable.date, 'yyyy')}, week=${weekNumber})}">Quay
     Lại Lịch Học</a>
 
-<script>
-    function updateStatusDisplay(radio) {
-        const statusSpan = radio.closest('td').querySelector('.attendance-status');
-        if (statusSpan) {
-            const status = radio.value;
-            statusSpan.textContent = status === 'Present' ? 'Có Mặt' : 'Vắng Mặt';
-            statusSpan.className = 'attendance-status ' +
-                (status === 'Present' ? 'status-present' : 'status-absent');
-        }
-    }
-
-    // Khởi tạo trạng thái ban đầu
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
-            updateStatusDisplay(radio);
-        });
-    });
-</script>
 </body>
 </html>
