@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Nhập Mã OTP</title>
-    <link href="/NhapOTP.css" rel="stylesheet">
-
+    <link rel="stylesheet" th:href="@{/NhapOTP.css}">
 </head>
 <body>
 <div class="container">
@@ -23,6 +22,8 @@
 
                     <!-- Hiển thị thông báo lỗi nếu có -->
                     <div class="alert alert-danger" role="alert" th:if="${error}" th:text="${error}"></div>
+                    <!-- Hiển thị thông báo gửi lại nếu có -->
+                    <div class="alert alert-success" role="alert" th:if="${message}" th:text="${message}"></div>
 
                     <form method="post" th:action="@{/auth/verify-otp}">
                         <input name="email" th:value="${email}" type="hidden">
@@ -32,7 +33,7 @@
                             <input autofocus class="form-control otp-input" id="otp" maxlength="6" name="otp"
                                    pattern="\d{6}" required title="Mã OTP gồm 6 chữ số" type="text">
                             <div class="form-text">
-                                Mã OTP có hiệu lực trong <span class="timer" id="timer">10:00</span> phút.
+                                Mã OTP có hiệu lực trong <span class="timer" id="timer">10:00</span>.
                             </div>
                         </div>
 
@@ -41,7 +42,6 @@
                             <a class="btn btn-outline-secondary" href="/auth/QuenMatKhau">Quay lại</a>
                         </div>
                     </form>
-
 
                     <div class="text-center mt-3">
                         <p>Không nhận được mã?
@@ -54,7 +54,43 @@
             </div>
         </div>
     </div>
-
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const timerElement = document.getElementById('timer');
+        let timeLeft = 10 * 60; // 10 phút tính bằng giây (đồng bộ với AuthController)
+
+        // Hàm cập nhật thời gian
+        const updateTimer = () => {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeLeft > 0) {
+                timeLeft--;
+            } else {
+                timerElement.textContent = 'Hết hiệu lực';
+                timerElement.style.color = 'var(--danger)'; // Sử dụng biến CSS từ NhapOTP.css
+                clearInterval(timerInterval);
+            }
+        };
+
+        // Cập nhật ngay lần đầu
+        updateTimer();
+
+        // Chạy đếm ngược mỗi giây
+        const timerInterval = setInterval(updateTimer, 1000);
+
+        // Reset thời gian khi gửi lại OTP (giả định form gửi lại thành công)
+        document.querySelector('form[action="/auth/resend-otp"]').addEventListener('submit', () => {
+            clearInterval(timerInterval); // Dừng đếm ngược hiện tại
+            timeLeft = 10 * 60; // Reset về 10 phút
+            timerElement.style.color = 'var(--primary)'; // Đặt lại màu
+            updateTimer(); // Cập nhật ngay lập tức
+            setInterval(updateTimer, 1000); // Bắt đầu lại đếm ngược
+        });
+    });
+</script>
 </body>
 </html>
