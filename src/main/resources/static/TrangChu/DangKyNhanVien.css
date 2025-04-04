@@ -1,43 +1,51 @@
-/* Import Fonts & Icons */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css');
+/* Import font */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
 
-/* Reset CSS */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+/* Variables */
+:root {
+    --primary: #4361ee;
+    --secondary: #3a0ca3;
+    --accent: #4cc9f0;
+    --success: #2ecc71;
+    --warning: #f7b731;
+    --danger: #fc5c65;
+    --surface: #ffffff;
+    --text: #2d3436;
 }
 
-/* Background Gradient */
+/* Base styles */
 body {
-    background: linear-gradient(135deg, #3498db, #8e44ad);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    font-family: 'Outfit', sans-serif;
     min-height: 100vh;
-    padding: 20px;
+    margin: 0;
+    background: radial-gradient(circle at 0% 0%, rgba(67, 97, 238, 0.1), transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(76, 201, 240, 0.1), transparent 50%),
+    #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Container */
 .container {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(15px);
-    border-radius: 20px;
-    padding: 30px;
-    width: 100%;
     max-width: 600px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    animation: fadeIn 1s ease-in-out;
+    padding: 2rem;
 }
 
-/* Animation FadeIn */
-@keyframes fadeIn {
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    box-shadow: 0 0 0 1px rgba(67, 97, 238, 0.05),
+    0 20px 40px rgba(67, 97, 238, 0.1);
+    padding: 2.5rem;
+    animation: card-appear 0.6s ease-out;
+}
+
+@keyframes card-appear {
     from {
         opacity: 0;
-        transform: translateY(-30px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
@@ -45,106 +53,131 @@ body {
     }
 }
 
-/* Title */
+/* Header */
 h1 {
-    color: #fff;
-    font-size: 28px;
+    font-size: 2.8rem;
     font-weight: 700;
-    margin-bottom: 30px;
-    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-align: center;
+    margin-bottom: 2rem;
 }
 
-/* Form Elements */
-.form-group {
+/* Form */
+form {
     display: flex;
     flex-direction: column;
-    margin-bottom: 20px;
-    text-align: left;
+    gap: 1.5rem;
 }
 
-/* Labels */
-label {
-    color: #fff;
-    font-weight: 600;
-    margin-bottom: 8px;
+.mb-3 {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-/* Input Fields */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-select {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    font-size: 16px;
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+.form-label {
+    font-weight: 500;
+    color: var(--text);
+    font-size: 1.1rem;
+}
+
+.form-control {
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
     outline: none;
-    transition: all 0.3s ease-in-out;
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
 }
 
-/* Focus Effect */
-input:focus, select:focus {
-    border: 2px solid #00ff99;
-    box-shadow: 0 0 8px rgba(0, 255, 153, 0.6);
-    transform: scale(1.02);
-}
-
-/* Placeholder Styling */
-input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+/* Error messages */
+.text-danger {
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    color: var(--danger);
 }
 
 /* Buttons */
-button[type="submit"], .btn-outline-secondary {
-    display: inline-block;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-size: 18px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: all 0.3s ease-in-out;
+.d-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
 }
 
-/* Primary Button */
-button[type="submit"] {
-    background: linear-gradient(135deg, #ff9966, #ff5e62);
-    color: white;
+.btn {
+    padding: 1rem 1.5rem;
     border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
-button[type="submit"]:hover {
-    background: linear-gradient(135deg, #ff5e62, #ff9966);
-    box-shadow: 0 5px 15px rgba(255, 94, 98, 0.4);
-    transform: scale(1.05);
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
 }
 
-/* Secondary Button */
 .btn-outline-secondary {
     background: transparent;
-    border: 2px solid #fff;
-    color: white;
+    border: 2px solid #b2bec3;
+    color: var(--text);
+    box-shadow: 0 4px 15px rgba(178, 190, 195, 0.3);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
 }
 
 .btn-outline-secondary:hover {
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
+    background: linear-gradient(135deg, #b2bec3, #636e72);
+    color: white;
 }
 
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 768px) {
     .container {
-        width: 100%;
-        padding: 15px;
+        padding: 1rem;
+    }
+
+    .card {
+        padding: 1.5rem;
     }
 
     h1 {
-        font-size: 24px;
+        font-size: 2rem;
     }
+
+    .form-control {
+        padding: 0.8rem;
+    }
+
+    .btn {
+        padding: 0.8rem 1.2rem;
+    }
+}
+
+/* Selection */
+::selection {
+    background: rgba(67, 97, 238, 0.2);
+    color: var(--primary);
 }

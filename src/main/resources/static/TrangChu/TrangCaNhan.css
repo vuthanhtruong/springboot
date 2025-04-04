@@ -22,36 +22,46 @@ body {
     radial-gradient(circle at 100% 100%, rgba(76, 201, 240, 0.1), transparent 50%),
     #f8f9fa;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
 }
 
-/* Container */
-.container {
-    max-width: 600px;
-    width: 100%;
-    padding: 2rem;
+/* Header */
+header {
+    padding: 2rem 0;
+    text-align: center;
 }
 
-/* Header */
-h2 {
+header h1 {
     font-size: 2.8rem;
     font-weight: 700;
     background: linear-gradient(135deg, var(--primary), var(--accent));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    text-align: center;
-    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
-/* Alert */
+/* Main */
+main {
+    max-width: 800px;
+    width: 100%;
+    padding: 0 2rem;
+    flex-grow: 1;
+}
+
+/* Alerts */
 .alert {
     padding: 1.5rem;
     border-radius: 16px;
-    margin-bottom: 2rem;
-    text-align: center;
+    margin: 1rem 0;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .alert-danger {
@@ -60,21 +70,31 @@ h2 {
     font-weight: 500;
 }
 
-/* Form */
-form {
+.alert-success {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.1));
+    color: var(--success);
+    font-weight: 500;
+}
+
+/* Sections */
+.profile-section,
+.face-registration-section,
+.face-delete-section,
+.voice-registration-section,
+.voice-delete-section,
+.password-section,
+.navigation-section {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border-radius: 24px;
     box-shadow: 0 0 0 1px rgba(67, 97, 238, 0.05),
     0 20px 40px rgba(67, 97, 238, 0.1);
     padding: 2.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    animation: form-appear 0.6s ease-out;
+    margin-bottom: 2rem;
+    animation: section-appear 0.6s ease-out;
 }
 
-@keyframes form-appear {
+@keyframes section-appear {
     from {
         opacity: 0;
         transform: translateY(20px);
@@ -85,37 +105,66 @@ form {
     }
 }
 
-.input-group {
+h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Form */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-label {
+.form-group label,
+.mb-3 label {
     font-weight: 500;
     color: var(--text);
     font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-input[type="text"],
-input[type="email"],
-select {
+.form-control {
     padding: 1rem;
     border: 2px solid #e9ecef;
     border-radius: 12px;
     font-size: 1rem;
     background: #f8f9fa;
     transition: all 0.3s ease;
-    width: 100%;
 }
 
-input[type="text"]:focus,
-input[type="email"]:focus,
-select:focus {
+.form-control:focus {
     outline: none;
     border-color: var(--primary);
     background: white;
     box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+}
+
+.form-group span {
+    font-size: 1rem;
+    color: var(--text);
+}
+
+/* Video */
+#video {
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.1);
+    display: block;
+    margin: 0 auto 1rem;
 }
 
 /* Buttons */
@@ -130,8 +179,8 @@ select:focus {
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 0.5rem;
+    margin: 0.5rem 0;
 }
 
 .btn-primary {
@@ -140,11 +189,28 @@ select:focus {
     box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
 }
 
-.btn-secondary {
-    background: transparent;
-    border: 2px solid #b2bec3;
-    color: var(--text);
-    box-shadow: 0 4px 15px rgba(178, 190, 195, 0.3);
+.btn-info {
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+    color: white;
+    box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success), #27ae60);
+    color: white;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--warning), #e67e22);
+    color: white;
+    box-shadow: 0 4px 15px rgba(247, 183, 49, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger), #e74c3c);
+    color: white;
+    box-shadow: 0 4px 15px rgba(252, 92, 101, 0.3);
 }
 
 .btn:hover {
@@ -152,33 +218,49 @@ select:focus {
     box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
 }
 
-.btn-secondary:hover {
-    background: linear-gradient(135deg, #b2bec3, #636e72);
-    color: white;
+/* Status Messages */
+.text-success {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .container {
-        padding: 1rem;
-    }
-
-    h2 {
+    header h1 {
         font-size: 2rem;
     }
 
-    form {
+    main {
+        padding: 0 1rem;
+    }
+
+    .profile-section,
+    .face-registration-section,
+    .face-delete-section,
+    .voice-registration-section,
+    .voice-delete-section,
+    .password-section,
+    .navigation-section {
         padding: 1.5rem;
     }
 
-    input[type="text"],
-    input[type="email"],
-    select {
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    .form-control {
         padding: 0.8rem;
     }
 
     .btn {
         padding: 0.8rem 1.2rem;
+    }
+
+    #video {
+        width: 100%;
+        height: auto;
     }
 }
 

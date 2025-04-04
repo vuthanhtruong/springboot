@@ -21,30 +21,10 @@ body {
     background: radial-gradient(circle at 0% 0%, rgba(67, 97, 238, 0.1), transparent 50%),
     radial-gradient(circle at 100% 100%, rgba(76, 201, 240, 0.1), transparent 50%),
     #f8f9fa;
-}
-
-/* Container */
-.container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2.5rem;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: 24px;
-    box-shadow: 0 0 0 1px rgba(67, 97, 238, 0.05),
-    0 20px 40px rgba(67, 97, 238, 0.1);
-    animation: container-appear 0.6s ease-out;
-}
-
-@keyframes container-appear {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Header */
@@ -56,11 +36,39 @@ h2 {
     background-clip: text;
     color: transparent;
     text-align: center;
-    margin-bottom: 2rem;
+    margin: 2rem 0;
 }
 
-/* Alerts */
-.alert {
+/* Container */
+form {
+    max-width: 500px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    box-shadow: 0 0 0 1px rgba(67, 97, 238, 0.05),
+    0 20px 40px rgba(67, 97, 238, 0.1);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    animation: form-appear 0.6s ease-out;
+}
+
+@keyframes form-appear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Messages */
+.error-message,
+.success-message {
     padding: 1.5rem;
     border-radius: 16px;
     margin-bottom: 2rem;
@@ -68,110 +76,104 @@ h2 {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.alert-danger {
+.error-message {
     background: linear-gradient(135deg, rgba(252, 92, 101, 0.1), rgba(231, 76, 60, 0.1));
     color: var(--danger);
     font-weight: 500;
 }
 
-.alert-success {
+.success-message {
     background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.1));
     color: var(--success);
     font-weight: 500;
 }
 
-/* Form */
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.input-group label {
+/* Form Fields */
+label {
     font-weight: 500;
     color: var(--text);
     font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
 }
 
-.input-group input {
+input[type="text"],
+input[type="email"] {
     padding: 1rem;
     border: 2px solid #e9ecef;
     border-radius: 12px;
     font-size: 1rem;
     background: #f8f9fa;
     transition: all 0.3s ease;
+    width: 100%;
 }
 
-.input-group input:focus {
+input[type="text"]:focus,
+input[type="email"]:focus {
     outline: none;
     border-color: var(--primary);
     background: white;
     box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
 }
 
-/* Buttons */
-.btn {
+/* Button */
+button {
     padding: 1rem 1.5rem;
     border: none;
     border-radius: 12px;
     font-weight: 600;
     font-size: 1rem;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
-}
-
-.btn-primary {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+    align-self: center;
 }
 
-.btn-secondary {
-    background: linear-gradient(135deg, #b2bec3, #636e72);
-    color: white;
-    box-shadow: 0 4px 15px rgba(178, 190, 195, 0.3);
-}
-
-.btn:hover {
+button:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
 }
 
-.btn-container {
+/* Back Link */
+a {
+    display: inline-block;
+    padding: 1rem 1.5rem;
+    border: 2px solid #b2bec3;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(178, 190, 195, 0.3);
     text-align: center;
     margin-top: 2rem;
 }
 
+a:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #b2bec3, #636e72);
+    color: white;
+    box-shadow: 0 8px 25px rgba(178, 190, 195, 0.4);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
-    .container {
-        margin: 1rem;
-        padding: 1.5rem;
-    }
-
     h2 {
         font-size: 2rem;
     }
 
-    .input-group input {
+    form {
+        padding: 1.5rem;
+    }
+
+    input[type="text"],
+    input[type="email"] {
         padding: 0.8rem;
     }
 
-    .btn {
+    button,
+    a {
         padding: 0.8rem 1.2rem;
     }
 }
