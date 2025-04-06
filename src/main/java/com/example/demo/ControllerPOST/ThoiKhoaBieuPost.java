@@ -484,24 +484,14 @@ public class ThoiKhoaBieuPost {
                 String statusKey = "status_" + student.getId();
                 String noteKey = "note_" + student.getId();
                 String status = allParams.getOrDefault(statusKey, "Absent");
-                String note = allParams.get(noteKey);
-
-                if (markingEmployee != null) {
-                    String employeeName = markingEmployee.getLastName() + " " + markingEmployee.getFirstName();
-                    String employeeNote = "Nhân viên " + employeeName + " điểm danh hộ vì giáo viên quên điểm danh";
-                    if (note == null || note.trim().isEmpty()) {
-                        note = employeeNote;
-                    } else {
-                        note = note + " - " + employeeNote;
-                    }
-                }
+                String note = allParams.get(noteKey); // Lấy trực tiếp từ form, không tự động thêm
 
                 Attendances attendance = new Attendances(
                         teacher,
                         student,
                         timetable.getSlot(),
                         status,
-                        note,
+                        note, // Giữ nguyên giá trị từ form, null nếu không nhập
                         LocalDateTime.now()
                 );
                 attendance.setTimetable(timetable);
