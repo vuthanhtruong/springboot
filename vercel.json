@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "target/*.jar",
+      "use": "@vercel/static",
+      "config": {
+        "distDir": "target"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "target/your-app.jar"
+    }
+  ],
+  "functions": {
+    "api/index.java": {
+      "runtime": "java@adoptopenjdk-11"
+    }
+  }
+}
