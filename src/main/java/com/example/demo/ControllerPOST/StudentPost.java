@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,20 +50,22 @@ public class StudentPost {
             @RequestParam(value = "Ward", required = false) String ward,
             @RequestParam(value = "Street", required = false) String street,
             @RequestParam(value = "PostalCode", required = false) String postalCode,
-            RedirectAttributes redirectAttributes) {
+            Model model) {
 
         System.out.println("Bắt đầu đăng ký học sinh...");
 
         // Kiểm tra mật khẩu khớp nhau
         if (!password.equals(confirmPassword)) {
-            redirectAttributes.addFlashAttribute("errorPassword", "Mật khẩu nhập lại không khớp!");
-            return "redirect:/DangKyHocSinh";
+            model.addAttribute("errorPassword", "Mật khẩu nhập lại không khớp!");
+            addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
+            return "DangKyHocSinh";
         }
 
         // Kiểm tra StudentID đã tồn tại chưa
         if (entityManager.find(Person.class, studentID) != null) {
-            redirectAttributes.addFlashAttribute("errorStudentID", "Mã học sinh đã tồn tại!");
-            return "redirect:/DangKyHocSinh";
+            model.addAttribute("errorStudentID", "Mã học sinh đã tồn tại!");
+            addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
+            return "DangKyHocSinh";
         }
 
         // Kiểm tra Email có tồn tại chưa
@@ -71,17 +74,20 @@ public class StudentPost {
                 .setParameter("email", email)
                 .getResultList().isEmpty();
         if (emailExists) {
-            redirectAttributes.addFlashAttribute("errorEmail", "Email đã tồn tại!");
-            return "redirect:/DangKyHocSinh";
+            model.addAttribute("errorEmail", "Email đã tồn tại!");
+            addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
+            return "DangKyHocSinh";
         }
 
         // Kiểm tra định dạng số điện thoại
         if (!phoneNumber.matches("^[0-9]+$")) {
-            redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại chỉ được chứa chữ số!");
-            return "redirect:/DangKyHocSinh";
+            model.addAttribute("errorPhone", "Số điện thoại chỉ được chứa chữ số!");
+            addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
+            return "DangKyHocSinh";
         } else if (!phoneNumber.matches("^\\d{9,10}$")) {
-            redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại phải có 9-10 chữ số!");
-            return "redirect:/DangKyHocSinh";
+            model.addAttribute("errorPhone", "Số điện thoại phải có 9-10 chữ số!");
+            addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
+            return "DangKyHocSinh";
         }
 
         // Kiểm tra số điện thoại có tồn tại chưa
@@ -90,42 +96,48 @@ public class StudentPost {
                 .setParameter("phoneNumber", phoneNumber)
                 .getResultList().isEmpty();
         if (phoneExists) {
-            redirectAttributes.addFlashAttribute("errorPhone", "Số điện thoại đã được đăng ký!");
-            return "redirect:/DangKyHocSinh";
+            model.addAttribute("errorPhone", "Số điện thoại đã được đăng ký!");
+            addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
+            return "DangKyHocSinh";
         }
 
         // Kiểm tra mật khẩu có đủ mạnh không
         if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$")) {
-            redirectAttributes.addFlashAttribute("errorPassword", "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
-            return "redirect:/DangKyHocSinh";
+            model.addAttribute("errorPassword", "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!");
+            addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
+            return "DangKyHocSinh";
         }
 
         // Kiểm tra ngày sinh có hợp lệ không (phải trong quá khứ)
         LocalDate today = LocalDate.now();
         if (birthDate.isAfter(today)) {
-            redirectAttributes.addFlashAttribute("errorBirthDate", "Ngày sinh không hợp lệ!");
-            return "redirect:/DangKyHocSinh";
+            model.addAttribute("errorBirthDate", "Ngày sinh không hợp lệ!");
+            addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
+            return "DangKyHocSinh";
         }
 
         // Kiểm tra độ tuổi hợp lệ (ít nhất 6 tuổi)
         if (ChronoUnit.YEARS.between(birthDate, today) < 6) {
-            redirectAttributes.addFlashAttribute("errorBirthDate", "Học sinh phải từ 6 tuổi trở lên!");
-            return "redirect:/DangKyHocSinh";
+            model.addAttribute("errorBirthDate", "Học sinh phải từ 6 tuổi trở lên!");
+            addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
+            return "DangKyHocSinh";
         }
 
         // Lấy Admin
         List<Admin> adminList = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
         if (adminList.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorAdmin", "Không tìm thấy Admin!");
-            return "redirect:/DangKyHocSinh";
+            model.addAttribute("errorAdmin", "Không tìm thấy Admin!");
+            addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
+            return "DangKyHocSinh";
         }
         Admin admin = adminList.get(0);
 
         // Tìm nhân viên có ít học sinh nhất
         Employees selectedEmployee = findEmployeeWithFewestStudents();
         if (selectedEmployee == null) {
-            redirectAttributes.addFlashAttribute("errorEmployee", "Không tìm thấy nhân viên nào để phân bổ!");
-            return "redirect:/DangKyHocSinh";
+            model.addAttribute("errorEmployee", "Không tìm thấy nhân viên nào để phân bổ!");
+            addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
+            return "DangKyHocSinh";
         }
 
         // Tạo đối tượng học sinh
@@ -139,12 +151,12 @@ public class StudentPost {
         student.setMisId(misId);
         student.setPassword(password); // Mã hóa mật khẩu
         student.setGender(gender);
-        student.setCountry(country); // Lưu quốc gia
-        student.setProvince(province); // Lưu tỉnh/thành phố
-        student.setDistrict(district); // Lưu quận/huyện
-        student.setWard(ward); // Lưu xã/phường
-        student.setStreet(street); // Lưu đường, số nhà
-        student.setPostalCode(postalCode); // Lưu mã bưu điện
+        student.setCountry(country);
+        student.setProvince(province);
+        student.setDistrict(district);
+        student.setWard(ward);
+        student.setStreet(street);
+        student.setPostalCode(postalCode);
         student.setEmployee(selectedEmployee);
         student.setAdmin(admin);
 
@@ -154,12 +166,33 @@ public class StudentPost {
             System.out.println("Đăng ký học sinh thành công! Gán cho nhân viên: " + selectedEmployee.getId());
         } catch (Exception e) {
             System.out.println("Lỗi khi lưu học sinh: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("error", "Lỗi khi lưu dữ liệu: " + e.getMessage());
-            return "redirect:/DangKyHocSinh";
+            model.addAttribute("error", "Lỗi khi lưu dữ liệu: " + e.getMessage());
+            addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
+            return "DangKyHocSinh";
         }
 
-        redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công! Vui lòng đăng nhập.");
+        model.addAttribute("successMessage", "Đăng ký thành công! Vui lòng đăng nhập.");
         return "redirect:/TrangChu";
+    }
+
+    // Phương thức hỗ trợ để gửi dữ liệu vào model
+    private void addFormDataToModel(Model model, String studentID, String firstName, String lastName,
+                                    String email, String phoneNumber, LocalDate birthDate, String misId, Gender gender,
+                                    String country, String province, String district, String ward, String street, String postalCode) {
+        model.addAttribute("StudentID", studentID);
+        model.addAttribute("FirstName", firstName);
+        model.addAttribute("LastName", lastName);
+        model.addAttribute("Email", email);
+        model.addAttribute("PhoneNumber", phoneNumber);
+        model.addAttribute("BirthDate", birthDate);
+        model.addAttribute("MisId", misId);
+        model.addAttribute("Gender", gender);
+        model.addAttribute("Country", country);
+        model.addAttribute("Province", province);
+        model.addAttribute("District", district);
+        model.addAttribute("Ward", ward);
+        model.addAttribute("Street", street);
+        model.addAttribute("PostalCode", postalCode);
     }
 
     // Phương thức phụ để tìm nhân viên có ít học sinh nhất

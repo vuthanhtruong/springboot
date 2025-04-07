@@ -48,24 +48,28 @@ public class GiaoVienPost {
         // Kiểm tra TeacherID đã tồn tại
         if (entityManager.find(Person.class, teacherID) != null) {
             model.addAttribute("teacherIDError", "TeacherID đã tồn tại.");
+            addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
             return "DangKyGiaoVien";
         }
 
         // Kiểm tra mật khẩu có khớp không
         if (!password.equals(confirmPassword)) {
             model.addAttribute("passwordError", "Mật khẩu không khớp.");
+            addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
             return "DangKyGiaoVien";
         }
 
         // Kiểm tra tính hợp lệ của mật khẩu
         if (!isValidPassword(password)) {
             model.addAttribute("passwordInvalid", "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.");
+            addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
             return "DangKyGiaoVien";
         }
 
         // Kiểm tra ngày sinh có hợp lệ không (phải trong quá khứ)
         if (birthDate.isAfter(LocalDate.now())) {
             model.addAttribute("birthDateError", "Ngày sinh không hợp lệ.");
+            addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
             return "DangKyGiaoVien";
         }
 
@@ -75,15 +79,18 @@ public class GiaoVienPost {
                 .getResultList();
         if (!existingTeachersByEmail.isEmpty()) {
             model.addAttribute("emailError", "Email này đã được sử dụng.");
+            addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
             return "DangKyGiaoVien";
         }
 
         // Kiểm tra định dạng số điện thoại
         if (!phoneNumber.matches("^[0-9]+$")) {
             model.addAttribute("phoneError", "Số điện thoại chỉ được chứa chữ số!");
+            addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
             return "DangKyGiaoVien";
         } else if (!phoneNumber.matches("^\\d{9,10}$")) {
             model.addAttribute("phoneError", "Số điện thoại phải có 9-10 chữ số!");
+            addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
             return "DangKyGiaoVien";
         }
 
@@ -93,6 +100,7 @@ public class GiaoVienPost {
                 .getResultList();
         if (!existingTeachersByPhone.isEmpty()) {
             model.addAttribute("phoneError", "Số điện thoại này đã được sử dụng.");
+            addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
             return "DangKyGiaoVien";
         }
 
@@ -100,14 +108,24 @@ public class GiaoVienPost {
         List<Admin> adminList = entityManager.createQuery("FROM Admin", Admin.class).getResultList();
         if (adminList.isEmpty()) {
             model.addAttribute("adminError", "Không tìm thấy Admin.");
+            addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
             return "DangKyGiaoVien";
         }
         Admin admin = adminList.get(0);
+
+        // Kiểm tra xem có nhân viên nào trong hệ thống không
+        List<Employees> employeeList = entityManager.createQuery("FROM Employees", Employees.class).getResultList();
+        if (employeeList.isEmpty()) {
+            model.addAttribute("employeeError", "Chưa có nhân viên, không thể đăng ký được.");
+            addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
+            return "DangKyGiaoVien";
+        }
 
         // Tìm nhân viên có ít giáo viên nhất
         Employees selectedEmployee = findEmployeeWithFewestTeachers();
         if (selectedEmployee == null) {
             model.addAttribute("employeeError", "Không tìm thấy nhân viên nào để phân bổ.");
+            addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
             return "DangKyGiaoVien";
         }
 
@@ -120,12 +138,12 @@ public class GiaoVienPost {
         giaoVien.setPhoneNumber(phoneNumber);
         giaoVien.setBirthDate(birthDate);
         giaoVien.setGender(gender);
-        giaoVien.setCountry(country); // Lưu quốc gia
-        giaoVien.setProvince(province); // Lưu tỉnh/thành phố
-        giaoVien.setDistrict(district); // Lưu quận/huyện
-        giaoVien.setWard(ward); // Lưu xã/phường
-        giaoVien.setStreet(street); // Lưu đường, số nhà
-        giaoVien.setPostalCode(postalCode); // Lưu mã bưu điện
+        giaoVien.setCountry(country);
+        giaoVien.setProvince(province);
+        giaoVien.setDistrict(district);
+        giaoVien.setWard(ward);
+        giaoVien.setStreet(street);
+        giaoVien.setPostalCode(postalCode);
         giaoVien.setMisID(misID);
         giaoVien.setPassword(password); // Mã hóa mật khẩu
         giaoVien.setEmployee(selectedEmployee);
@@ -136,6 +154,29 @@ public class GiaoVienPost {
         System.out.println("Đăng ký giáo viên thành công! Gán cho nhân viên: " + selectedEmployee.getId());
 
         return "redirect:/TrangChu";
+    }
+
+    // Phương thức hỗ trợ để gửi dữ liệu vào model
+    private void addFormDataToModel(Model model, String teacherID, String firstName, String lastName,
+                                    String email, String phoneNumber, LocalDate birthDate, Gender gender,
+                                    String country, String province, String district, String ward, String street,
+                                    String postalCode, String misID, String password, String confirmPassword) {
+        model.addAttribute("TeacherID", teacherID);
+        model.addAttribute("FirstName", firstName);
+        model.addAttribute("LastName", lastName);
+        model.addAttribute("Email", email);
+        model.addAttribute("PhoneNumber", phoneNumber);
+        model.addAttribute("BirthDate", birthDate);
+        model.addAttribute("Gender", gender);
+        model.addAttribute("Country", country);
+        model.addAttribute("Province", province);
+        model.addAttribute("District", district);
+        model.addAttribute("Ward", ward);
+        model.addAttribute("Street", street);
+        model.addAttribute("PostalCode", postalCode);
+        model.addAttribute("MisID", misID);
+        model.addAttribute("Password", password);
+        model.addAttribute("ConfirmPassword", confirmPassword);
     }
 
     // Phương thức phụ để tìm nhân viên có ít giáo viên nhất

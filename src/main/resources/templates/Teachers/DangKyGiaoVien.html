@@ -15,88 +15,109 @@
                 <h1 class="text-center mb-4">Đăng Ký Giáo Viên</h1>
                 <div class="alert alert-danger text-center" role="alert" th:if="${databaseError}"
                      th:text="${databaseError}"></div>
+                <div class="alert alert-danger text-center" role="alert" th:if="${employeeError}"
+                     th:text="${employeeError}"></div>
                 <form method="POST" th:action="@{/DangKyGiaoVien}">
                     <div class="mb-3">
                         <label class="form-label" for="teacherID">ID Giáo Viên</label>
-                        <input class="form-control" id="teacherID" name="TeacherID" required type="text">
+                        <input class="form-control" id="teacherID" name="TeacherID" required th:value="${TeacherID}"
+                               type="text">
                         <div class="text-danger" th:if="${teacherIDError}" th:text="${teacherIDError}"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="firstName">Họ</label>
-                        <input class="form-control" id="firstName" name="FirstName" required type="text">
+                        <input class="form-control" id="firstName" name="FirstName" required th:value="${FirstName}"
+                               type="text">
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="lastName">Tên</label>
-                        <input class="form-control" id="lastName" name="LastName" required type="text">
+                        <input class="form-control" id="lastName" name="LastName" required th:value="${LastName}"
+                               type="text">
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="email">Email</label>
-                        <input class="form-control" id="email" name="Email" required type="email">
+                        <input class="form-control" id="email" name="Email" required th:value="${Email}"
+                               type="email">
                         <div class="text-danger" th:if="${emailError}" th:text="${emailError}"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="phoneNumber">Số Điện Thoại</label>
-                        <input class="form-control" id="phoneNumber" name="PhoneNumber" required type="text">
+                        <input class="form-control" id="phoneNumber" name="PhoneNumber" required
+                               th:value="${PhoneNumber}"
+                               type="text">
                         <div class="text-danger" th:if="${phoneError}" th:text="${phoneError}"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="birthDate">Ngày Sinh</label>
-                        <input class="form-control" id="birthDate" name="BirthDate" required type="date">
+                        <input class="form-control" id="birthDate" name="BirthDate" required th:value="${BirthDate}"
+                               type="date">
                         <div class="text-danger" th:if="${birthDateError}" th:text="${birthDateError}"></div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="gender">Giới Tính</label>
                         <select class="form-control" id="gender" name="Gender" required>
-                            <option value="MALE">Nam</option>
-                            <option value="FEMALE">Nữ</option>
-                            <option value="OTHER">Khác</option>
+                            <option th:selected="${Gender == 'MALE'}" value="MALE">Nam</option>
+                            <option th:selected="${Gender == 'FEMALE'}" value="FEMALE">Nữ</option>
+                            <option th:selected="${Gender == 'OTHER'}" value="OTHER">Khác</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="country">Quốc Gia</label>
                         <select class="form-control" id="country" name="Country" required>
-                            <option value="">Chọn quốc gia</option>
+                            <option th:selected="${Country == null or Country == ''}" value="">Chọn quốc gia</option>
+                            <!-- Thêm option động nếu có -->
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="province">Tỉnh/Thành phố</label>
                         <select class="form-control" id="province" name="Province">
-                            <option value="">Chọn tỉnh/thành phố</option>
+                            <option th:selected="${Province == null or Province == ''}" value="">Chọn tỉnh/thành phố
+                            </option>
+                            <!-- Thêm option động nếu có -->
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="district">Quận/Huyện</label>
                         <select class="form-control" id="district" name="District">
-                            <option value="">Chọn quận/huyện</option>
+                            <option th:selected="${District == null or District == ''}" value="">Chọn quận/huyện
+                            </option>
+                            <!-- Thêm option động nếu có -->
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="ward">Xã/Phường</label>
                         <select class="form-control" id="ward" name="Ward">
-                            <option value="">Chọn xã/phường</option>
+                            <option th:selected="${Ward == null or Ward == ''}" value="">Chọn xã/phường</option>
+                            <!-- Thêm option động nếu có -->
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="street">Đường, Số Nhà</label>
-                        <input class="form-control" id="street" name="Street" type="text">
+                        <input class="form-control" id="street" name="Street" th:value="${Street}"
+                               type="text">
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="postalCode">Mã Bưu Điện</label>
-                        <input class="form-control" id="postalCode" name="PostalCode" type="text">
+                        <input class="form-control" id="postalCode" name="PostalCode" th:value="${PostalCode}"
+                               type="text">
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="misID">(MIS ID - nếu có)</label>
-                        <input class="form-control" id="misID" name="MisID" type="text">
+                        <input class="form-control" id="misID" name="MisID" th:value="${MisID}"
+                               type="text">
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="password">Mật Khẩu</label>
-                        <input class="form-control" id="password" name="Password" required type="password">
+                        <input class="form-control" id="password" name="Password" required th:value="${Password}"
+                               type="password">
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="confirmPassword">Xác Nhận Mật Khẩu</label>
                         <input class="form-control" id="confirmPassword" name="ConfirmPassword" required
+                               th:value="${ConfirmPassword}"
                                type="password">
                         <div class="text-danger" th:if="${passwordError}" th:text="${passwordError}"></div>
+                        <div class="text-danger" th:if="${passwordInvalid}" th:text="${passwordInvalid}"></div>
                     </div>
                     <div class="d-grid gap-2">
                         <button class="btn btn-primary" type="submit">Đăng Ký</button>
