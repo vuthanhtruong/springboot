@@ -4,7 +4,7 @@ const districtSelect = document.getElementById("district");
 const wardSelect = document.getElementById("ward");
 
 // Tải danh sách quốc gia từ Rest Countries API
-axios.get("https://restcountries.com/v3.1/all", {timeout: 5000})
+axios.get("https://restcountries.com/v3.1/all", {timeout: 10000})
     .then(response => {
         const countries = response.data.sort((a, b) => a.name.common.localeCompare(b.name.common));
         countrySelect.innerHTML = '<option value="">Chọn quốc gia</option>'; // Reset danh sách
