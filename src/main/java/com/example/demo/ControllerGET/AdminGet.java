@@ -272,17 +272,17 @@ public class AdminGet {
     @Transactional
     @GetMapping("/XoaNhanVien/{id}")
     public String XoaNhanVien(@PathVariable("id") String id, HttpSession session, ModelMap model) {
-
         Employees employee = entityManager.find(Employees.class, id);
         if (employee != null) {
-            // Cập nhật tất cả Students có EmployeeID = id thành null
-            entityManager.createQuery("UPDATE Students s SET s.employee = NULL WHERE s.employee.id = :id")
+            List<Room> rooms = entityManager.createQuery("SELECT r FROM Room r WHERE r.employee.id = :id", Room.class)
                     .setParameter("id", id)
-                    .executeUpdate();
-            entityManager.createQuery("UPDATE Teachers s SET s.employee = NULL WHERE s.employee.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
-            // Sau đó xóa nhân viên
+                    .getResultList();
+
+            // Xóa các bản ghi trong bảng `rooms` liên quan đến Room
+            for (Room room : rooms) {
+                entityManager.remove(room);
+            }
+            // Xóa Employees (sẽ tự động xóa Room nhờ CASCADE)
             entityManager.remove(employee);
         }
         return "redirect:/DanhSachNhanVien";

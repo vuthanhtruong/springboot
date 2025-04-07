@@ -33,7 +33,7 @@ countrySelect.addEventListener("change", function () {
             return;
         }
 
-        const geoNamesUsername = "vuthanhtruong"; // Thay bằng username GeoNames của bạn
+        const geoNamesUsername = "myusername"; // Thay bằng username GeoNames của bạn
         const url = `http://api.geonames.org/childrenJSON?geonameId=${geonameId}&username=${geoNamesUsername}`;
         console.log("Gửi yêu cầu tới:", url);
 
