@@ -2,22 +2,17 @@
   "version": 2,
   "builds": [
     {
-      "src": "target/*.jar",
-      "use": "@vercel/static",
+      "src": "pom.xml",
+      "use": "@vercel/java",
       "config": {
-        "distDir": "target"
+        "outputDirectory": "target"
       }
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "target/your-app.jar"
+      "src": "/hello/(.*)",
+      "dest": "/api/helloFunction"
     }
-  ],
-  "functions": {
-    "api/index.java": {
-      "runtime": "java@adoptopenjdk-11"
-    }
-  }
+  ]
 }
