@@ -168,11 +168,6 @@
             <artifactId>client-sdk</artifactId>
             <version>1.36.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-function-web</artifactId>
-            <version>4.1.1</version>
-        </dependency>
 
         <!-- Testing -->
         <dependency>
