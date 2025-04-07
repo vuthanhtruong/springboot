@@ -3,16 +3,16 @@
   "builds": [
     {
       "src": "pom.xml",
-      "use": "@vercel/java",
+      "use": "vercel-bash",
       "config": {
-        "outputDirectory": "target"
+        "command": "mvn clean package && cp target/*.jar ."
       }
     }
   ],
   "routes": [
     {
       "src": "/hello/(.*)",
-      "dest": "/api/helloFunction"
+      "dest": "/api/hello"
     }
   ]
 }
