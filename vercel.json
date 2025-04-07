@@ -1,18 +1,8 @@
 {
-  "version": 2,
   "builds": [
     {
-      "src": "pom.xml",
-      "use": "@vercel/java",
-      "config": {
-        "outputDirectory": "target"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/api/helloFunction"
+      "src": "Dockerfile",
+      "use": "@vercel/docker"
     }
   ]
 }
