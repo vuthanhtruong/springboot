@@ -271,7 +271,7 @@ public class AdminGet {
 
     @Transactional
     @GetMapping("/XoaNhanVien/{id}")
-    public String XoaNhanVien(@PathVariable("id") String id, HttpSession session, ModelMap model) {
+    public String XoaNhanVien(@PathVariable("id") String id) {
         Employees employee = entityManager.find(Employees.class, id);
         if (employee != null) {
             List<Room> rooms = entityManager.createQuery("SELECT r FROM Room r WHERE r.employee.id = :id", Room.class)
@@ -329,7 +329,10 @@ public class AdminGet {
 
     @GetMapping("/XoaTatCaNhanVien")
     public String xoaTatCaNhanVien() {
-        entityManager.createQuery("DELETE FROM Employees").executeUpdate();
+        List<Employees> employees = entityManager.createQuery("from Employees", Employees.class).getResultList();
+        for (Employees employee : employees) {
+            XoaNhanVien(employee.getId());
+        }
         return "redirect:/DanhSachNhanVien";
     }
 
