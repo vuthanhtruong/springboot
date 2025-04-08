@@ -19,11 +19,6 @@
                 <!-- Thông báo lỗi chung -->
                 <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
                 <!-- Thông báo lỗi cụ thể -->
-                <div class="alert alert-danger" th:if="${errorStudentID}" th:text="${errorStudentID}"></div>
-                <div class="alert alert-danger" th:if="${errorEmail}" th:text="${errorEmail}"></div>
-                <div class="alert alert-danger" th:if="${errorPhone}" th:text="${errorPhone}"></div>
-                <div class="alert alert-danger" th:if="${errorBirthDate}" th:text="${errorBirthDate}"></div>
-                <div class="alert alert-danger" th:if="${errorPassword}" th:text="${errorPassword}"></div>
                 <div class="alert alert-danger" th:if="${errorAdmin}" th:text="${errorAdmin}"></div>
                 <div class="alert alert-danger" th:if="${errorEmployee}" th:text="${errorEmployee}"></div>
 
@@ -32,6 +27,7 @@
                         <label class="form-label" for="studentID">Mã Học Sinh (StudentID)</label>
                         <input class="form-control" id="studentID" name="StudentID" required th:value="${StudentID}"
                                type="text">
+                        <div class="alert alert-danger" th:if="${errorStudentID}" th:text="${errorStudentID}"></div>
                     </div>
 
                     <div class="mb-3">
@@ -50,6 +46,7 @@
                         <label class="form-label" for="email">Email</label>
                         <input class="form-control" id="email" name="Email" required th:value="${Email}"
                                type="email">
+                        <div class="alert alert-danger" th:if="${errorEmail}" th:text="${errorEmail}"></div>
                     </div>
 
                     <div class="mb-3">
@@ -57,12 +54,14 @@
                         <input class="form-control" id="phoneNumber" name="PhoneNumber" required
                                th:value="${PhoneNumber}"
                                type="text">
+                        <div class="alert alert-danger" th:if="${errorPhone}" th:text="${errorPhone}"></div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="birthDate">Ngày Sinh</label>
                         <input class="form-control" id="birthDate" name="BirthDate" required th:value="${BirthDate}"
                                type="date">
+                        <div class="alert alert-danger" th:if="${errorBirthDate}" th:text="${errorBirthDate}"></div>
                     </div>
 
                     <!-- Giới tính -->
@@ -77,7 +76,7 @@
 
                     <div class="mb-3">
                         <label class="form-label" for="country">Quốc Gia</label>
-                        <select class="form-control" id="country" name="Country" required>
+                        <select class="form-control" id="country" name="Country">
                             <option th:selected="${Country == null or Country == ''}" value="">Chọn quốc gia</option>
                             <!-- Thêm các option khác nếu có danh sách động -->
                         </select>
@@ -136,6 +135,7 @@
                         <label class="form-label" for="confirmPassword">Xác Nhận Mật Khẩu</label>
                         <input class="form-control" id="confirmPassword" name="ConfirmPassword" required
                                type="password">
+                        <div class="alert alert-danger" th:if="${errorPassword}" th:text="${errorPassword}"></div>
                     </div>
 
                     <div class="d-grid gap-2">
