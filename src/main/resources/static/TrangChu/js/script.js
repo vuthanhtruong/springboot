@@ -67,11 +67,10 @@ function formatCountry(state) {
     return $state;
 }
 
-// Tải danh sách tỉnh/thành phố khi chọn quốc gia
-countrySelect.addEventListener("change", function () {
-    const countryCode = this.value;
-    const selectedOption = this.options[this.selectedIndex];
-    const geonameId = selectedOption ? selectedOption.dataset.geonameId : null;
+$(countrySelect).on('select2:select', function (e) {
+    const countryCode = e.params.data.id; // Lấy countryCode từ lựa chọn
+    const selectedOption = e.params.data.element;
+    const geonameId = selectedOption.dataset.geonameId;
     console.log("Quốc gia được chọn:", countryCode, "GeonameId:", geonameId);
     provinceSelect.innerHTML = '<option value="">Chọn tỉnh/thành phố</option>';
     districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
