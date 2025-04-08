@@ -165,6 +165,7 @@ public class NhanVienPost {
         employees.setGender(gender);
         employees.setCountry(country);
         employees.setProvince(province);
+        employees.setCity(province);
         employees.setDistrict(district);
         employees.setWard(ward);
         employees.setStreet(street);

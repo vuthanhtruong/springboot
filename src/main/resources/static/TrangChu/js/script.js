@@ -3,45 +3,69 @@ const provinceSelect = document.getElementById("province");
 const districtSelect = document.getElementById("district");
 const wardSelect = document.getElementById("ward");
 
-// Tải danh sách quốc gia từ Rest Countries API
-axios.get("https://restcountries.com/v3.1/all")
+// Hàm thử lại yêu cầu API
+async function fetchWithRetry(url, retries = 3, delay = 1000) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await axios.get(url);
+            return response;
+        } catch (error) {
+            if (i < retries - 1) {
+                console.log(`Thử lại lần ${i + 1} sau ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                continue;
+            }
+            throw error;
+        }
+    }
+}
+
+// Tải danh sách quốc gia từ GeoNames API
+const geoNamesUsername = "vuthanhtruong"; // Username của bạn
+fetchWithRetry(`http://api.geonames.org/countryInfoJSON?username=${geoNamesUsername}`)
     .then(response => {
-        const countries = response.data.sort((a, b) => a.name.common.localeCompare(b.name.common));
-        countries.forEach(country => {
-            const option = document.createElement("option");
-            option.value = country.cca2;
-            option.textContent = country.name.common;
-            countrySelect.appendChild(option);
-        });
+        console.log("Dữ liệu quốc gia:", response.data);
+        const countries = response.data.geonames.sort((a, b) => a.countryName.localeCompare(b.countryName));
+        populateCountries(countries);
     })
     .catch(error => {
         console.error("Lỗi tải quốc gia:", error);
-        countrySelect.innerHTML = '<option value="">Không thể tải quốc gia</option>';
+        console.log("Dùng dữ liệu dự phòng...");
+        const fallbackCountries = getFallbackCountries();
+        populateCountries(fallbackCountries);
     });
+
+// Hàm điền danh sách quốc gia
+function populateCountries(countries) {
+    countrySelect.innerHTML = '<option value="">Chọn quốc gia</option>';
+    countries.forEach(country => {
+        const option = document.createElement("option");
+        option.value = country.countryCode; // Dùng countryCode thay vì cca2
+        option.textContent = country.countryName; // Dùng countryName thay vì name.common
+        option.dataset.geonameId = country.geonameId; // Lưu geonameId trực tiếp từ GeoNames
+        countrySelect.appendChild(option);
+    });
+}
 
 // Tải danh sách tỉnh/thành phố khi chọn quốc gia
 countrySelect.addEventListener("change", function () {
     const countryCode = this.value;
+    const selectedOption = this.options[this.selectedIndex];
+    const geonameId = selectedOption ? selectedOption.dataset.geonameId : null;
+    console.log("Quốc gia được chọn:", countryCode, "GeonameId:", geonameId);
     provinceSelect.innerHTML = '<option value="">Chọn tỉnh/thành phố</option>';
     districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
     wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
 
-    if (countryCode) {
-        const geonameId = getCountryGeonameId(countryCode);
-        if (!geonameId) {
-            provinceSelect.innerHTML = '<option value="">Quốc gia này chưa được hỗ trợ</option>';
-            return;
-        }
-
-        const geoNamesUsername = "myusername"; // Thay bằng username GeoNames của bạn
-        const url = `http://api.geonames.org/childrenJSON?geonameId=${geonameId}&username=${geoNamesUsername}`;
+    if (geonameId) {
+        const url = `http://api.geonames.org/childrenJSON?geonameId=${geonameId}&username=${geoNamesUsername}&maxRows=1000`;
         console.log("Gửi yêu cầu tới:", url);
 
         axios.get(url)
             .then(response => {
-                console.log("Dữ liệu trả về:", response.data);
+                console.log("Dữ liệu tỉnh/thành phố:", response.data);
                 const provinces = response.data.geonames || [];
-                if (!provinces || provinces.length === 0) {
+                if (!provinces.length) {
                     provinceSelect.innerHTML = '<option value="">Không có dữ liệu tỉnh/thành phố</option>';
                 } else {
                     provinces.forEach(province => {
@@ -71,15 +95,14 @@ provinceSelect.addEventListener("change", function () {
     wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
 
     if (provinceGeonameId) {
-        const geoNamesUsername = "myusername"; // Thay bằng username GeoNames của bạn
-        const url = `http://api.geonames.org/childrenJSON?geonameId=${provinceGeonameId}&username=${geoNamesUsername}`;
+        const url = `http://api.geonames.org/childrenJSON?geonameId=${provinceGeonameId}&username=${geoNamesUsername}&maxRows=1000`;
         console.log("Gửi yêu cầu tới:", url);
 
         axios.get(url)
             .then(response => {
-                console.log("Dữ liệu trả về:", response.data);
+                console.log("Dữ liệu quận/huyện:", response.data);
                 const districts = response.data.geonames || [];
-                if (!districts || districts.length === 0) {
+                if (!districts.length) {
                     districtSelect.innerHTML = '<option value="">Không có dữ liệu quận/huyện</option>';
                 } else {
                     districts.forEach(district => {
@@ -108,21 +131,21 @@ districtSelect.addEventListener("change", function () {
     wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
 
     if (districtGeonameId) {
-        const geoNamesUsername = "myusername"; // Thay bằng username GeoNames của bạn
-        const url = `http://api.geonames.org/childrenJSON?geonameId=${districtGeonameId}&username=${geoNamesUsername}`;
+        const url = `http://api.geonames.org/childrenJSON?geonameId=${districtGeonameId}&username=${geoNamesUsername}&maxRows=1000`;
         console.log("Gửi yêu cầu tới:", url);
 
         axios.get(url)
             .then(response => {
-                console.log("Dữ liệu trả về:", response.data);
+                console.log("Dữ liệu xã/phường:", response.data);
                 const wards = response.data.geonames || [];
-                if (!wards || wards.length === 0) {
+                if (!wards.length) {
                     wardSelect.innerHTML = '<option value="">Không có dữ liệu xã/phường</option>';
                 } else {
                     wards.forEach(ward => {
                         const option = document.createElement("option");
                         option.value = ward.name;
                         option.textContent = ward.name;
+                        option.dataset.geonameId = ward.geonameId;
                         wardSelect.appendChild(option);
                     });
                 }
@@ -137,193 +160,201 @@ districtSelect.addEventListener("change", function () {
     }
 });
 
-// Hàm lấy geonameId của quốc gia
-function getCountryGeonameId(countryCode) {
-    const countryIds = {
-        "AF": 1149361, // Afghanistan
-        "AL": 783754, // Albania
-        "DZ": 2589581, // Algeria
-        "AD": 3041565, // Andorra
-        "AO": 3351879, // Angola
-        "AG": 3576396, // Antigua and Barbuda
-        "AR": 3865483, // Argentina
-        "AM": 174982, // Armenia
-        "AU": 2077456, // Australia
-        "AT": 2782113, // Austria
-        "AZ": 587116, // Azerbaijan
-        "BS": 3572887, // Bahamas
-        "BH": 290291, // Bahrain
-        "BD": 1210997, // Bangladesh
-        "BB": 3374084, // Barbados
-        "BY": 630336, // Belarus
-        "BE": 2802361, // Belgium
-        "BZ": 3582678, // Belize
-        "BJ": 2395170, // Benin
-        "BT": 1252634, // Bhutan
-        "BO": 3923057, // Bolivia
-        "BA": 3277605, // Bosnia and Herzegovina
-        "BW": 933860, // Botswana
-        "BR": 3469034, // Brazil
-        "BN": 1820814, // Brunei
-        "BG": 732800, // Bulgaria
-        "BF": 2361809, // Burkina Faso
-        "BI": 433561, // Burundi
-        "KH": 1831722, // Cambodia
-        "CM": 2233387, // Cameroon
-        "CA": 6251999, // Canada
-        "CV": 3374766, // Cape Verde
-        "CF": 239880, // Central African Republic
-        "TD": 2434508, // Chad
-        "CL": 3895114, // Chile
-        "CN": 1814991, // China
-        "CO": 3686110, // Colombia
-        "KM": 921929, // Comoros
-        "CD": 203312, // Congo (Democratic Republic)
-        "CG": 2260494, // Congo (Republic)
-        "CR": 3624060, // Costa Rica
-        "HR": 3202326, // Croatia
-        "CU": 3562981, // Cuba
-        "CY": 146669, // Cyprus
-        "CZ": 3077311, // Czechia
-        "DK": 2623032, // Denmark
-        "DJ": 223816, // Djibouti
-        "DO": 3508796, // Dominican Republic
-        "EC": 3658394, // Ecuador
-        "EG": 357994, // Egypt
-        "SV": 3585968, // El Salvador
-        "GQ": 2309096, // Equatorial Guinea
-        "ER": 338010, // Eritrea
-        "EE": 453733, // Estonia
-        "ET": 337996, // Ethiopia
-        "FJ": 2205218, // Fiji
-        "FI": 660013, // Finland
-        "FR": 3017382, // France
-        "GA": 2400553, // Gabon
-        "GM": 2413451, // Gambia
-        "GE": 614540, // Georgia
-        "DE": 2921044, // Germany
-        "GH": 2300660, // Ghana
-        "GR": 390903, // Greece
-        "GT": 3595528, // Guatemala
-        "GN": 2420477, // Guinea
-        "GY": 3378535, // Guyana
-        "HT": 3723988, // Haiti
-        "HN": 3608932, // Honduras
-        "HU": 719819, // Hungary
-        "IS": 2629691, // Iceland
-        "IN": 1269750, // India
-        "ID": 1643084, // Indonesia
-        "IR": 130758, // Iran
-        "IQ": 99237, // Iraq
-        "IE": 2963597, // Ireland
-        "IT": 3175395, // Italy
-        "JP": 1861060, // Japan
-        "JO": 248816, // Jordan
-        "KZ": 1522867, // Kazakhstan
-        "KE": 192950, // Kenya
-        "KR": 1835841, // South Korea
-        "KW": 285570, // Kuwait
-        "KG": 1527747, // Kyrgyzstan
-        "LA": 1655842, // Laos
-        "LV": 458258, // Latvia
-        "LB": 272103, // Lebanon
-        "LY": 2215636, // Libya
-        "LT": 597427, // Lithuania
-        "LU": 2960313, // Luxembourg
-        "MG": 1062947, // Madagascar
-        "MW": 927384, // Malawi
-        "MY": 1733045, // Malaysia
-        "MV": 1282028, // Maldives
-        "ML": 2453866, // Mali
-        "MT": 2562770, // Malta
-        "MX": 3996063, // Mexico
-        "MD": 617790, // Moldova
-        "MC": 2993457, // Monaco
-        "MN": 2029969, // Mongolia
-        "MA": 2542007, // Morocco
-        "MZ": 1036973, // Mozambique
-        "MM": 1327865, // Myanmar
-        "NA": 3355338, // Namibia
-        "NP": 1282988, // Nepal
-        "NL": 2750405, // Netherlands
-        "NZ": 2186224, // New Zealand
-        "NG": 2328926, // Nigeria
-        "NO": 3144096, // Norway
-        "OM": 286963, // Oman
-        "PK": 1168579, // Pakistan
-        "PA": 3703430, // Panama
-        "PY": 3437598, // Paraguay
-        "PE": 3932488, // Peru
-        "PH": 1694008, // Philippines
-        "PL": 798544, // Poland
-        "PT": 2264397, // Portugal
-        "QA": 289688, // Qatar
-        "RO": 798549, // Romania
-        "RU": 2017370, // Russia
-        "SA": 102358, // Saudi Arabia
-        "SG": 1880251, // Singapore
-        "ZA": 953987, // South Africa
-        "ES": 2510769, // Spain
-        "SE": 2661886, // Sweden
-        "CH": 2658434, // Switzerland
-        "TH": 1605651, // Thailand
-        "TR": 298795, // Turkey
-        "UA": 690791, // Ukraine
-        "AE": 290557, // United Arab Emirates
-        "GB": 2635167, // United Kingdom
-        "US": 6252001, // United States
-        "VN": 1562822, // Vietnam
-        "ZW": 878675,  // Zimbabwe
-        "BQ": 7626844, // Bonaire, Sint Eustatius và Saba
-        "SS": 7909807, // South Sudan (Nam Sudan)
-        "TL": 1966436, // Timor-Leste (Đông Timor)
-        "SX": 7609695, // Sint Maarten (Hà Lan)
-        "XK": 831053,  // Kosovo
-        // Các vùng lãnh thổ phụ thuộc
-        "HK": 1819730, // Hong Kong (Trung Quốc)
-        "MO": 1821275, // Macau (Trung Quốc)
-        "FO": 2622320, // Quần đảo Faroe (Đan Mạch)
-        "GG": 3042362, // Guernsey (Anh)
-        "IM": 3042225, // Isle of Man (Anh)
-        "JE": 3042142, // Jersey (Anh)
-        "PF": 4030656, // Polynesia thuộc Pháp
-        "NC": 2139685, // New Caledonia (Pháp)
-        "PM": 3424932, // Saint Pierre và Miquelon (Pháp)
-        "WF": 4034749,  // Wallis và Futuna (Pháp)
-        "KI": 4030945, // Kiribati
-        "MH": 2080185, // Marshall Islands (Quần đảo Marshall)
-        "FM": 2081918, // Micronesia (Liên bang Micronesia)
-        "NR": 2110425, // Nauru
-        "PW": 1559582, // Palau
-        "WS": 4034894, // Samoa
-        "SM": 3168068, // San Marino
-        "ST": 2410758, // Sao Tome and Principe
-        "SC": 241170, // Seychelles
-        "TV": 2110297, // Tuvalu
-        "VA": 3164670,  // Vatican City (Holy See)
-        "AI": 3573511, // Anguilla (Anh)
-        "BM": 3573345, // Bermuda (Anh)
-        "IO": 1282588, // British Indian Ocean Territory (Anh)
-        "VG": 3577718, // British Virgin Islands (Anh)
-        "KY": 3580718, // Cayman Islands (Anh)
-        "FK": 3474414, // Falkland Islands (Anh)
-        "GI": 2411586, // Gibraltar (Anh)
-        "MS": 3578097, // Montserrat (Anh)
-        "SH": 3370751, // Saint Helena, Ascension and Tristan da Cunha (Anh)
-        "TC": 3576916, // Turks and Caicos Islands (Anh)
-        "MP": 4041468, // Northern Mariana Islands (Mỹ)
-        "GU": 4043988, // Guam (Mỹ)
-        "AS": 5880801, // American Samoa (Mỹ)
-        "VI": 4796775, // U.S. Virgin Islands (Mỹ)
-        "RE": 935317, // Réunion (Pháp)
-        "YT": 1024031, // Mayotte (Pháp)
-        "GP": 3579143, // Guadeloupe (Pháp)
-        "MF": 3578421, // Saint Martin (Pháp)
-        "BL": 3578476, // Saint Barthélemy (Pháp)
-        "CW": 7626836, // Curaçao (Hà Lan)
-        "AW": 3577279, // Aruba (Hà Lan)
-        "MF": 3578421  // Saint Martin (Hà Lan)
-    };
-
-    return countryIds[countryCode] || null;
+// Hàm lấy dữ liệu quốc gia dự phòng (toàn bộ quốc gia)
+function getFallbackCountries() {
+    return [
+        {countryCode: "AF", countryName: "Afghanistan", geonameId: 1149361},
+        {countryCode: "AL", countryName: "Albania", geonameId: 783754},
+        {countryCode: "DZ", countryName: "Algeria", geonameId: 2589581},
+        {countryCode: "AD", countryName: "Andorra", geonameId: 3041565},
+        {countryCode: "AO", countryName: "Angola", geonameId: 3351879},
+        {countryCode: "AG", countryName: "Antigua and Barbuda", geonameId: 3576396},
+        {countryCode: "AR", countryName: "Argentina", geonameId: 3865483},
+        {countryCode: "AM", countryName: "Armenia", geonameId: 174982},
+        {countryCode: "AU", countryName: "Australia", geonameId: 2077456},
+        {countryCode: "AT", countryName: "Austria", geonameId: 2782113},
+        {countryCode: "AZ", countryName: "Azerbaijan", geonameId: 587116},
+        {countryCode: "BS", countryName: "Bahamas", geonameId: 3572887},
+        {countryCode: "BH", countryName: "Bahrain", geonameId: 290291},
+        {countryCode: "BD", countryName: "Bangladesh", geonameId: 1210997},
+        {countryCode: "BB", countryName: "Barbados", geonameId: 3374084},
+        {countryCode: "BY", countryName: "Belarus", geonameId: 630336},
+        {countryCode: "BE", countryName: "Belgium", geonameId: 2802361},
+        {countryCode: "BZ", countryName: "Belize", geonameId: 3582678},
+        {countryCode: "BJ", countryName: "Benin", geonameId: 2395170},
+        {countryCode: "BT", countryName: "Bhutan", geonameId: 1252634},
+        {countryCode: "BO", countryName: "Bolivia", geonameId: 3923057},
+        {countryCode: "BA", countryName: "Bosnia and Herzegovina", geonameId: 3277605},
+        {countryCode: "BW", countryName: "Botswana", geonameId: 933860},
+        {countryCode: "BR", countryName: "Brazil", geonameId: 3469034},
+        {countryCode: "BN", countryName: "Brunei", geonameId: 1820814},
+        {countryCode: "BG", countryName: "Bulgaria", geonameId: 732800},
+        {countryCode: "BF", countryName: "Burkina Faso", geonameId: 2361809},
+        {countryCode: "BI", countryName: "Burundi", geonameId: 433561},
+        {countryCode: "KH", countryName: "Cambodia", geonameId: 1831722},
+        {countryCode: "CM", countryName: "Cameroon", geonameId: 2233387},
+        {countryCode: "CA", countryName: "Canada", geonameId: 6251999},
+        {countryCode: "CV", countryName: "Cape Verde", geonameId: 3374766},
+        {countryCode: "CF", countryName: "Central African Republic", geonameId: 239880},
+        {countryCode: "TD", countryName: "Chad", geonameId: 2434508},
+        {countryCode: "CL", countryName: "Chile", geonameId: 3895114},
+        {countryCode: "CN", countryName: "China", geonameId: 1814991},
+        {countryCode: "CO", countryName: "Colombia", geonameId: 3686110},
+        {countryCode: "KM", countryName: "Comoros", geonameId: 921929},
+        {countryCode: "CD", countryName: "Congo (DRC)", geonameId: 203312},
+        {countryCode: "CG", countryName: "Congo (Republic)", geonameId: 2260494},
+        {countryCode: "CR", countryName: "Costa Rica", geonameId: 3624060},
+        {countryCode: "HR", countryName: "Croatia", geonameId: 3202326},
+        {countryCode: "CU", countryName: "Cuba", geonameId: 3562981},
+        {countryCode: "CY", countryName: "Cyprus", geonameId: 146669},
+        {countryCode: "CZ", countryName: "Czechia", geonameId: 3077311},
+        {countryCode: "DK", countryName: "Denmark", geonameId: 2623032},
+        {countryCode: "DJ", countryName: "Djibouti", geonameId: 223816},
+        {countryCode: "DM", countryName: "Dominica", geonameId: 3575830},
+        {countryCode: "DO", countryName: "Dominican Republic", geonameId: 3508796},
+        {countryCode: "EC", countryName: "Ecuador", geonameId: 3658394},
+        {countryCode: "EG", countryName: "Egypt", geonameId: 357994},
+        {countryCode: "SV", countryName: "El Salvador", geonameId: 3585968},
+        {countryCode: "GQ", countryName: "Equatorial Guinea", geonameId: 2309096},
+        {countryCode: "ER", countryName: "Eritrea", geonameId: 338010},
+        {countryCode: "EE", countryName: "Estonia", geonameId: 453733},
+        {countryCode: "SZ", countryName: "Eswatini", geonameId: 934841},
+        {countryCode: "ET", countryName: "Ethiopia", geonameId: 337996},
+        {countryCode: "FJ", countryName: "Fiji", geonameId: 2205218},
+        {countryCode: "FI", countryName: "Finland", geonameId: 660013},
+        {countryCode: "FR", countryName: "France", geonameId: 3017382},
+        {countryCode: "GA", countryName: "Gabon", geonameId: 2400553},
+        {countryCode: "GM", countryName: "Gambia", geonameId: 2413451},
+        {countryCode: "GE", countryName: "Georgia", geonameId: 614540},
+        {countryCode: "DE", countryName: "Germany", geonameId: 2921044},
+        {countryCode: "GH", countryName: "Ghana", geonameId: 2300660},
+        {countryCode: "GR", countryName: "Greece", geonameId: 390903},
+        {countryCode: "GD", countryName: "Grenada", geonameId: 3580239},
+        {countryCode: "GT", countryName: "Guatemala", geonameId: 3595528},
+        {countryCode: "GN", countryName: "Guinea", geonameId: 2420477},
+        {countryCode: "GW", countryName: "Guinea-Bissau", geonameId: 2372248},
+        {countryCode: "GY", countryName: "Guyana", geonameId: 3378535},
+        {countryCode: "HT", countryName: "Haiti", geonameId: 3723988},
+        {countryCode: "HN", countryName: "Honduras", geonameId: 3608932},
+        {countryCode: "HU", countryName: "Hungary", geonameId: 719819},
+        {countryCode: "IS", countryName: "Iceland", geonameId: 2629691},
+        {countryCode: "IN", countryName: "India", geonameId: 1269750},
+        {countryCode: "ID", countryName: "Indonesia", geonameId: 1643084},
+        {countryCode: "IR", countryName: "Iran", geonameId: 130758},
+        {countryCode: "IQ", countryName: "Iraq", geonameId: 99237},
+        {countryCode: "IE", countryName: "Ireland", geonameId: 2963597},
+        {countryCode: "IL", countryName: "Israel", geonameId: 294640},
+        {countryCode: "IT", countryName: "Italy", geonameId: 3175395},
+        {countryCode: "JM", countryName: "Jamaica", geonameId: 3489940},
+        {countryCode: "JP", countryName: "Japan", geonameId: 1861060},
+        {countryCode: "JO", countryName: "Jordan", geonameId: 248816},
+        {countryCode: "KZ", countryName: "Kazakhstan", geonameId: 1522867},
+        {countryCode: "KE", countryName: "Kenya", geonameId: 192950},
+        {countryCode: "KI", countryName: "Kiribati", geonameId: 4030945},
+        {countryCode: "KP", countryName: "North Korea", geonameId: 1873107},
+        {countryCode: "KR", countryName: "South Korea", geonameId: 1835841},
+        {countryCode: "KW", countryName: "Kuwait", geonameId: 285570},
+        {countryCode: "KG", countryName: "Kyrgyzstan", geonameId: 1527747},
+        {countryCode: "LA", countryName: "Laos", geonameId: 1655842},
+        {countryCode: "LV", countryName: "Latvia", geonameId: 458258},
+        {countryCode: "LB", countryName: "Lebanon", geonameId: 272103},
+        {countryCode: "LS", countryName: "Lesotho", geonameId: 932692},
+        {countryCode: "LR", countryName: "Liberia", geonameId: 2275384},
+        {countryCode: "LY", countryName: "Libya", geonameId: 2215636},
+        {countryCode: "LI", countryName: "Liechtenstein", geonameId: 3042058},
+        {countryCode: "LT", countryName: "Lithuania", geonameId: 597427},
+        {countryCode: "LU", countryName: "Luxembourg", geonameId: 2960313},
+        {countryCode: "MG", countryName: "Madagascar", geonameId: 1062947},
+        {countryCode: "MW", countryName: "Malawi", geonameId: 927384},
+        {countryCode: "MY", countryName: "Malaysia", geonameId: 1733045},
+        {countryCode: "MV", countryName: "Maldives", geonameId: 1282028},
+        {countryCode: "ML", countryName: "Mali", geonameId: 2453866},
+        {countryCode: "MT", countryName: "Malta", geonameId: 2562770},
+        {countryCode: "MH", countryName: "Marshall Islands", geonameId: 2080185},
+        {countryCode: "MR", countryName: "Mauritania", geonameId: 2378080},
+        {countryCode: "MU", countryName: "Mauritius", geonameId: 934154},
+        {countryCode: "MX", countryName: "Mexico", geonameId: 3996063},
+        {countryCode: "FM", countryName: "Micronesia", geonameId: 2081918},
+        {countryCode: "MD", countryName: "Moldova", geonameId: 617790},
+        {countryCode: "MC", countryName: "Monaco", geonameId: 2993457},
+        {countryCode: "MN", countryName: "Mongolia", geonameId: 2029969},
+        {countryCode: "ME", countryName: "Montenegro", geonameId: 3194884},
+        {countryCode: "MA", countryName: "Morocco", geonameId: 2542007},
+        {countryCode: "MZ", countryName: "Mozambique", geonameId: 1036973},
+        {countryCode: "MM", countryName: "Myanmar", geonameId: 1327865},
+        {countryCode: "NA", countryName: "Namibia", geonameId: 3355338},
+        {countryCode: "NR", countryName: "Nauru", geonameId: 2110425},
+        {countryCode: "NP", countryName: "Nepal", geonameId: 1282988},
+        {countryCode: "NL", countryName: "Netherlands", geonameId: 2750405},
+        {countryCode: "NZ", countryName: "New Zealand", geonameId: 2186224},
+        {countryCode: "NI", countryName: "Nicaragua", geonameId: 3617476},
+        {countryCode: "NE", countryName: "Niger", geonameId: 2440476},
+        {countryCode: "NG", countryName: "Nigeria", geonameId: 2328926},
+        {countryCode: "NO", countryName: "Norway", geonameId: 3144096},
+        {countryCode: "OM", countryName: "Oman", geonameId: 286963},
+        {countryCode: "PK", countryName: "Pakistan", geonameId: 1168579},
+        {countryCode: "PW", countryName: "Palau", geonameId: 1559582},
+        {countryCode: "PA", countryName: "Panama", geonameId: 3703430},
+        {countryCode: "PG", countryName: "Papua New Guinea", geonameId: 2088628},
+        {countryCode: "PY", countryName: "Paraguay", geonameId: 3437598},
+        {countryCode: "PE", countryName: "Peru", geonameId: 3932488},
+        {countryCode: "PH", countryName: "Philippines", geonameId: 1694008},
+        {countryCode: "PL", countryName: "Poland", geonameId: 798544},
+        {countryCode: "PT", countryName: "Portugal", geonameId: 2264397},
+        {countryCode: "QA", countryName: "Qatar", geonameId: 289688},
+        {countryCode: "RO", countryName: "Romania", geonameId: 798549},
+        {countryCode: "RU", countryName: "Russia", geonameId: 2017370},
+        {countryCode: "RW", countryName: "Rwanda", geonameId: 49518},
+        {countryCode: "KN", countryName: "Saint Kitts and Nevis", geonameId: 3575174},
+        {countryCode: "LC", countryName: "Saint Lucia", geonameId: 3576468},
+        {countryCode: "VC", countryName: "Saint Vincent and the Grenadines", geonameId: 3577815},
+        {countryCode: "WS", countryName: "Samoa", geonameId: 4034894},
+        {countryCode: "SM", countryName: "San Marino", geonameId: 3168068},
+        {countryCode: "ST", countryName: "Sao Tome and Principe", geonameId: 2410758},
+        {countryCode: "SA", countryName: "Saudi Arabia", geonameId: 102358},
+        {countryCode: "SN", countryName: "Senegal", geonameId: 2245662},
+        {countryCode: "RS", countryName: "Serbia", geonameId: 6290252},
+        {countryCode: "SC", countryName: "Seychelles", geonameId: 241170},
+        {countryCode: "SL", countryName: "Sierra Leone", geonameId: 2403846},
+        {countryCode: "SG", countryName: "Singapore", geonameId: 1880251},
+        {countryCode: "SK", countryName: "Slovakia", geonameId: 3057568},
+        {countryCode: "SI", countryName: "Slovenia", geonameId: 3190538},
+        {countryCode: "SB", countryName: "Solomon Islands", geonameId: 2103350},
+        {countryCode: "SO", countryName: "Somalia", geonameId: 51537},
+        {countryCode: "ZA", countryName: "South Africa", geonameId: 953987},
+        {countryCode: "SS", countryName: "South Sudan", geonameId: 7909807},
+        {countryCode: "ES", countryName: "Spain", geonameId: 2510769},
+        {countryCode: "LK", countryName: "Sri Lanka", geonameId: 1227603},
+        {countryCode: "SD", countryName: "Sudan", geonameId: 366755},
+        {countryCode: "SR", countryName: "Suriname", geonameId: 3382998},
+        {countryCode: "SE", countryName: "Sweden", geonameId: 2661886},
+        {countryCode: "CH", countryName: "Switzerland", geonameId: 2658434},
+        {countryCode: "SY", countryName: "Syria", geonameId: 163843},
+        {countryCode: "TW", countryName: "Taiwan", geonameId: 1668284},
+        {countryCode: "TJ", countryName: "Tajikistan", geonameId: 1220409},
+        {countryCode: "TZ", countryName: "Tanzania", geonameId: 149590},
+        {countryCode: "TH", countryName: "Thailand", geonameId: 1605651},
+        {countryCode: "TL", countryName: "Timor-Leste", geonameId: 1966436},
+        {countryCode: "TG", countryName: "Togo", geonameId: 2363686},
+        {countryCode: "TO", countryName: "Tonga", geonameId: 4032283},
+        {countryCode: "TT", countryName: "Trinidad and Tobago", geonameId: 3573591},
+        {countryCode: "TN", countryName: "Tunisia", geonameId: 2464461},
+        {countryCode: "TR", countryName: "Turkey", geonameId: 298795},
+        {countryCode: "TM", countryName: "Turkmenistan", geonameId: 1218197},
+        {countryCode: "TV", countryName: "Tuvalu", geonameId: 2110297},
+        {countryCode: "UG", countryName: "Uganda", geonameId: 226074},
+        {countryCode: "UA", countryName: "Ukraine", geonameId: 690791},
+        {countryCode: "AE", countryName: "United Arab Emirates", geonameId: 290557},
+        {countryCode: "GB", countryName: "United Kingdom", geonameId: 2635167},
+        {countryCode: "US", countryName: "United States", geonameId: 6252001},
+        {countryCode: "UY", countryName: "Uruguay", geonameId: 3439705},
+        {countryCode: "UZ", countryName: "Uzbekistan", geonameId: 1512440},
+        {countryCode: "VU", countryName: "Vanuatu", geonameId: 2134431},
+        {countryCode: "VA", countryName: "Vatican City", geonameId: 3164670},
+        {countryCode: "VE", countryName: "Venezuela", geonameId: 3625428},
+        {countryCode: "VN", countryName: "Vietnam", geonameId: 1562822},
+        {countryCode: "YE", countryName: "Yemen", geonameId: 69543},
+        {countryCode: "ZM", countryName: "Zambia", geonameId: 895949},
+        {countryCode: "ZW", countryName: "Zimbabwe", geonameId: 878675}
+    ];
 }

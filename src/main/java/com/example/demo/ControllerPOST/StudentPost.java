@@ -153,6 +153,7 @@ public class StudentPost {
         student.setGender(gender);
         student.setCountry(country);
         student.setProvince(province);
+        student.setCity(province);
         student.setDistrict(district);
         student.setWard(ward);
         student.setStreet(street);

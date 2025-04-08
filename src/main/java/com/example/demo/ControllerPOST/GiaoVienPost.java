@@ -140,6 +140,7 @@ public class GiaoVienPost {
         giaoVien.setGender(gender);
         giaoVien.setCountry(country);
         giaoVien.setProvince(province);
+        giaoVien.setCity(province);
         giaoVien.setDistrict(district);
         giaoVien.setWard(ward);
         giaoVien.setStreet(street);
