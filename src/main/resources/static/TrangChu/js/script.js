@@ -37,41 +37,34 @@ fetchWithRetry(`http://api.geonames.org/countryInfoJSON?username=${geoNamesUsern
 
 // Hàm điền danh sách quốc gia với Select2
 function populateCountries(countries) {
-    // Điền dữ liệu vào select
     countrySelect.innerHTML = '<option value="">Chọn quốc gia</option>';
     countries.forEach(country => {
         const option = document.createElement("option");
-        option.value = country.countryCode;
+        option.value = country.countryName; // Sửa: Lưu tên đầy đủ thay vì countryCode
         option.textContent = country.countryName;
-        option.dataset.geonameId = country.geonameId;
-        option.dataset.flag = `https://flagcdn.com/24x18/${country.countryCode.toLowerCase()}.png`; // URL hình cờ
+        option.dataset.geonameId = country.geonameId; // Giữ geonameId để tải tỉnh
+        option.dataset.flag = `https://flagcdn.com/24x18/${country.countryCode.toLowerCase()}.png`;
         countrySelect.appendChild(option);
     });
 
-    // Khởi tạo Select2 với template tùy chỉnh
     $(countrySelect).select2({
-        templateResult: formatCountry, // Hiển thị cờ trong danh sách dropdown
-        templateSelection: formatCountry, // Hiển thị cờ khi chọn
+        templateResult: formatCountry,
+        templateSelection: formatCountry
     });
 }
 
 // Hàm định dạng option với cờ
 function formatCountry(state) {
-    if (!state.id) {
-        return state.text; // Trả về text mặc định cho placeholder
-    }
+    if (!state.id) return state.text;
     const flagUrl = $(state.element).data('flag');
-    const $state = $(
-        `<span><img src="${flagUrl}" class="flag" style="width: 24px; height: 18px; margin-right: 8px;" />${state.text}</span>`
-    );
-    return $state;
+    return $(`<span><img src="${flagUrl}" class="flag" style="width: 24px; height: 18px; margin-right: 8px;" />${state.text}</span>`);
 }
 
 $(countrySelect).on('select2:select', function (e) {
-    const countryCode = e.params.data.id; // Lấy countryCode từ lựa chọn
+    const countryName = e.params.data.id;
     const selectedOption = e.params.data.element;
     const geonameId = selectedOption.dataset.geonameId;
-    console.log("Quốc gia được chọn:", countryCode, "GeonameId:", geonameId);
+    console.log("Quốc gia được chọn:", countryName, "GeonameId:", geonameId);
     provinceSelect.innerHTML = '<option value="">Chọn tỉnh/thành phố</option>';
     districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
     wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
@@ -80,7 +73,7 @@ $(countrySelect).on('select2:select', function (e) {
         const url = `http://api.geonames.org/childrenJSON?geonameId=${geonameId}&username=${geoNamesUsername}&maxRows=1000`;
         console.log("Gửi yêu cầu tới:", url);
 
-        axios.get(url)
+        fetchWithRetry(url)
             .then(response => {
                 console.log("Dữ liệu tỉnh/thành phố:", response.data);
                 const provinces = response.data.geonames || [];

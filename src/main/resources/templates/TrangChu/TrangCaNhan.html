@@ -127,7 +127,7 @@
 
             <div class="mb-3">
                 <label class="form-label" for="birthDate">Ngày Sinh</label>
-                <input class="form-control" id="birthDate" th:field="*{birthDate}" type="date"/>
+                <input class="form-control" id="birthDate" name="birthDate" th:value="*{birthDate}" type="date"/>
             </div>
 
             <!-- Giới Tính - giữ nguyên radio button -->
@@ -147,29 +147,30 @@
                 </div>
             </div>
 
-            <!-- Quốc gia - dùng input -->
-            <div class="form-group">
-                <label><i class="fas fa-globe"></i> <strong>Quốc Gia:</strong></label>
-                <input autocomplete="off" class="form-control" placeholder="Nhập Quốc Gia" th:field="*{country}"/>
+            <div class="mb-3">
+                <label class="form-label" for="country"><i class="fas fa-globe"></i> Quốc Gia</label>
+                <input class="form-control" id="country" name="country" placeholder="Nhập quốc gia"
+                       th:field="*{country}"/>
             </div>
 
-            <!-- Tỉnh/Thành phố - dùng input -->
-            <div class="form-group">
-                <label><i class="fas fa-map-marker-alt"></i> <strong>Tỉnh/Thành phố:</strong></label>
-                <input autocomplete="off" class="form-control" placeholder="Nhập Tỉnh/Thành phố"
+            <!-- Tỉnh/Thành phố -->
+            <div class="mb-3">
+                <label class="form-label" for="province"><i class="fas fa-map-marker-alt"></i> Tỉnh/Thành phố</label>
+                <input class="form-control" id="province" name="province" placeholder="Nhập tỉnh/thành phố"
                        th:field="*{province}"/>
             </div>
 
-            <!-- Quận/Huyện - dùng input -->
-            <div class="form-group">
-                <label><i class="fas fa-map"></i> <strong>Quận/Huyện:</strong></label>
-                <input autocomplete="off" class="form-control" placeholder="Nhập Quận/Huyện" th:field="*{district}"/>
+            <!-- Quận/Huyện -->
+            <div class="mb-3">
+                <label class="form-label" for="district"><i class="fas fa-map"></i> Quận/Huyện</label>
+                <input class="form-control" id="district" name="district" placeholder="Nhập quận/huyện"
+                       th:field="*{district}"/>
             </div>
 
-            <!-- Xã/Phường - dùng input -->
-            <div class="form-group">
-                <label><i class="fas fa-home"></i> <strong>Xã/Phường:</strong></label>
-                <input autocomplete="off" class="form-control" placeholder="Nhập Xã/Phường" th:field="*{ward}"/>
+            <!-- Xã/Phường -->
+            <div class="mb-3">
+                <label class="form-label" for="ward"><i class="fas fa-home"></i> Xã/Phường</label>
+                <input class="form-control" id="ward" name="ward" placeholder="Nhập xã/phường" th:field="*{ward}"/>
             </div>
 
             <div class="mb-3">
