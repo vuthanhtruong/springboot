@@ -21,7 +21,7 @@ async function fetchWithRetry(url, retries = 3, delay = 1000) {
 }
 
 // Tải danh sách quốc gia từ GeoNames API
-const geoNamesUsername = "vuthanhtruong"; // Username của bạn
+const geoNamesUsername = "vuthanhtruong";
 fetchWithRetry(`http://api.geonames.org/countryInfoJSON?username=${geoNamesUsername}`)
     .then(response => {
         console.log("Dữ liệu quốc gia:", response.data);
@@ -35,16 +35,36 @@ fetchWithRetry(`http://api.geonames.org/countryInfoJSON?username=${geoNamesUsern
         populateCountries(fallbackCountries);
     });
 
-// Hàm điền danh sách quốc gia
+// Hàm điền danh sách quốc gia với Select2
 function populateCountries(countries) {
+    // Điền dữ liệu vào select
     countrySelect.innerHTML = '<option value="">Chọn quốc gia</option>';
     countries.forEach(country => {
         const option = document.createElement("option");
-        option.value = country.countryCode; // Dùng countryCode thay vì cca2
-        option.textContent = country.countryName; // Dùng countryName thay vì name.common
-        option.dataset.geonameId = country.geonameId; // Lưu geonameId trực tiếp từ GeoNames
+        option.value = country.countryCode;
+        option.textContent = country.countryName;
+        option.dataset.geonameId = country.geonameId;
+        option.dataset.flag = `https://flagcdn.com/24x18/${country.countryCode.toLowerCase()}.png`; // URL hình cờ
         countrySelect.appendChild(option);
     });
+
+    // Khởi tạo Select2 với template tùy chỉnh
+    $(countrySelect).select2({
+        templateResult: formatCountry, // Hiển thị cờ trong danh sách dropdown
+        templateSelection: formatCountry, // Hiển thị cờ khi chọn
+    });
+}
+
+// Hàm định dạng option với cờ
+function formatCountry(state) {
+    if (!state.id) {
+        return state.text; // Trả về text mặc định cho placeholder
+    }
+    const flagUrl = $(state.element).data('flag');
+    const $state = $(
+        `<span><img src="${flagUrl}" class="flag" style="width: 24px; height: 18px; margin-right: 8px;" />${state.text}</span>`
+    );
+    return $state;
 }
 
 // Tải danh sách tỉnh/thành phố khi chọn quốc gia

@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
     <link href="/TrangCaNhan.css" rel="stylesheet">
 </head>
 <body>
@@ -95,73 +96,91 @@
         <i class="fas fa-exclamation-circle"></i> <span th:text="${voiceDeleteFailed}"></span>
     </div>
 
-    <!-- Mục Hồ Sơ Cá Nhân -->
     <section class="profile-section">
         <h2><i class="fas fa-user"></i> Hồ Sơ Cá Nhân</h2>
-        <form th:action="@{/LuuThongTinCaNhan}" th:method="post">
+
+        <!-- Sử dụng th:object để binding toàn bộ object 'user' -->
+        <form method="post" th:action="@{/LuuThongTinCaNhan}" th:object="${user}">
             <div class="form-group">
                 <label><i class="fas fa-id-badge"></i> <strong>ID:</strong></label>
-                <span th:text="${user.id}"></span>
+                <span th:text="*{id}"></span>
             </div>
+
             <div class="form-group">
                 <label><i class="fas fa-user-edit"></i> <strong>Họ và Tên:</strong></label>
-                <input autocomplete="off" class="form-control d-inline-block w-auto" name="firstName"
-                       placeholder="Nhập Họ" required th:value="${user.firstName}" type="text">
-                <input autocomplete="off" class="form-control d-inline-block w-auto" name="lastName"
-                       placeholder="Nhập Tên" required th:value="${user.lastName}" type="text">
+                <input autocomplete="off" class="form-control d-inline-block w-auto" placeholder="Nhập Họ" required
+                       th:field="*{firstName}"/>
+                <input autocomplete="off" class="form-control d-inline-block w-auto" placeholder="Nhập Tên" required
+                       th:field="*{lastName}"/>
             </div>
+
             <div class="form-group">
                 <label><i class="fas fa-envelope"></i> <strong>Email:</strong></label>
-                <input autocomplete="off" class="form-control" name="email" placeholder="Nhập Email"
-                       required th:value="${user.email}" type="email">
+                <input autocomplete="off" class="form-control" placeholder="Nhập Email" required th:field="*{email}"/>
             </div>
+
             <div class="form-group">
                 <label><i class="fas fa-phone"></i> <strong>Số Điện Thoại:</strong></label>
-                <input autocomplete="off" class="form-control" name="phoneNumber"
-                       placeholder="Nhập Số Điện Thoại" required th:value="${user.phoneNumber}" type="text">
+                <input autocomplete="off" class="form-control" placeholder="Nhập Số Điện Thoại" required
+                       th:field="*{phoneNumber}"/>
             </div>
+
             <div class="mb-3">
                 <label class="form-label" for="birthDate">Ngày Sinh</label>
-                <input class="form-control" id="birthDate" name="BirthDate" th:value="${user.birthDate}"
-                       type="date">
-                <div class="text-danger" th:if="${birthDateError}" th:text="${birthDateError}"></div>
+                <input class="form-control" id="birthDate" th:field="*{birthDate}" type="date"/>
             </div>
 
+            <!-- Giới Tính - giữ nguyên radio button -->
             <div class="mb-3">
-                <label class="form-label" for="gender">Giới Tính</label>
-                <input class="form-control" id="gender" name="gender" th:value="${user.gender}" type="text">
+                <label class="form-label d-block">Giới Tính</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" id="genderMale" th:field="*{gender}" type="radio" value="MALE"/>
+                    <label class="form-check-label" for="genderMale">Nam</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" id="genderFemale" th:field="*{gender}" type="radio" value="FEMALE"/>
+                    <label class="form-check-label" for="genderFemale">Nữ</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" id="genderOther" th:field="*{gender}" type="radio" value="OTHER"/>
+                    <label class="form-check-label" for="genderOther">Khác</label>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label" for="country">Quốc Gia</label>
-                <input class="form-control" id="country" name="country" th:value="${user.country}" type="text">
+            <!-- Quốc gia - dùng input -->
+            <div class="form-group">
+                <label><i class="fas fa-globe"></i> <strong>Quốc Gia:</strong></label>
+                <input autocomplete="off" class="form-control" placeholder="Nhập Quốc Gia" th:field="*{country}"/>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label" for="province">Tỉnh/Thành phố</label>
-                <input class="form-control" id="province" name="province" th:value="${user.province}" type="text">
+            <!-- Tỉnh/Thành phố - dùng input -->
+            <div class="form-group">
+                <label><i class="fas fa-map-marker-alt"></i> <strong>Tỉnh/Thành phố:</strong></label>
+                <input autocomplete="off" class="form-control" placeholder="Nhập Tỉnh/Thành phố"
+                       th:field="*{province}"/>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label" for="district">Quận/Huyện</label>
-                <input class="form-control" id="district" name="district" th:value="${user.district}" type="text">
+            <!-- Quận/Huyện - dùng input -->
+            <div class="form-group">
+                <label><i class="fas fa-map"></i> <strong>Quận/Huyện:</strong></label>
+                <input autocomplete="off" class="form-control" placeholder="Nhập Quận/Huyện" th:field="*{district}"/>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label" for="ward">Xã/Phường</label>
-                <input class="form-control" id="ward" name="ward" th:value="${user.ward}" type="text">
+            <!-- Xã/Phường - dùng input -->
+            <div class="form-group">
+                <label><i class="fas fa-home"></i> <strong>Xã/Phường:</strong></label>
+                <input autocomplete="off" class="form-control" placeholder="Nhập Xã/Phường" th:field="*{ward}"/>
             </div>
 
             <div class="mb-3">
                 <label class="form-label" for="street">Đường, Số Nhà</label>
-                <input class="form-control" id="street" name="street" th:value="${user.street}" type="text">
+                <input class="form-control" id="street" th:field="*{street}"/>
             </div>
 
             <div class="mb-3">
                 <label class="form-label" for="postalCode">Mã Bưu Điện</label>
-                <input class="form-control" id="postalCode" name="postalCode" th:value="${user.postalCode}" type="text">
+                <input class="form-control" id="postalCode" th:field="*{postalCode}"/>
             </div>
-
 
             <button class="btn btn-primary" type="submit">
                 <i class="fas fa-save"></i> Lưu
@@ -248,6 +267,10 @@
         </a>
     </section>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="/js/script.js"></script>
 <script>
     let video = document.getElementById('video');
@@ -338,3 +361,4 @@
 </script>
 </body>
 </html>
+

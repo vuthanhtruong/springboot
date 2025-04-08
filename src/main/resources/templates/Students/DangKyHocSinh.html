@@ -5,7 +5,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Đăng Ký Học Sinh</title>
     <link href="/DangKyHocSinh.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 </head>
 <body class="d-flex align-items-center justify-content-center vh-100 bg-light">
 <main class="container">
@@ -78,7 +78,6 @@
                         <label class="form-label" for="country">Quốc Gia</label>
                         <select class="form-control" id="country" name="Country">
                             <option th:selected="${Country == null or Country == ''}" value="">Chọn quốc gia</option>
-                            <!-- Thêm các option khác nếu có danh sách động -->
                         </select>
                     </div>
 
@@ -87,7 +86,6 @@
                         <select class="form-control" id="province" name="Province">
                             <option th:selected="${Province == null or Province == ''}" value="">Chọn tỉnh/thành phố
                             </option>
-                            <!-- Thêm các option khác nếu có danh sách động -->
                         </select>
                     </div>
 
@@ -96,22 +94,19 @@
                         <select class="form-control" id="district" name="District">
                             <option th:selected="${District == null or District == ''}" value="">Chọn quận/huyện
                             </option>
-                            <!-- Thêm các option khác nếu có danh sách động -->
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="ward">Xã/Phường</label>
                         <select class="form-control" id="ward" name="Ward">
-                            <option th:selected="${Ward == null or Ward == ''}" value="">Chọn xã/phường</option>
-                            <!-- Thêm các option khác nếu có danh sách động -->
+                            <option thopauselected="${Ward == null or Ward == ''}" value="">Chọn xã/phường</option>
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="street">Đường, Số Nhà</label>
-                        <input class="form-control" id="street" name="Street" th:value="${Street}"
-                               type="text">
+                        <input class="form-control" id="street" name="Street" th:value="${Street}" type="text">
                     </div>
 
                     <div class="mb-3">
@@ -122,8 +117,7 @@
 
                     <div class="mb-3">
                         <label class="form-label" for="misID">(MIS ID - nếu có)</label>
-                        <input class="form-control" id="misID" name="MisID" th:value="${MisId}"
-                               type="text">
+                        <input class="form-control" id="misID" name="MisID" th:value="${MisId}" type="text">
                     </div>
 
                     <div class="mb-3">
@@ -147,7 +141,12 @@
         </section>
     </div>
 </main>
-<script src="/js/script.js"></script>
+
+<!-- Thư viện JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/script.js"></script>
 </body>
 </html>

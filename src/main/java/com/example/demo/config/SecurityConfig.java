@@ -94,6 +94,8 @@ public class SecurityConfig {
                                         "/XoaGiongNoi",
                                         "/ChiTietBuoiHoc",
                                         "/ThoiKhoaBieu",
+                                        "/TrangCaNhan",
+                                        "/QuayVeTrangChu",
                                         "/redirect"
                                 ).hasAnyRole("TEACHER", "STUDENT", "ADMIN", "EMPLOYEE")
                                 .requestMatchers(HttpMethod.POST, "/BaiPost", "/auth/verify-face-login",
