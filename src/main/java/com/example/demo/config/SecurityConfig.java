@@ -101,6 +101,9 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/BaiPost", "/auth/verify-face-login",
                                         "/BinhLuan", "/register-face", "/XoaKhuonMat", "/DangKyKhuonMat", "/DangKyGiongNoi", "/LuuThongTinCaNhan")
                                 .hasAnyRole("TEACHER", "STUDENT", "ADMIN", "EMPLOYEE")
+                        
+                                .requestMatchers(HttpMethod.POST, "/UpdateBaiPost", "/BaiPost")
+                                .hasAnyRole("TEACHER", "STUDENT")
 
                                 .requestMatchers(HttpMethod.POST, "/DiemDanh")
                                 .hasAnyRole("TEACHER", "EMPLOYEE")
