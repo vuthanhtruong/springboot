@@ -188,7 +188,7 @@ public class SecurityConfig {
                         .loginProcessingUrl("/login")
                         .usernameParameter("username") // Dùng chung cho cả Admin & Employee
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/TrangCaNhan", true) // Điều hướng tới controller xử lý role
+                        .defaultSuccessUrl("/redirect", true) // Điều hướng tới controller xử lý role
                         .failureUrl("/login?error=true") // Chuyển hướng khi lỗi
                         .permitAll()
                 )
