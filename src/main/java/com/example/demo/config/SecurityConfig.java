@@ -101,7 +101,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/BaiPost", "/auth/verify-face-login",
                                         "/BinhLuan", "/register-face", "/XoaKhuonMat", "/DangKyKhuonMat", "/DangKyGiongNoi", "/LuuThongTinCaNhan")
                                 .hasAnyRole("TEACHER", "STUDENT", "ADMIN", "EMPLOYEE")
-                        
+
                                 .requestMatchers(HttpMethod.POST, "/UpdateBaiPost", "/BaiPost")
                                 .hasAnyRole("TEACHER", "STUDENT")
 
@@ -188,7 +188,7 @@ public class SecurityConfig {
                         .loginProcessingUrl("/login")
                         .usernameParameter("username") // Dùng chung cho cả Admin & Employee
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/redirect", true) // Điều hướng tới controller xử lý role
+                        .defaultSuccessUrl("/TrangCaNhan", true) // Điều hướng tới controller xử lý role
                         .failureUrl("/login?error=true") // Chuyển hướng khi lỗi
                         .permitAll()
                 )
