@@ -106,8 +106,7 @@ public class GiaoVienGet {
         // 3. Phân trang cho Messages
         Long totalMessages = (Long) entityManager.createQuery(
                         "SELECT COUNT(m) FROM Messages m " +
-                                "WHERE m.sender != :teacher AND m.recipient = :teacher " + // Tin nhắn gửi đến giáo viên
-                                "AND m.event IN (SELECT cd.event FROM ClassroomDetails cd WHERE cd.member = :teacher)") // Chỉ từ sự kiện trong lớp
+                                "WHERE m.sender != :teacher AND m.recipient = :teacher ")
                 .setParameter("teacher", teacher)
                 .getSingleResult();
         int totalPagesMessages = Math.max(1, (int) Math.ceil((double) totalMessages / pageSize));
@@ -125,8 +124,7 @@ public class GiaoVienGet {
         // 4. Phân trang cho Blogs
         Long totalBlogs = (Long) entityManager.createQuery(
                         "SELECT COUNT(b) FROM Blogs b " +
-                                "WHERE b.creator != :teacher " + // Loại bỏ blog do giáo viên tạo
-                                "AND b.event IN (SELECT cd.event FROM ClassroomDetails cd WHERE cd.member = :teacher)") // Chỉ từ sự kiện trong lớp
+                                "WHERE b.creator != :teacher ")
                 .setParameter("teacher", teacher)
                 .getSingleResult();
         int totalPagesBlogs = Math.max(1, (int) Math.ceil((double) totalBlogs / pageSize));

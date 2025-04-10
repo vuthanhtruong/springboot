@@ -118,8 +118,7 @@ public class StudentGet {
         // 3. Phân trang cho Messages
         Long totalMessages = (Long) entityManager.createQuery(
                         "SELECT COUNT(m) FROM Messages m " +
-                                "WHERE m.sender != :student AND m.recipient = :student " + // Tin nhắn gửi đến học sinh
-                                "AND m.event IN (SELECT cd.event FROM ClassroomDetails cd WHERE cd.member = :student)") // Chỉ từ sự kiện trong lớp
+                                "WHERE m.sender != :student AND m.recipient = :student ")// Tin nhắn gửi đến học sinh
                 .setParameter("student", student)
                 .getSingleResult();
         int totalPagesMessages = Math.max(1, (int) Math.ceil((double) totalMessages / pageSize));
@@ -137,8 +136,7 @@ public class StudentGet {
         // 4. Phân trang cho Blogs
         Long totalBlogs = (Long) entityManager.createQuery(
                         "SELECT COUNT(b) FROM Blogs b " +
-                                "WHERE b.creator != :student " + // Loại bỏ blog do học sinh tạo
-                                "AND b.event IN (SELECT cd.event FROM ClassroomDetails cd WHERE cd.member = :student)") // Chỉ từ sự kiện trong lớp
+                                "WHERE b.creator != :student ")
                 .setParameter("student", student)
                 .getSingleResult();
         int totalPagesBlogs = Math.max(1, (int) Math.ceil((double) totalBlogs / pageSize));
