@@ -44,6 +44,11 @@ public class MessageController {
     public void sendMessage(ChatMessage chatMessage) {
         System.out.println("📥 Nhận tin nhắn từ client: " + chatMessage.getSenderId() + " -> " + chatMessage.getRecipientId() + ": " + chatMessage.getContent());
         try {
+            if (chatMessage.getContent() == null || chatMessage.getContent().trim().isEmpty()) {
+                System.out.println("⚠️ Nội dung tin nhắn không hợp lệ");
+                return;
+            }
+
             Optional<Person> sender = personRepository.findById(chatMessage.getSenderId());
             Optional<Person> recipient = personRepository.findById(chatMessage.getRecipientId());
 
@@ -68,22 +73,15 @@ public class MessageController {
                         chatMessage.getContent(),
                         message.getDatetime().toString()
                 );
+                response.setMessageId(String.valueOf(message.getMessagesID()));
 
-                // Gửi tới người nhận
+                // Chỉ gửi tới người nhận
                 messagingTemplate.convertAndSendToUser(
                         chatMessage.getRecipientId(),
                         "/queue/messages",
                         response
                 );
                 System.out.println("📤 Đã gửi tin nhắn tới /user/" + chatMessage.getRecipientId() + "/queue/messages");
-
-                // Gửi lại cho người gửi
-                messagingTemplate.convertAndSendToUser(
-                        chatMessage.getSenderId(),
-                        "/queue/messages",
-                        response
-                );
-                System.out.println("📤 Đã gửi tin nhắn tới /user/" + chatMessage.getSenderId() + "/queue/messages");
             } else {
                 System.out.println("⚠️ Người gửi hoặc người nhận không tồn tại");
             }
@@ -104,13 +102,11 @@ public class MessageController {
             return "redirect:/TinNhanCuaBan?error=UserNotFound";
         }
 
-        // Lấy danh sách tất cả tin nhắn của currentUser để tạo danh sách liên hệ
         List<Messages> allMessages = entityManager.createQuery(
                         "FROM Messages m WHERE m.sender = :user OR m.recipient = :user", Messages.class)
                 .setParameter("user", currentUser)
                 .getResultList();
 
-        // Tạo danh sách liên hệ (contacts)
         Set<Person> contacts = new HashSet<>();
         for (Messages message : allMessages) {
             if (!message.getSender().equals(currentUser)) {
@@ -121,7 +117,6 @@ public class MessageController {
             }
         }
 
-        // Xử lý tin nhắn với chatPartner nếu có chatPartnerId
         List<Messages> messages = null;
         Person chatPartner = null;
         if (chatPartnerId != null && !chatPartnerId.isEmpty()) {
@@ -138,11 +133,10 @@ public class MessageController {
             }
         }
 
-        // Thêm các thuộc tính vào model để hiển thị trên giao diện
         model.addAttribute("currentUser", currentUser);
-        model.addAttribute("chatPartner", chatPartner); // Có thể null nếu không chọn
-        model.addAttribute("messages", messages); // Có thể null nếu không chọn
-        model.addAttribute("contacts", contacts); // Danh sách liên hệ luôn có
+        model.addAttribute("chatPartner", chatPartner);
+        model.addAttribute("messages", messages);
+        model.addAttribute("contacts", contacts);
         model.addAttribute("trangchu", currentUser instanceof Students ? "TrangChuHocSinh" : "TrangChuGiaoVien");
 
         return "ChiTietTinNhan";
@@ -161,22 +155,21 @@ public class MessageController {
 
             if (messageOpt.isPresent()) {
                 Messages message = messageOpt.get();
-                message.setText("Người dùng này đã xóa tin nhắn"); // Cập nhật nội dung tin nhắn
+                message.setText("Người dùng này đã xóa tin nhắn");
                 entityManager.merge(message);
                 entityManager.flush();
 
-                System.out.println("✅ Tin nhắn đã được cập nhật thành 'Người dùng này đã xóa tin nhắn' với ID: " + message.getMessagesID());
+                System.out.println("✅ Tin nhắn đã được cập nhật với ID: " + message.getMessagesID());
 
                 ChatMessage response = new ChatMessage(
                         chatMessage.getSenderId(),
-                        message.getRecipient().getId(), // Gửi lại cho recipient
+                        message.getRecipient().getId(),
                         message.getText(),
                         message.getDatetime().toString()
                 );
-                response.setAction("delete"); // Thêm action để frontend nhận diện
-                response.setMessageId(String.valueOf(message.getMessagesID())); // Truyền messageId
+                response.setAction("delete");
+                response.setMessageId(String.valueOf(message.getMessagesID()));
 
-                // Gửi thông báo tới người nhận
                 messagingTemplate.convertAndSendToUser(
                         message.getRecipient().getId(),
                         "/queue/messages",
@@ -184,7 +177,6 @@ public class MessageController {
                 );
                 System.out.println("📤 Đã gửi thông báo xóa tới /user/" + message.getRecipient().getId() + "/queue/messages");
 
-                // Gửi thông báo lại cho người gửi
                 messagingTemplate.convertAndSendToUser(
                         chatMessage.getSenderId(),
                         "/queue/messages",
@@ -199,5 +191,4 @@ public class MessageController {
             System.out.println("❌ Lỗi khi xóa tin nhắn: " + e.getMessage());
         }
     }
-
 }
