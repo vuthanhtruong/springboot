@@ -28,7 +28,7 @@ public class BaiVietPost {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Value("C:/uploads}")
+    @Value("${upload.dir:uploads}")
     private String uploadDir;
 
     @Transactional
