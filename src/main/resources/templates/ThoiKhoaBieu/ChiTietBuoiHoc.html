@@ -91,6 +91,7 @@
 </form>
 
 <!-- Hiển thị cho học sinh -->
+<!-- Hiển thị cho học sinh -->
 <div th:if="${isStudent}">
     <table>
         <thead>
@@ -108,22 +109,12 @@
             <td th:text="${student.lastName}"></td>
             <td th:text="${student.firstName}"></td>
             <td>
-                <div class="attendance-radio-group" th:if="${!isStudent}">
-                    <label class="radio-label">
-                        <input th:checked="${student.attendance?.status == 'Present'}"
-                               th:name="'status_' + ${student.id}"
-                               th:value="Present"
-                               type="radio">
-                        <span>Có Mặt</span>
-                    </label>
-                    <label class="radio-label">
-                        <input th:checked="${student.attendance?.status == 'Absent' or student.attendance?.status == null}"
-                               th:name="'status_' + ${student.id}"
-                               th:value="Absent"
-                               type="radio">
-                        <span>Vắng Mặt</span>
-                    </label>
-                </div>
+                <span th:classappend="${attendanceMap[student.id]?.status == 'Present' ? 'status-present' : (attendanceMap[student.id]?.status == 'Absent' ? 'status-absent' : 'status-unknown')}"
+                      th:text="${attendanceMap[student.id]?.status == 'Present' ? 'Có Mặt' : (attendanceMap[student.id]?.status == 'Absent' ? 'Vắng Mặt' : 'Chưa Điểm Danh')}"></span>
+            </td>
+            <td>
+                <span th:text="${attendanceMap[student.id]?.note ?: ''}"></span>
+            </td>
         </tr>
         <tr th:if="${#lists.isEmpty(students)}">
             <td colspan="5" style="text-align: center;">Không có học sinh trong lớp này.</td>
