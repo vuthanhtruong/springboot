@@ -98,7 +98,7 @@ public class SecurityConfig {
                                         "/QuayVeTrangChu",
                                         "/redirect"
                                 ).hasAnyRole("TEACHER", "STUDENT", "ADMIN", "EMPLOYEE")
-                                .requestMatchers(HttpMethod.POST, "/BaiPost", "/auth/verify-face-login",
+                                .requestMatchers(HttpMethod.POST, "/BaiPost",
                                         "/BinhLuan", "/register-face", "/XoaKhuonMat", "/DangKyKhuonMat", "/DangKyGiongNoi", "/LuuThongTinCaNhan")
                                 .hasAnyRole("TEACHER", "STUDENT", "ADMIN", "EMPLOYEE")
 
@@ -160,8 +160,7 @@ public class SecurityConfig {
                                         "/auth/verify-otp",
                                         "/auth/DatLaiMatKhau",
                                         "/Blogs",
-                                        "/XoaTatCaHocSinh",
-                                        "/auth/verify-face-login"
+                                        "/XoaTatCaHocSinh"
                                 ).permitAll()
                                 .requestMatchers(HttpMethod.POST, "/auth/verify-face-login").permitAll()
                                 .requestMatchers(HttpMethod.POST,
