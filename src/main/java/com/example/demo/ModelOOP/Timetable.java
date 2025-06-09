@@ -40,10 +40,10 @@ public class Timetable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Editor", nullable = true, foreignKey = @ForeignKey(name = "FK_Timetable_Editor"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Employees editor;
+    private Staffs editor;
 
     // Constructor
-    public Timetable(Room room, Slots slot, DayOfWeek dayOfWeek, Employees editor, LocalDate date) {
+    public Timetable(Room room, Slots slot, DayOfWeek dayOfWeek, Staffs editor, LocalDate date) {
         this.room = room;
         this.slot = slot;
         this.dayOfWeek = dayOfWeek;

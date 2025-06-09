@@ -1,8 +1,8 @@
 package com.example.demo.ControllerPOST;
 
 import com.example.demo.ModelOOP.Comments;
-import com.example.demo.ModelOOP.Events;
-import com.example.demo.ModelOOP.Person;
+import com.example.demo.ModelOOP.Notifications;
+import com.example.demo.ModelOOP.Persons;
 import com.example.demo.ModelOOP.Posts;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -31,7 +31,7 @@ public class CommmentPost {
         // Lấy thông tin người dùng hiện tại
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        Person commenter = entityManager.find(Person.class, userId);
+        Persons commenter = entityManager.find(Persons.class, userId);
 
         // Kiểm tra nếu không tìm thấy người dùng
         if (commenter == null) {
@@ -53,7 +53,7 @@ public class CommmentPost {
         Comments comment = new Comments(commenter, post, commentText);
 
         // Liên kết với sự kiện nếu cần
-        Events event = entityManager.find(Events.class, 6);
+        Notifications event = entityManager.find(Notifications.class, 6);
         comment.setEvent(event);
 
         // Lưu vào database

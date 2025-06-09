@@ -27,7 +27,7 @@ public class Posts {
     @ManyToOne
     @JoinColumn(name = "CreatorID", nullable = false, foreignKey = @ForeignKey(name = "FK_Posts_Person"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Person creator;
+    private Persons creator;
 
     @Column(name = "Content", nullable = false, columnDefinition = "TEXT")
     private String content;
@@ -44,7 +44,7 @@ public class Posts {
     @ManyToOne
     @JoinColumn(name = "EventID", nullable = false, foreignKey = @ForeignKey(name = "FK_Posts_Event"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Events event; // Sự kiện liên quan đến bài viết
+    private Notifications event; // Sự kiện liên quan đến bài viết
 
     @Column(name = "CreatedAt", updatable = false, nullable = true)
     @CreationTimestamp
@@ -53,7 +53,7 @@ public class Posts {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comments> comments = new ArrayList<>();
 
-    public Posts(Person creator, String content, Room room, Events event) {
+    public Posts(Persons creator, String content, Room room, Notifications event) {
         this.creator = creator;
         this.content = content;
         this.room = room;

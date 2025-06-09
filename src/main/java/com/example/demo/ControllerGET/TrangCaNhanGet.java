@@ -1,7 +1,7 @@
 package com.example.demo.ControllerGET;
 
-import com.example.demo.ModelOOP.Employees;
-import com.example.demo.ModelOOP.Person;
+import com.example.demo.ModelOOP.Staffs;
+import com.example.demo.ModelOOP.Persons;
 import com.example.demo.ModelOOP.Students;
 import com.example.demo.ModelOOP.Teachers;
 import jakarta.persistence.EntityManager;
@@ -28,7 +28,7 @@ public class TrangCaNhanGet {
         String userId = authentication.getName();
 
         // Lấy thông tin người dùng từ EntityManager
-        Person user = entityManager.find(Person.class, userId);
+        Persons user = entityManager.find(Persons.class, userId);
 
         if (user == null) {
             throw new IllegalStateException("Người dùng không tồn tại");
@@ -43,13 +43,13 @@ public class TrangCaNhanGet {
         String userId = authentication.getName();
 
         // Lấy thông tin người dùng từ EntityManager
-        Person user = entityManager.find(Person.class, userId);
+        Persons user = entityManager.find(Persons.class, userId);
 
         if (user instanceof Students) {
             return "redirect:/TrangChuHocSinh";
         } else if (user instanceof Teachers) {
             return "redirect:/TrangChuGiaoVien";
-        } else if (user instanceof Employees) {
+        } else if (user instanceof Staffs) {
             return "redirect:/TrangChuNhanVien";
         } else {
             return "redirect:/TrangChuAdmin";

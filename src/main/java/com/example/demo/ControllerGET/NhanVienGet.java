@@ -45,7 +45,7 @@ public class NhanVienGet {
         String employeeId = authentication.getName(); // AdminID đã đăng nhập
 
         // Tìm Admin trong database bằng EntityManager
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
 
         model.addAttribute("employee", employee);
         return "TrangChuNhanVien";
@@ -57,7 +57,7 @@ public class NhanVienGet {
         String employeeId = authentication.getName(); // AdminID đã đăng nhập
 
         // Tìm Admin trong database bằng EntityManager
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
         model.addAttribute("employee", employee);
         return "TrangCaNhanNhanVien";
     }
@@ -73,7 +73,7 @@ public class NhanVienGet {
         String employeeId = authentication.getName(); // AdminID đã đăng nhập
 
         // Tìm Admin trong database bằng EntityManager
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
 
         // Lấy pageSize từ session nếu chưa có thì mặc định 5
         Integer pageSize = (Integer) session.getAttribute("pageSize2");
@@ -140,7 +140,7 @@ public class NhanVienGet {
         String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
 
         // Tìm Employee trong database bằng EntityManager
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
 
         // Nếu pageSize là null, lấy từ session hoặc đặt mặc định là 5
         if (pageSize == null) {
@@ -218,14 +218,14 @@ public class NhanVienGet {
         session.setAttribute("pageSize4", pageSize); // Lưu pageSize vào session
 
         // ========== PHÂN TRANG CHO EMPLOYEES ==========
-        Long totalEmployees = (Long) entityManager.createQuery("SELECT COUNT(e) FROM Employees e")
+        Long totalEmployees = (Long) entityManager.createQuery("SELECT COUNT(e) FROM Staffs e")
                 .getSingleResult();
         int totalPagesEmployees = (int) Math.ceil((double) totalEmployees / pageSize);
         totalPagesEmployees = Math.max(totalPagesEmployees, 1);
         pageEmployees = Math.max(1, Math.min(pageEmployees, totalPagesEmployees));
 
         int firstEmployeeResult = (pageEmployees - 1) * pageSize;
-        List<Employees> employeeList = entityManager.createQuery("FROM Employees", Employees.class)
+        List<Staffs> employeeList = entityManager.createQuery("FROM Staffs", Staffs.class)
                 .setFirstResult(firstEmployeeResult)
                 .setMaxResults(pageSize)
                 .getResultList();
@@ -260,10 +260,10 @@ public class NhanVienGet {
         String employeeId = authentication.getName(); // AdminID đã đăng nhập
 
         // Tìm Admin trong database bằng EntityManager
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
 
         // Lấy thông tin admin từ EmployeeID
-        Employees employee1 = entityManager.find(Employees.class, employee.getId());
+        Staffs employee1 = entityManager.find(Staffs.class, employee.getId());
         Admin admin = employee1.getAdmin();
 
         // ========== ĐƯA DỮ LIỆU LÊN GIAO DIỆN ==========
@@ -526,7 +526,7 @@ public class NhanVienGet {
 
         // Phân loại thành viên thành Teachers và Students
         for (ClassroomDetails detail : classroomDetails) {
-            Person member = detail.getMember();
+            Persons member = detail.getMember();
             if (member instanceof Teachers) {
                 teachersInClass.add((Teachers) member);
             } else if (member instanceof Students) {
@@ -556,7 +556,7 @@ public class NhanVienGet {
         String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
 
         // Tìm Employee trong database bằng EntityManager
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
 
         Room room = entityManager.find(Room.class, roomId);
         if (room == null) {
@@ -564,7 +564,7 @@ public class NhanVienGet {
         }
 
         // Tìm đối tượng Teacher theo ID
-        Person teacher = entityManager.find(Person.class, teacherId);
+        Persons teacher = entityManager.find(Persons.class, teacherId);
         if (teacher == null || !(teacher instanceof Teachers)) {
             return "redirect:/ChiTietLopHoc/" + roomId + "?error=TeacherNotFound";
         }
@@ -621,7 +621,7 @@ public class NhanVienGet {
         String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
 
         // Tìm Employee trong database bằng EntityManager
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
 
         Room room = entityManager.find(Room.class, roomId);
         if (room == null) {
@@ -629,7 +629,7 @@ public class NhanVienGet {
         }
 
         // Tìm đối tượng Student theo ID
-        Person student = entityManager.find(Person.class, studentId);
+        Persons student = entityManager.find(Persons.class, studentId);
         if (student == null || !(student instanceof Students)) {
             return "redirect:/ChiTietLopHoc/" + roomId + "?error=StudentNotFound";
         }
@@ -684,7 +684,7 @@ public class NhanVienGet {
         String employeeId = authentication.getName(); // AdminID đã đăng nhập
 
         // Tìm Admin trong database bằng EntityManager
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
 
         // Lấy phòng học theo ID
         Room room = entityManager.find(Room.class, id);
@@ -699,7 +699,7 @@ public class NhanVienGet {
                 .getResultList();
 
         for (ClassroomDetails detail : classMembers) {
-            Person member = detail.getMember();
+            Persons member = detail.getMember();
             if (member == null) continue;
 
             // Xác định email người nhận
@@ -730,9 +730,9 @@ public class NhanVienGet {
     }
 
 
-    private void sendNotification(String memberId, String roomId, String message, Employees sender, String email) {
+    private void sendNotification(String memberId, String roomId, String message, Staffs sender, String email) {
         // Tìm đối tượng Person từ memberId
-        Person member = entityManager.find(Person.class, memberId);
+        Persons member = entityManager.find(Persons.class, memberId);
         if (member == null) {
             throw new IllegalArgumentException("Không tìm thấy thành viên với ID: " + memberId);
         }
@@ -778,7 +778,7 @@ public class NhanVienGet {
 
     @GetMapping("/BangDieuKhienNhanVien/{id}")
     public String BangDieuKhienNhanVien(@PathVariable("id") String id, ModelMap model) {
-        Employees employee = entityManager.find(Employees.class, id);
+        Staffs employee = entityManager.find(Staffs.class, id);
 
         List<Room> room = entityManager.createQuery("from Room r where r.employee=:employee", Room.class).
                 setParameter("employee", employee).getResultList();
@@ -804,7 +804,7 @@ public class NhanVienGet {
             return "errorPage";
         }
 
-        Employees employee = student.getEmployee();
+        Staffs employee = student.getEmployee();
         if (employee == null) {
             model.addAttribute("errorMessage", "No employee associated with the student.");
             return "errorPage";
@@ -864,7 +864,7 @@ public class NhanVienGet {
             return "errorPage";
         }
 
-        Employees employee = teacher.getEmployee();
+        Staffs employee = teacher.getEmployee();
         if (employee == null) {
             model.addAttribute("errorMessage", "No employee associated with the teacher.");
             return "errorPage";
@@ -925,7 +925,7 @@ public class NhanVienGet {
         String employeeId = authentication.getName(); // AdminID đã đăng nhập
 
         // Tìm Admin trong database bằng EntityManager
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
 
         List<Feedbacks> feedbacks = entityManager.createQuery("from Feedbacks f where f.receiver=:receiver", Feedbacks.class).
                 setParameter("receiver", employee).getResultList();
@@ -968,7 +968,7 @@ public class NhanVienGet {
         String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
 
         // Tìm Employee trong database
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
         if (employee == null) {
             return "redirect:/BoTriLopHoc?error=EmployeeNotFound";
         }

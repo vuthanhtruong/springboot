@@ -53,7 +53,7 @@ public class TrangChu {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
-        Person person = entityManager.find(Person.class, userId);
+        Persons person = entityManager.find(Persons.class, userId);
         if (person == null) {
             return "redirect:/DoiMatKhau?error=notfound";
         }
@@ -63,7 +63,7 @@ public class TrangChu {
             storedPassword = student.getPassword();
         } else if (person instanceof Teachers teacher) {
             storedPassword = teacher.getPassword();
-        } else if (person instanceof Employees employee) {
+        } else if (person instanceof Staffs employee) {
             storedPassword = employee.getPassword();
         } else if (person instanceof Admin admin) {
             storedPassword = admin.getPassword();
@@ -89,7 +89,7 @@ public class TrangChu {
             entityManager.merge(teacher);
             System.out.println("Redirecting to: /TrangChuGiaoVien");
             return "redirect:/TrangChuGiaoVien";
-        } else if (person instanceof Employees employee) {
+        } else if (person instanceof Staffs employee) {
             employee.setPassword(newPassword);
             entityManager.merge(employee);
             System.out.println("Redirecting to: /TrangChuNhanVien");

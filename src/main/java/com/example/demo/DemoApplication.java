@@ -1,7 +1,7 @@
 package com.example.demo;
 
 import com.example.demo.ModelOOP.Admin;
-import com.example.demo.ModelOOP.Events;
+import com.example.demo.ModelOOP.Notifications;
 import com.example.demo.ModelOOP.Slots;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -98,20 +98,20 @@ public class DemoApplication {
 
     // Thêm các sự kiện mặc định vào database nếu chưa có
     private static void addDefaultEvents(EntityManager entityManager) {
-        List<Events> eventsToAdd = List.of(
-                new Events("Default Event", "Default event description", LocalDateTime.of(2025, 3, 3, 0, 0, 0), "DEFAULT"),
-                new Events("New Message", "You have a new message from another user.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "MESSAGE"),
-                new Events("New Feedback", "You have new feedback from a student.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "FEEDBACK"),
-                new Events("New Post", "A new post has been made in your classroom.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "POST"),
-                new Events("New Document", "A new document has been shared with you.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "DOCUMENT"),
-                new Events("New Comment", "Someone has commented on your post.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "COMMENT"),
-                new Events("New Blog Post", "A new blog post has been published.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "BLOG"),
-                new Events("Schedule Notification", "You have a new notification related to your schedule.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "SCHEDULE_NOTIFICATION"),
-                new Events("Added to Classroom", "You have been added to a new classroom.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "CLASSROOM_JOIN"),
-                new Events("System Event", "Default system event.", LocalDateTime.of(2025, 3, 3, 0, 0, 0), "SYSTEM_EVENT")
+        List<Notifications> eventsToAdd = List.of(
+                new Notifications("Default Event", "Default event description", LocalDateTime.of(2025, 3, 3, 0, 0, 0), "DEFAULT"),
+                new Notifications("New Message", "You have a new message from another user.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "MESSAGE"),
+                new Notifications("New Feedback", "You have new feedback from a student.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "FEEDBACK"),
+                new Notifications("New Post", "A new post has been made in your classroom.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "POST"),
+                new Notifications("New Document", "A new document has been shared with you.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "DOCUMENT"),
+                new Notifications("New Comment", "Someone has commented on your post.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "COMMENT"),
+                new Notifications("New Blog Post", "A new blog post has been published.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "BLOG"),
+                new Notifications("Schedule Notification", "You have a new notification related to your schedule.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "SCHEDULE_NOTIFICATION"),
+                new Notifications("Added to Classroom", "You have been added to a new classroom.", LocalDateTime.of(2025, 3, 3, 20, 57, 47), "CLASSROOM_JOIN"),
+                new Notifications("System Event", "Default system event.", LocalDateTime.of(2025, 3, 3, 0, 0, 0), "SYSTEM_EVENT")
         );
 
-        for (Events event : eventsToAdd) {
+        for (Notifications event : eventsToAdd) {
             boolean exists = checkEventExists(entityManager, event.getTitle(), event.getDescription(), event.getEventDate(), event.getEventType());
             if (!exists) {
                 entityManager.persist(event);
@@ -126,8 +126,8 @@ public class DemoApplication {
     private static boolean checkEventExists(EntityManager entityManager, String title, String description, LocalDateTime eventDate, String eventType) {
         try {
             entityManager.createQuery(
-                            "SELECT e FROM Events e WHERE e.title = :title AND e.description = :description " +
-                                    "AND e.eventDate = :eventDate AND e.eventType = :eventType", Events.class)
+                            "SELECT e FROM Notifications e WHERE e.title = :title AND e.description = :description " +
+                                    "AND e.eventDate = :eventDate AND e.eventType = :eventType", Notifications.class)
                     .setParameter("title", title)
                     .setParameter("description", description)
                     .setParameter("eventDate", eventDate)

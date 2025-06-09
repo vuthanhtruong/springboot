@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @OnDelete(action = OnDeleteAction.CASCADE)
-public class Employees extends Person {
+public class Staffs extends Persons {
 
     @Column(name = "Password", nullable = false, length = 255)
     private String password;
@@ -28,7 +28,7 @@ public class Employees extends Person {
     private Admin admin;
 
     // Constructor có tham số
-    public Employees(String id, String firstName, String lastName, String email, String phoneNumber, String password, Admin admin) {
+    public Staffs(String id, String firstName, String lastName, String email, String phoneNumber, String password, Admin admin) {
         super(); // Gọi constructor của Person
         this.setId(id);
         this.setFirstName(firstName);
@@ -40,7 +40,7 @@ public class Employees extends Person {
     }
 
     // Constructor không tham số (cần thiết cho JPA)
-    public Employees() {
+    public Staffs() {
     }
 
     // Ghi đè setter để mã hóa mật khẩu trước khi lưu

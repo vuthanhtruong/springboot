@@ -1,7 +1,7 @@
 package com.example.demo.ControllerPOST;
 
 import com.example.demo.ModelOOP.Gender;
-import com.example.demo.ModelOOP.Person;
+import com.example.demo.ModelOOP.Persons;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -49,7 +49,7 @@ public class TrangCaNhanPost {
 
         // [2] Tìm thông tin người dùng
         String userId = authentication.getName();
-        Person person = entityManager.find(Person.class, userId);
+        Persons person = entityManager.find(Persons.class, userId);
         if (person == null) {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy thông tin người dùng");
             return "redirect:/TrangCaNhan";
@@ -70,7 +70,7 @@ public class TrangCaNhanPost {
         }
 
         // [4] Kiểm tra trùng lặp email và số điện thoại
-        long emailCount = (long) entityManager.createQuery("SELECT COUNT(p) FROM Person p WHERE p.email = :email AND p.id <> :userId")
+        long emailCount = (long) entityManager.createQuery("SELECT COUNT(p) FROM Persons p WHERE p.email = :email AND p.id <> :userId")
                 .setParameter("email", email)
                 .setParameter("userId", userId)
                 .getSingleResult();
@@ -79,7 +79,7 @@ public class TrangCaNhanPost {
             return "redirect:/TrangCaNhan";
         }
 
-        long phoneCount = (long) entityManager.createQuery("SELECT COUNT(p) FROM Person p WHERE p.phoneNumber = :phoneNumber AND p.id <> :userId")
+        long phoneCount = (long) entityManager.createQuery("SELECT COUNT(p) FROM Persons p WHERE p.phoneNumber = :phoneNumber AND p.id <> :userId")
                 .setParameter("phoneNumber", phoneNumber)
                 .setParameter("userId", userId)
                 .getSingleResult();

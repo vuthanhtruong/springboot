@@ -1,8 +1,8 @@
 package com.example.demo.ControllerGET;
 
-import com.example.demo.ModelOOP.Events;
+import com.example.demo.ModelOOP.Notifications;
 import com.example.demo.ModelOOP.Messages;
-import com.example.demo.ModelOOP.Person;
+import com.example.demo.ModelOOP.Persons;
 import com.example.demo.ModelOOP.Students;
 import com.example.demo.Repository.PersonRepository;
 import com.example.demo.websocket.dto.ChatMessage;
@@ -49,8 +49,8 @@ public class MessageController {
                 return;
             }
 
-            Optional<Person> sender = personRepository.findById(chatMessage.getSenderId());
-            Optional<Person> recipient = personRepository.findById(chatMessage.getRecipientId());
+            Optional<Persons> sender = personRepository.findById(chatMessage.getSenderId());
+            Optional<Persons> recipient = personRepository.findById(chatMessage.getRecipientId());
 
             if (sender.isPresent() && recipient.isPresent()) {
                 Messages message = new Messages();
@@ -59,7 +59,7 @@ public class MessageController {
                 message.setDatetime(LocalDateTime.now());
                 message.setText(chatMessage.getContent());
 
-                Events event = entityManager.find(Events.class, 2);
+                Notifications event = entityManager.find(Notifications.class, 2);
                 message.setEvent(event);
 
                 entityManager.persist(message);
@@ -96,7 +96,7 @@ public class MessageController {
                                  @RequestParam(value = "id", required = false) String chatPartnerId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        Person currentUser = entityManager.find(Person.class, userId);
+        Persons currentUser = entityManager.find(Persons.class, userId);
 
         if (currentUser == null) {
             return "redirect:/TinNhanCuaBan?error=UserNotFound";
@@ -107,7 +107,7 @@ public class MessageController {
                 .setParameter("user", currentUser)
                 .getResultList();
 
-        Set<Person> contacts = new HashSet<>();
+        Set<Persons> contacts = new HashSet<>();
         for (Messages message : allMessages) {
             if (!message.getSender().equals(currentUser)) {
                 contacts.add(message.getSender());
@@ -118,9 +118,9 @@ public class MessageController {
         }
 
         List<Messages> messages = null;
-        Person chatPartner = null;
+        Persons chatPartner = null;
         if (chatPartnerId != null && !chatPartnerId.isEmpty()) {
-            chatPartner = entityManager.find(Person.class, chatPartnerId);
+            chatPartner = entityManager.find(Persons.class, chatPartnerId);
             if (chatPartner != null) {
                 messages = entityManager.createQuery(
                                 "FROM Messages m WHERE " +
@@ -146,7 +146,7 @@ public class MessageController {
     @Transactional
     public void deleteMessage(ChatMessage chatMessage) {
         try {
-            Optional<Person> sender = personRepository.findById(chatMessage.getSenderId());
+            Optional<Persons> sender = personRepository.findById(chatMessage.getSenderId());
             Optional<Messages> messageOpt = entityManager.createQuery(
                             "FROM Messages m WHERE m.messagesID = :messageId AND m.sender = :sender", Messages.class)
                     .setParameter("messageId", Integer.parseInt(chatMessage.getMessageId()))

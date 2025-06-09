@@ -31,13 +31,13 @@ public class Feedbacks {
     @ManyToOne
     @JoinColumn(name = "ReceiverID", nullable = false, foreignKey = @ForeignKey(name = "FK_Feedbacks_Receiver"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Employees receiver;
+    private Staffs receiver;
 
     // Liên kết với bảng Events
     @ManyToOne
     @JoinColumn(name = "EventID", nullable = false, foreignKey = @ForeignKey(name = "FK_Feedbacks_Event"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Events event;
+    private Notifications event;
 
     // Liên kết với bảng Room
     @ManyToOne
@@ -56,7 +56,7 @@ public class Feedbacks {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Feedbacks(Students reviewer, Teachers teacher, Employees receiver, Events event, Room room, String text) {
+    public Feedbacks(Students reviewer, Teachers teacher, Staffs receiver, Notifications event, Room room, String text) {
         this.reviewer = reviewer;
         this.teacher = teacher;
         this.receiver = receiver;
@@ -91,19 +91,19 @@ public class Feedbacks {
         this.teacher = teacher;
     }
 
-    public Employees getReceiver() {
+    public Staffs getReceiver() {
         return receiver;
     }
 
-    public void setReceiver(Employees receiver) {
+    public void setReceiver(Staffs receiver) {
         this.receiver = receiver;
     }
 
-    public Events getEvent() {
+    public Notifications getEvent() {
         return event;
     }
 
-    public void setEvent(Events event) {
+    public void setEvent(Notifications event) {
         this.event = event;
     }
 

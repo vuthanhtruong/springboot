@@ -2,8 +2,8 @@ package com.example.demo.ControllerPOST;
 
 
 import com.example.demo.ModelOOP.Blogs;
-import com.example.demo.ModelOOP.Events;
-import com.example.demo.ModelOOP.Person;
+import com.example.demo.ModelOOP.Notifications;
+import com.example.demo.ModelOOP.Persons;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -30,13 +30,13 @@ public class BlogPost {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
-        Person creator = entityManager.find(Person.class, userId);
+        Persons creator = entityManager.find(Persons.class, userId);
         if (creator == null) {
             return "redirect:/Blogs?error=userNotFound";
         }
         newBlog.setCreator(creator);
         newBlog.setCreatedAt(LocalDateTime.now());
-        Events events = entityManager.find(Events.class, 7);
+        Notifications events = entityManager.find(Notifications.class, 7);
         newBlog.setEvent(events);
         entityManager.persist(newBlog);
 
@@ -54,7 +54,7 @@ public class BlogPost {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
-        Person creator = entityManager.find(Person.class, userId);
+        Persons creator = entityManager.find(Persons.class, userId);
         if (creator == null) {
             return "redirect:/Blogs?error=userNotFound";
         }

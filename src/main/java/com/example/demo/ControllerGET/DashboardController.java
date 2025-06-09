@@ -41,7 +41,7 @@ public class DashboardController {
         Long totalTeachers = (Long) entityManager.createQuery("SELECT COUNT(t) FROM Teachers t").getSingleResult();
 
         // Tổng số nhân viên
-        Long totalEmployees = (Long) entityManager.createQuery("SELECT COUNT(e) FROM Employees e").getSingleResult();
+        Long totalEmployees = (Long) entityManager.createQuery("SELECT COUNT(e) FROM Staffs e").getSingleResult();
 
         Long totalBlog = (Long) entityManager.createQuery("SELECT COUNT(b) FROM Blogs b").getSingleResult();
 
@@ -81,7 +81,7 @@ public class DashboardController {
         Long totalTeachers = (Long) entityManager.createQuery("SELECT COUNT(t) FROM Teachers t").getSingleResult();
 
         // Tổng số nhân viên
-        Long totalEmployees = (Long) entityManager.createQuery("SELECT COUNT(e) FROM Employees e").getSingleResult();
+        Long totalEmployees = (Long) entityManager.createQuery("SELECT COUNT(e) FROM Staffs e").getSingleResult();
 
         Long totalBlog = (Long) entityManager.createQuery("SELECT COUNT(b) FROM Blogs b").getSingleResult();
 
@@ -112,7 +112,7 @@ public class DashboardController {
 
         // Tổng số nhân viên mới (trong 24 giờ)
         Long newEmployees = (Long) entityManager.createQuery(
-                        "SELECT COUNT(e) FROM Employees e WHERE e.createdDate >= :last24Hours")
+                        "SELECT COUNT(e) FROM Staffs e WHERE e.createdDate >= :last24Hours")
                 .setParameter("last24Hours", last24Hours)
                 .getSingleResult();
 

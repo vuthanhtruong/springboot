@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @OnDelete(action = OnDeleteAction.CASCADE)
-public class Teachers extends Person {
+public class Teachers extends Persons {
 
     // Mã hóa mật khẩu bằng BCrypt
     private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -28,13 +28,13 @@ public class Teachers extends Person {
     @ManyToOne
     @JoinColumn(name = "EmployeeID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Employees employee; // Liên kết với Employee (có thể là NULL)
+    private Staffs employee; // Liên kết với Employee (có thể là NULL)
     @ManyToOne
     @JoinColumn(name = "AdminID", nullable = true) // Có thể NULL nếu không có Admin trực tiếp quản lý
     private Admin admin;
 
     // Constructor có tham số
-    public Teachers(String id, String password, String firstName, String lastName, String email, String phoneNumber, String misID, Employees employee, Admin admin) {
+    public Teachers(String id, String password, String firstName, String lastName, String email, String phoneNumber, String misID, Staffs employee, Admin admin) {
         super(); // Gọi constructor của Person
         this.setId(id);
         this.setFirstName(firstName);

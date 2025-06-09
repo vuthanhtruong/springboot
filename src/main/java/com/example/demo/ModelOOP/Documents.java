@@ -33,7 +33,7 @@ public class Documents {
     @ManyToOne
     @JoinColumn(name = "CreatorID", nullable = false, foreignKey = @ForeignKey(name = "FK_Documents_Person"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Person creator;
+    private Persons creator;
 
     @ManyToOne
     @JoinColumn(name = "PostID", nullable = false, foreignKey = @ForeignKey(name = "FK_Documents_Posts"))
@@ -43,10 +43,10 @@ public class Documents {
     @ManyToOne
     @JoinColumn(name = "EventID", nullable = false, foreignKey = @ForeignKey(name = "FK_Documents_Events"))
     @OnDelete(action = OnDeleteAction.CASCADE) // Nếu sự kiện bị xóa, tài liệu cũng bị xóa
-    private Events event;
+    private Notifications event;
 
     // Constructor có tham số
-    public Documents(String documentTitle, byte[] fileData, String filePath, Person creator, Posts post, Events event) {
+    public Documents(String documentTitle, byte[] fileData, String filePath, Persons creator, Posts post, Notifications event) {
         this.documentTitle = documentTitle;
         this.fileData = fileData;
         this.filePath = filePath;

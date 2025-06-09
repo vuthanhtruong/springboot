@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
-public class Person {
+public class Persons {
 
     @Id
     @Column(name = "ID")

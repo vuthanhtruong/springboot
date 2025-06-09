@@ -30,7 +30,7 @@ public class GiaoVienGet {
     @GetMapping("/DangKyGiaoVien")
     public String DangKyGiaoVien(ModelMap model) {
         // Sử dụng EntityManager để thực thi truy vấn
-        List<Employees> employees = entityManager.createQuery("from Employees", Employees.class).getResultList();
+        List<Staffs> employees = entityManager.createQuery("from Staffs", Staffs.class).getResultList();
         model.addAttribute("employees", employees);
         return "DangKyGiaoVien";
     }
@@ -47,7 +47,7 @@ public class GiaoVienGet {
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String teacherId = authentication.getName();
-        Person person = entityManager.find(Person.class, teacherId);
+        Persons person = entityManager.find(Persons.class, teacherId);
         Teachers teacher = (Teachers) person;
 
         // Lưu pageSize vào session
@@ -164,7 +164,7 @@ public class GiaoVienGet {
     public String TinNhanCuaGiaoVien(HttpSession session, ModelMap model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String teacherId = authentication.getName();
-        Person person = entityManager.find(Person.class, teacherId);
+        Persons person = entityManager.find(Persons.class, teacherId);
         Teachers teacher = (Teachers) person;
 
         // Truy vấn tin nhắn liên quan đến giáo viên
@@ -174,7 +174,7 @@ public class GiaoVienGet {
                 .getResultList();
 
         // Tập hợp các liên hệ mà giáo viên đã trò chuyện
-        Set<Person> contacts = new HashSet<>();
+        Set<Persons> contacts = new HashSet<>();
         for (Messages message : messages) {
             if (!message.getSender().equals(teacher)) {
                 contacts.add(message.getSender());  // Người gửi khác giáo viên
@@ -197,7 +197,7 @@ public class GiaoVienGet {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String teacherId = authentication.getName();
-        Person person = entityManager.find(Person.class, teacherId);
+        Persons person = entityManager.find(Persons.class, teacherId);
         Teachers teacher = (Teachers) person;
 
         if (teacher == null) {

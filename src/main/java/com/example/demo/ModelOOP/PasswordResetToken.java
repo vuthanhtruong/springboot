@@ -27,7 +27,7 @@ public class PasswordResetToken {
     @ManyToOne
     @JoinColumn(name = "person_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Person person;
+    private Persons person;
 
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expiryDate);

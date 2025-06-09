@@ -118,7 +118,7 @@ public class AdminGet {
     @GetMapping("/ThemGiaoVien")
     public String ThemGiaoVien(ModelMap model, HttpSession session) {
 
-        List<Employees> employees = entityManager.createQuery("from Employees", Employees.class).getResultList();
+        List<Staffs> employees = entityManager.createQuery("from Staffs", Staffs.class).getResultList();
         model.addAttribute("employees", employees);
         return "ThemGiaoVien";
     }
@@ -178,7 +178,7 @@ public class AdminGet {
     @GetMapping("/ThemHocSinh")
     public String ThemHocSinh(ModelMap model, HttpSession session) {
 
-        List<Employees> employees = entityManager.createQuery("from Employees", Employees.class).getResultList();
+        List<Staffs> employees = entityManager.createQuery("from Staffs", Staffs.class).getResultList();
         model.addAttribute("employees", employees);
         return "ThemHocSinh";
     }
@@ -201,7 +201,7 @@ public class AdminGet {
         session.setAttribute("pageSize", pageSize);
 
         // Đếm tổng số nhân viên
-        Long totalEmployees = (Long) entityManager.createQuery("SELECT COUNT(e) FROM Employees e")
+        Long totalEmployees = (Long) entityManager.createQuery("SELECT COUNT(e) FROM Staffs e")
                 .getSingleResult();
 
         // Xử lý trường hợp không có nhân viên
@@ -222,7 +222,7 @@ public class AdminGet {
         int firstResult = (page - 1) * pageSize;
 
         // Xử lý sắp xếp
-        String jpql = "SELECT e FROM Employees e";
+        String jpql = "SELECT e FROM Staffs e";
         if ("asc".equalsIgnoreCase(sortOrder)) {
             jpql += " ORDER BY e.firstName ASC";
         } else if ("desc".equalsIgnoreCase(sortOrder)) {
@@ -230,10 +230,10 @@ public class AdminGet {
         }
 
         // Lấy danh sách nhân viên với phân trang
-        TypedQuery<Employees> query = entityManager.createQuery(jpql, Employees.class)
+        TypedQuery<Staffs> query = entityManager.createQuery(jpql, Staffs.class)
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize);
-        List<Employees> employees = query.getResultList();
+        List<Staffs> employees = query.getResultList();
 
         // Truyền dữ liệu lên giao diện
         model.addAttribute("employees", employees);
@@ -272,7 +272,7 @@ public class AdminGet {
     @Transactional
     @GetMapping("/XoaNhanVien/{id}")
     public String XoaNhanVien(@PathVariable("id") String id) {
-        Employees employee = entityManager.find(Employees.class, id);
+        Staffs employee = entityManager.find(Staffs.class, id);
         if (employee != null) {
             List<Room> rooms = entityManager.createQuery("SELECT r FROM Room r WHERE r.employee.id = :id", Room.class)
                     .setParameter("id", id)
@@ -291,7 +291,7 @@ public class AdminGet {
     @GetMapping("/SuaHocSinh/{id}")
     public String SuaHocSinh(ModelMap model, @PathVariable("id") String id, HttpSession session) {
         Students student = entityManager.find(Students.class, id);
-        List<Employees> employees = entityManager.createQuery("from Employees", Employees.class).getResultList();
+        List<Staffs> employees = entityManager.createQuery("from Staffs", Staffs.class).getResultList();
         model.addAttribute("student", student);
         model.addAttribute("employees", employees);
         return "SuaHocSinh";
@@ -300,7 +300,7 @@ public class AdminGet {
     @GetMapping("/SuaGiaoVien/{id}")
     public String SuaGiaoVien(ModelMap model, @PathVariable("id") String id, HttpSession session) {
 
-        List<Employees> employees = entityManager.createQuery("from Employees", Employees.class).getResultList();
+        List<Staffs> employees = entityManager.createQuery("from Staffs", Staffs.class).getResultList();
         Teachers teachers = entityManager.find(Teachers.class, id);
         model.addAttribute("teachers", teachers);
         model.addAttribute("employees", employees);
@@ -310,7 +310,7 @@ public class AdminGet {
     @GetMapping("/SuaNhanVien/{id}")
     public String SuaAdmin(ModelMap model, @PathVariable("id") String id, HttpSession session) {
 
-        Employees employee = entityManager.find(Employees.class, id);
+        Staffs employee = entityManager.find(Staffs.class, id);
         model.addAttribute("employees", employee);
         return "SuaNhanVien";
     }
@@ -329,8 +329,8 @@ public class AdminGet {
 
     @GetMapping("/XoaTatCaNhanVien")
     public String xoaTatCaNhanVien() {
-        List<Employees> employees = entityManager.createQuery("from Employees", Employees.class).getResultList();
-        for (Employees employee : employees) {
+        List<Staffs> employees = entityManager.createQuery("from Staffs", Staffs.class).getResultList();
+        for (Staffs employee : employees) {
             XoaNhanVien(employee.getId());
         }
         return "redirect:/DanhSachNhanVien";

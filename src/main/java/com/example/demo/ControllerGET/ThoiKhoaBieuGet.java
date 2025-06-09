@@ -37,7 +37,7 @@ public class ThoiKhoaBieuGet {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName();
 
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
         if (employee == null) {
             model.addAttribute("error", "Không tìm thấy nhân viên!");
             return "errorPage";
@@ -182,7 +182,7 @@ public class ThoiKhoaBieuGet {
         String userId = authentication.getName();
 
         // Tìm Employee trong database
-        Person person = entityManager.find(Person.class, userId);
+        Persons person = entityManager.find(Persons.class, userId);
         if (person instanceof Teachers) {
             model.addAttribute("URL", "/TrangChuGiaoVien");
         } else {

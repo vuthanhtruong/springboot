@@ -43,7 +43,7 @@ public class AuthController {
 
     @PostMapping("/QuenMatKhau")
     public String forgotPassword(@RequestParam String email, Model model, HttpSession session) {
-        Person person = findPersonByEmail(email);
+        Persons person = findPersonByEmail(email);
         if (person == null) {
             model.addAttribute("error", "Email không tồn tại!");
             return "QuenMatKhau";
@@ -65,7 +65,7 @@ public class AuthController {
             return "NhapOTP";
         }
 
-        Person person = findPersonByEmail(email);
+        Persons person = findPersonByEmail(email);
         if (person == null) {
             model.addAttribute("error", "Email không tồn tại");
             return "NhapOTP";
@@ -107,7 +107,7 @@ public class AuthController {
             return "DatLaiMatKhau";
         }
 
-        Person person = findPersonByEmail(email);
+        Persons person = findPersonByEmail(email);
         if (person == null) {
             model.addAttribute("error", "Email không hợp lệ!");
             return "DatLaiMatKhau";
@@ -119,14 +119,14 @@ public class AuthController {
         return "redirect:/TrangChu";
     }
 
-    private void updatePassword(Person person, String newPassword) {
+    private void updatePassword(Persons person, String newPassword) {
         if (person instanceof Students student) {
             student.setPassword(newPassword);
             entityManager.merge(student);
         } else if (person instanceof Teachers teacher) {
             teacher.setPassword(newPassword);
             entityManager.merge(teacher);
-        } else if (person instanceof Employees employee) {
+        } else if (person instanceof Staffs employee) {
             employee.setPassword(newPassword);
             entityManager.merge(employee);
         } else if (person instanceof Admin admin) {
@@ -136,9 +136,9 @@ public class AuthController {
         entityManager.flush();
     }
 
-    private Person findPersonByEmail(String email) {
+    private Persons findPersonByEmail(String email) {
         try {
-            return entityManager.createQuery("SELECT p FROM Person p WHERE p.email = :email", Person.class)
+            return entityManager.createQuery("SELECT p FROM Persons p WHERE p.email = :email", Persons.class)
                     .setParameter("email", email)
                     .getSingleResult();
         } catch (NoResultException e) {
@@ -146,7 +146,7 @@ public class AuthController {
         }
     }
 
-    private void savePasswordResetToken(Person person, String otp) {
+    private void savePasswordResetToken(Persons person, String otp) {
         entityManager.createQuery("DELETE FROM PasswordResetToken t WHERE t.person.id = :personId")
                 .setParameter("personId", person.getId())
                 .executeUpdate();

@@ -3,7 +3,7 @@ package com.example.demo.ControllerGET;
 
 import com.example.demo.FileStorageService.FileStorageService;
 import com.example.demo.ModelOOP.Documents;
-import com.example.demo.ModelOOP.Person;
+import com.example.demo.ModelOOP.Persons;
 import com.example.demo.ModelOOP.Posts;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -52,7 +52,7 @@ public class FileController {
                 return ResponseEntity.badRequest().body("🚫 Không tìm thấy ID giáo viên.");
             }
 
-            Person creator = entityManager.find(Person.class, teacherId);
+            Persons creator = entityManager.find(Persons.class, teacherId);
             Posts post = entityManager.find(Posts.class, postId);
 
             if (creator == null || post == null) {

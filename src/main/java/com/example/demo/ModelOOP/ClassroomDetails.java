@@ -27,15 +27,15 @@ public class ClassroomDetails {
     @ManyToOne
     @JoinColumn(name = "MemberID", nullable = true, foreignKey = @ForeignKey(name = "FK_ClassroomDetails_Person"))
     @OnDelete(action = OnDeleteAction.CASCADE) // Nếu thành viên bị xóa, dữ liệu liên quan cũng bị xóa
-    private Person member;
+    private Persons member;
 
     @ManyToOne
     @JoinColumn(name = "EventID", nullable = false, foreignKey = @ForeignKey(name = "FK_ClassroomDetails_Event"))
     @OnDelete(action = OnDeleteAction.CASCADE) // Nếu sự kiện bị xóa, dữ liệu chi tiết lớp học cũng bị xóa
-    private Events event;
+    private Notifications event;
 
     // Constructor có tham số
-    public ClassroomDetails(Room room, Person member) {
+    public ClassroomDetails(Room room, Persons member) {
         this.room = room;
         this.member = member;
     }

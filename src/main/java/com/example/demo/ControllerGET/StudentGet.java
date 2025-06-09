@@ -28,7 +28,7 @@ public class StudentGet {
 
     @GetMapping("/DangKyHocSinh")
     public String DangKyHocSinh(ModelMap model) {
-        List<Employees> employees = entityManager.createQuery("from Employees", Employees.class).getResultList();
+        List<Staffs> employees = entityManager.createQuery("from Staffs", Staffs.class).getResultList();
         model.addAttribute("employees", employees);
         return "DangKyHocSinh";
     }
@@ -45,7 +45,7 @@ public class StudentGet {
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String studentId = authentication.getName();
-        Person person = entityManager.find(Person.class, studentId);
+        Persons person = entityManager.find(Persons.class, studentId);
         Students student = (Students) person;
 
         // Lưu pageSize vào session
@@ -181,7 +181,7 @@ public class StudentGet {
     public String TinNhanCuaHocSinh(HttpSession session, ModelMap model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String studentId = authentication.getName();
-        Person person = entityManager.find(Person.class, studentId);
+        Persons person = entityManager.find(Persons.class, studentId);
         Students student = (Students) person;
 
         // Truy vấn tin nhắn liên quan đến học sinh
@@ -191,7 +191,7 @@ public class StudentGet {
                 .getResultList();
 
         // Tập hợp các liên hệ mà học sinh đã trò chuyện
-        Set<Person> contacts = new HashSet<>();
+        Set<Persons> contacts = new HashSet<>();
         for (Messages message : messages) {
             if (!message.getSender().equals(student)) {
                 contacts.add(message.getSender());  // Người gửi khác học sinh
@@ -214,7 +214,7 @@ public class StudentGet {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String studentId = authentication.getName();
-        Person person = entityManager.find(Person.class, studentId);
+        Persons person = entityManager.find(Persons.class, studentId);
         Students student = (Students) person;
 
         // Truy vấn tin nhắn giữa học sinh và giáo viên

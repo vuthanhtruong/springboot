@@ -1,6 +1,6 @@
 package com.example.demo.ControllerFace;
 
-import com.example.demo.ModelOOP.Person;
+import com.example.demo.ModelOOP.Persons;
 import com.example.demo.Repository.PersonRepository;
 import okhttp3.*;
 import org.json.JSONObject;
@@ -35,7 +35,7 @@ public class FaceRecognitionService {
             }
             System.out.println("Input face data length: " + cleanedFaceData.length());
 
-            for (Person person : personRepository.findAll()) {
+            for (Persons person : personRepository.findAll()) {
                 String storedFaceData = person.getFaceData();
                 if (storedFaceData != null && !storedFaceData.trim().isEmpty()) {
                     String cleanedStoredFaceData = cleanBase64(storedFaceData);

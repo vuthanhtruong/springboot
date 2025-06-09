@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Events {
+public class Notifications {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,7 +51,7 @@ public class Events {
     private List<Feedbacks> feedbacks;
 
     // Constructor có tham số
-    public Events(String title, String description, LocalDateTime eventDate, String eventType) {
+    public Notifications(String title, String description, LocalDateTime eventDate, String eventType) {
         this.title = title;
         this.description = description;
         this.eventDate = eventDate;

@@ -1,7 +1,7 @@
 package com.example.demo.config;
 
 import com.example.demo.ControllerFace.FaceRecognitionService;
-import com.example.demo.ModelOOP.Person;
+import com.example.demo.ModelOOP.Persons;
 import com.example.demo.UserDetailsService.AdminUserDetailsService;
 import com.example.demo.UserDetailsService.EmployeeUserDetailsService;
 import com.example.demo.UserDetailsService.StudentUserDetailsService;
@@ -107,9 +107,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     // Hàm tìm userId dựa trên voiceData
     private String findUserIdByVoice(String voiceData) {
         try {
-            var query = entityManager.createQuery("SELECT p FROM Person p WHERE p.voiceData = :voiceData", Person.class);
+            var query = entityManager.createQuery("SELECT p FROM Persons p WHERE p.voiceData = :voiceData", Persons.class);
             query.setParameter("voiceData", voiceData);
-            Person person = query.getSingleResult();
+            Persons person = query.getSingleResult();
             return person.getId();
         } catch (Exception e) {
             return null;

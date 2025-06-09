@@ -20,12 +20,12 @@ public class ScheduleNotifications {
     @ManyToOne
     @JoinColumn(name = "sender_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Employees sender;  // Người gửi thông báo
+    private Staffs sender;  // Người gửi thông báo
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Person member;  // Người nhận (có thể là Student hoặc Teacher)
+    private Persons member;  // Người nhận (có thể là Student hoặc Teacher)
 
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = true)

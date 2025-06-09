@@ -29,7 +29,7 @@ public class Room {
     @ManyToOne
     @JoinColumn(name = "EmployeeID", nullable = true, foreignKey = @ForeignKey(name = "FK_Room_Employee"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Employees employee;
+    private Staffs employee;
 
     @Column(name = "StartTime", nullable = true)
     private LocalDateTime startTime;
@@ -50,7 +50,7 @@ public class Room {
 
 
     // Constructor
-    public Room(String roomId, String roomName, Boolean status, Employees employee, LocalDateTime startTime, LocalDateTime endTime) {
+    public Room(String roomId, String roomName, Boolean status, Staffs employee, LocalDateTime startTime, LocalDateTime endTime) {
         this.roomId = roomId;
         this.roomName = roomName;
         this.employee = employee;

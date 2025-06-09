@@ -15,7 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @OnDelete(action = OnDeleteAction.CASCADE)
-public class Admin extends Person {
+public class Admin extends Persons {
 
     @Column(name = "Password", nullable = false, length = 255)
     private String password;

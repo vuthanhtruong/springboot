@@ -25,7 +25,7 @@ public class Comments {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CommenterID", nullable = false, foreignKey = @ForeignKey(name = "FK_Comments_Person"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Person commenter;
+    private Persons commenter;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PostID", nullable = false, foreignKey = @ForeignKey(name = "FK_Comments_Posts"))
@@ -35,7 +35,7 @@ public class Comments {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EventID", nullable = false, foreignKey = @ForeignKey(name = "FK_Comments_Events"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Events event;
+    private Notifications event;
 
     @Column(name = "Text", nullable = false, columnDefinition = "TEXT")
     private String text;
@@ -44,7 +44,7 @@ public class Comments {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    public Comments(Person commenter, Posts post, String text) {
+    public Comments(Persons commenter, Posts post, String text) {
         this.commenter = commenter;
         this.post = post;
 

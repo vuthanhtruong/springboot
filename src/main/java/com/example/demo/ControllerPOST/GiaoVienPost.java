@@ -46,7 +46,7 @@ public class GiaoVienPost {
         System.out.println("Bắt đầu đăng ký giáo viên...");
 
         // Kiểm tra TeacherID đã tồn tại
-        if (entityManager.find(Person.class, teacherID) != null) {
+        if (entityManager.find(Persons.class, teacherID) != null) {
             model.addAttribute("teacherIDError", "TeacherID đã tồn tại.");
             addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
             return "DangKyGiaoVien";
@@ -74,7 +74,7 @@ public class GiaoVienPost {
         }
 
         // Kiểm tra nếu Email đã tồn tại
-        List<Person> existingTeachersByEmail = entityManager.createQuery("SELECT t FROM Person t WHERE t.email = :email", Person.class)
+        List<Persons> existingTeachersByEmail = entityManager.createQuery("SELECT t FROM Persons t WHERE t.email = :email", Persons.class)
                 .setParameter("email", email)
                 .getResultList();
         if (!existingTeachersByEmail.isEmpty()) {
@@ -95,7 +95,7 @@ public class GiaoVienPost {
         }
 
         // Kiểm tra nếu Số điện thoại đã tồn tại
-        List<Person> existingTeachersByPhone = entityManager.createQuery("SELECT t FROM Person t WHERE t.phoneNumber = :phoneNumber", Person.class)
+        List<Persons> existingTeachersByPhone = entityManager.createQuery("SELECT t FROM Persons t WHERE t.phoneNumber = :phoneNumber", Persons.class)
                 .setParameter("phoneNumber", phoneNumber)
                 .getResultList();
         if (!existingTeachersByPhone.isEmpty()) {
@@ -114,7 +114,7 @@ public class GiaoVienPost {
         Admin admin = adminList.get(0);
 
         // Kiểm tra xem có nhân viên nào trong hệ thống không
-        List<Employees> employeeList = entityManager.createQuery("FROM Employees", Employees.class).getResultList();
+        List<Staffs> employeeList = entityManager.createQuery("FROM Staffs", Staffs.class).getResultList();
         if (employeeList.isEmpty()) {
             model.addAttribute("employeeError", "Chưa có nhân viên, không thể đăng ký được.");
             addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
@@ -122,7 +122,7 @@ public class GiaoVienPost {
         }
 
         // Tìm nhân viên có ít giáo viên nhất
-        Employees selectedEmployee = findEmployeeWithFewestTeachers();
+        Staffs selectedEmployee = findEmployeeWithFewestTeachers();
         if (selectedEmployee == null) {
             model.addAttribute("employeeError", "Không tìm thấy nhân viên nào để phân bổ.");
             addFormDataToModel(model, teacherID, firstName, lastName, email, phoneNumber, birthDate, gender, country, province, district, ward, street, postalCode, misID, password, confirmPassword);
@@ -181,18 +181,18 @@ public class GiaoVienPost {
     }
 
     // Phương thức phụ để tìm nhân viên có ít giáo viên nhất
-    private Employees findEmployeeWithFewestTeachers() {
+    private Staffs findEmployeeWithFewestTeachers() {
         // Lấy tất cả nhân viên
-        List<Employees> employeesList = entityManager.createQuery("FROM Employees", Employees.class).getResultList();
+        List<Staffs> employeesList = entityManager.createQuery("FROM Staffs", Staffs.class).getResultList();
         if (employeesList.isEmpty()) {
             return null;
         }
 
-        Employees selectedEmployee = null;
+        Staffs selectedEmployee = null;
         Long minTeacherCount = Long.MAX_VALUE;
 
         // Duyệt qua từng nhân viên và đếm số giáo viên họ quản lý
-        for (Employees employee : employeesList) {
+        for (Staffs employee : employeesList) {
             Long teacherCount = entityManager.createQuery(
                             "SELECT COUNT(t) FROM Teachers t WHERE t.employee = :employee", Long.class)
                     .setParameter("employee", employee)

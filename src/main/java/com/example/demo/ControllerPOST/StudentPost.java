@@ -62,7 +62,7 @@ public class StudentPost {
         }
 
         // Kiểm tra StudentID đã tồn tại chưa
-        if (entityManager.find(Person.class, studentID) != null) {
+        if (entityManager.find(Persons.class, studentID) != null) {
             model.addAttribute("errorStudentID", "Mã học sinh đã tồn tại!");
             addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
             return "DangKyHocSinh";
@@ -70,7 +70,7 @@ public class StudentPost {
 
         // Kiểm tra Email có tồn tại chưa
         boolean emailExists = !entityManager.createQuery(
-                        "SELECT s FROM Person s WHERE s.email = :email", Person.class)
+                        "SELECT s FROM Persons s WHERE s.email = :email", Persons.class)
                 .setParameter("email", email)
                 .getResultList().isEmpty();
         if (emailExists) {
@@ -92,7 +92,7 @@ public class StudentPost {
 
         // Kiểm tra số điện thoại có tồn tại chưa
         boolean phoneExists = !entityManager.createQuery(
-                        "SELECT s FROM Person s WHERE s.phoneNumber = :phoneNumber", Person.class)
+                        "SELECT s FROM Persons s WHERE s.phoneNumber = :phoneNumber", Persons.class)
                 .setParameter("phoneNumber", phoneNumber)
                 .getResultList().isEmpty();
         if (phoneExists) {
@@ -133,7 +133,7 @@ public class StudentPost {
         Admin admin = adminList.get(0);
 
         // Tìm nhân viên có ít học sinh nhất
-        Employees selectedEmployee = findEmployeeWithFewestStudents();
+        Staffs selectedEmployee = findEmployeeWithFewestStudents();
         if (selectedEmployee == null) {
             model.addAttribute("errorEmployee", "Không tìm thấy nhân viên nào để phân bổ!");
             addFormDataToModel(model, studentID, firstName, lastName, email, phoneNumber, birthDate, misId, gender, country, province, district, ward, street, postalCode);
@@ -197,18 +197,18 @@ public class StudentPost {
     }
 
     // Phương thức phụ để tìm nhân viên có ít học sinh nhất
-    private Employees findEmployeeWithFewestStudents() {
+    private Staffs findEmployeeWithFewestStudents() {
         // Lấy tất cả nhân viên
-        List<Employees> employeesList = entityManager.createQuery("FROM Employees", Employees.class).getResultList();
+        List<Staffs> employeesList = entityManager.createQuery("FROM Staffs", Staffs.class).getResultList();
         if (employeesList.isEmpty()) {
             return null;
         }
 
-        Employees selectedEmployee = null;
+        Staffs selectedEmployee = null;
         Long minStudentCount = Long.MAX_VALUE;
 
         // Duyệt qua từng nhân viên và đếm số học sinh họ quản lý
-        for (Employees employee : employeesList) {
+        for (Staffs employee : employeesList) {
             Long studentCount = entityManager.createQuery(
                             "SELECT COUNT(s) FROM Students s WHERE s.employee = :employee", Long.class)
                     .setParameter("employee", employee)
@@ -261,7 +261,7 @@ public class StudentPost {
             }
 
             // Lấy nhân viên nhận phản hồi (nếu có)
-            Employees receiver = student.getEmployee(); // Hoặc entityManager.find(Employees.class, someId);
+            Staffs receiver = student.getEmployee(); // Hoặc entityManager.find(Employees.class, someId);
 
             // Tạo nhận xét mới
             Feedbacks feedback = new Feedbacks();
@@ -273,7 +273,7 @@ public class StudentPost {
             feedback.setCreatedAt(LocalDateTime.now());
 
             // Xác định sự kiện phản hồi
-            Events events = entityManager.find(Events.class, 3);
+            Notifications events = entityManager.find(Notifications.class, 3);
             feedback.setEvent(events);
 
             // Lưu nhận xét vào database

@@ -39,11 +39,11 @@ public class BaiVietPost {
             @RequestParam("roomId") String roomId,
             RedirectAttributes redirectAttributes) {
 
-        Person person = null;
+        Persons person = null;
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String userId = authentication.getName();
-            person = entityManager.find(Person.class, userId);
+            person = entityManager.find(Persons.class, userId);
 
             if (!(person instanceof Students) && !(person instanceof Teachers)) {
                 throw new SecurityException("Người dùng không hợp lệ.");
@@ -60,7 +60,7 @@ public class BaiVietPost {
             }
             newPost.setRoom(room);
 
-            Events postEvent = entityManager.find(Events.class, 3);
+            Notifications postEvent = entityManager.find(Notifications.class, 3);
             newPost.setEvent(postEvent);
             entityManager.persist(newPost);
 
@@ -86,7 +86,7 @@ public class BaiVietPost {
                         document.setCreator(person);
                         document.setPost(newPost);
 
-                        Events fileEvent = entityManager.find(Events.class, 4);
+                        Notifications fileEvent = entityManager.find(Notifications.class, 4);
                         document.setEvent(fileEvent);
 
                         entityManager.persist(document);
@@ -159,7 +159,7 @@ public class BaiVietPost {
                         newDocument.setCreator(existingPost.getCreator());
                         newDocument.setPost(existingPost);
 
-                        Events fileEvent = entityManager.find(Events.class, 4);
+                        Notifications fileEvent = entityManager.find(Notifications.class, 4);
                         newDocument.setEvent(fileEvent);
 
                         entityManager.persist(newDocument);

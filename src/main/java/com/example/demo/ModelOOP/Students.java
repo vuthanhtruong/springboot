@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @OnDelete(action = OnDeleteAction.CASCADE)
-public class Students extends Person {
+public class Students extends Persons {
 
     @Column(name = "Password", nullable = false, length = 255)
     private String password;
@@ -29,7 +29,7 @@ public class Students extends Person {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EmployeeID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Employees employee;  // Liên kết với Employee (có thể NULL)
+    private Staffs employee;  // Liên kết với Employee (có thể NULL)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AdminID", nullable = true) // Có thể NULL nếu không có Admin trực tiếp quản lý
@@ -37,7 +37,7 @@ public class Students extends Person {
     private Admin admin;
 
     // Constructor có tham số
-    public Students(String id, String password, String firstName, String lastName, String email, String phoneNumber, String misId, Employees employee, Admin admin) {
+    public Students(String id, String password, String firstName, String lastName, String email, String phoneNumber, String misId, Staffs employee, Admin admin) {
         super(); // Gọi constructor của Person
         this.setId(id);
         this.setFirstName(firstName);

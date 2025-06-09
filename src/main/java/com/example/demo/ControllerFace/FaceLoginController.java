@@ -1,6 +1,6 @@
 package com.example.demo.ControllerFace;
 
-import com.example.demo.ModelOOP.Person;
+import com.example.demo.ModelOOP.Persons;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -45,7 +45,7 @@ public class FaceLoginController {
         }
 
         String userId = authentication.getName();
-        Person person = entityManager.find(Person.class, userId);
+        Persons person = entityManager.find(Persons.class, userId);
         if (person == null) {
             redirectAttributes.addFlashAttribute("userNotFound", "Không tìm thấy thông tin người dùng");
             return "redirect:/TrangCaNhan";
@@ -68,7 +68,7 @@ public class FaceLoginController {
     public String showXoaKhuonMat(Model model, RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        Person person = entityManager.find(Person.class, userId);
+        Persons person = entityManager.find(Persons.class, userId);
 
         redirectAttributes.addFlashAttribute("user", person);
         return "XoaKhuonMat"; // Trả về trang XoaKhuonMat.html
@@ -90,7 +90,7 @@ public class FaceLoginController {
         }
 
         String userId = authentication.getName();
-        Person person = entityManager.find(Person.class, userId);
+        Persons person = entityManager.find(Persons.class, userId);
         if (person == null) {
             redirectAttributes.addFlashAttribute("userNotFound", "Không tìm thấy thông tin người dùng");
             return "redirect:/XoaKhuonMat";

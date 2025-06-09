@@ -1,6 +1,6 @@
 package com.example.demo.UserDetailsService;
 
-import com.example.demo.ModelOOP.Employees;
+import com.example.demo.ModelOOP.Staffs;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,7 +19,7 @@ public class EmployeeUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String employeeid) throws UsernameNotFoundException {
-        Employees employee = entityManager.find(Employees.class, employeeid);
+        Staffs employee = entityManager.find(Staffs.class, employeeid);
 
         return new org.springframework.security.core.userdetails.User(
                 employee.getId(),

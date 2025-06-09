@@ -38,25 +38,25 @@ public class AdminPost {
         try {
             Admin admin = entityManager.createQuery("FROM Admin", Admin.class).setMaxResults(1).getSingleResult();
 
-            Employees employee = entityManager.find(Employees.class, employeeID);
+            Staffs employee = entityManager.find(Staffs.class, employeeID);
             if (employee == null) {
                 redirectAttributes.addFlashAttribute("error", "Nhân viên không tồn tại!");
                 return "redirect:/ThemGiaoVien";
             }
 
             // Kiểm tra trùng TeacherID
-            Person existingTeacher = entityManager.find(Person.class, teacherID);
+            Persons existingTeacher = entityManager.find(Persons.class, teacherID);
             if (existingTeacher != null) {
                 redirectAttributes.addFlashAttribute("error", "ID giáo viên đã tồn tại!");
                 return "redirect:/ThemGiaoVien";
             }
 
             // Kiểm tra Email & SĐT
-            boolean emailExists = !entityManager.createQuery("SELECT t FROM Person t WHERE t.email = :email", Person.class)
+            boolean emailExists = !entityManager.createQuery("SELECT t FROM Persons t WHERE t.email = :email", Persons.class)
                     .setParameter("email", email)
                     .getResultList().isEmpty();
 
-            boolean phoneExists = !entityManager.createQuery("SELECT t FROM Person t WHERE t.phoneNumber = :phoneNumber", Person.class)
+            boolean phoneExists = !entityManager.createQuery("SELECT t FROM Persons t WHERE t.phoneNumber = :phoneNumber", Persons.class)
                     .setParameter("phoneNumber", phoneNumber)
                     .getResultList().isEmpty();
 
@@ -117,20 +117,20 @@ public class AdminPost {
         Admin admin = admins.get(0);
 
         // Kiểm tra Employee có tồn tại không
-        Employees employee = entityManager.find(Employees.class, employeeID);
+        Staffs employee = entityManager.find(Staffs.class, employeeID);
         if (employee == null) {
             redirectAttributes.addFlashAttribute("error", "Nhân viên không tồn tại!");
             return "redirect:/ThemHocSinh";
         }
 
         // Kiểm tra trùng lặp ID học sinh
-        if (entityManager.find(Person.class, studentID) != null) {
+        if (entityManager.find(Persons.class, studentID) != null) {
             redirectAttributes.addFlashAttribute("error", "ID học sinh đã tồn tại!");
             return "redirect:/ThemHocSinh";
         }
 
         // Kiểm tra trùng lặp Email
-        boolean emailExists = !entityManager.createQuery("SELECT s FROM Person s WHERE s.email = :email", Person.class)
+        boolean emailExists = !entityManager.createQuery("SELECT s FROM Persons s WHERE s.email = :email", Persons.class)
                 .setParameter("email", email)
                 .getResultList().isEmpty();
         if (emailExists) {
@@ -139,7 +139,7 @@ public class AdminPost {
         }
 
         // Kiểm tra trùng lặp số điện thoại
-        boolean phoneExists = !entityManager.createQuery("SELECT s FROM Person s WHERE s.phoneNumber = :phoneNumber", Person.class)
+        boolean phoneExists = !entityManager.createQuery("SELECT s FROM Persons s WHERE s.phoneNumber = :phoneNumber", Persons.class)
                 .setParameter("phoneNumber", phoneNumber)
                 .getResultList().isEmpty();
         if (phoneExists) {
@@ -189,14 +189,14 @@ public class AdminPost {
                                RedirectAttributes redirectAttributes,
                                HttpSession session) {
 
-        Person existingEmployee = entityManager.find(Person.class, EmployeeID);
+        Persons existingEmployee = entityManager.find(Persons.class, EmployeeID);
         if (existingEmployee != null) {
             redirectAttributes.addFlashAttribute("error", "Mã nhân viên đã tồn tại!");
             return "redirect:/ThemNhanVien";
         }
 
         // Kiểm tra trùng Email
-        boolean emailExists = !entityManager.createQuery("SELECT e FROM Person e WHERE e.email = :email", Person.class)
+        boolean emailExists = !entityManager.createQuery("SELECT e FROM Persons e WHERE e.email = :email", Persons.class)
                 .setParameter("email", Email)
                 .getResultList().isEmpty();
 
@@ -206,7 +206,7 @@ public class AdminPost {
         }
 
         // Kiểm tra trùng PhoneNumber
-        boolean phoneExists = !entityManager.createQuery("SELECT e FROM Person e WHERE e.phoneNumber = :phone", Person.class)
+        boolean phoneExists = !entityManager.createQuery("SELECT e FROM Persons e WHERE e.phoneNumber = :phone", Persons.class)
                 .setParameter("phone", PhoneNumber)
                 .getResultList().isEmpty();
 
@@ -216,7 +216,7 @@ public class AdminPost {
         }
 
         // Tạo nhân viên mới
-        Employees employees = new Employees();
+        Staffs employees = new Staffs();
         employees.setId(EmployeeID);
         employees.setFirstName(FirstName);
         employees.setLastName(LastName);
@@ -250,7 +250,7 @@ public class AdminPost {
 
         // Kiểm tra email trùng lặp với học sinh khác
         boolean emailExists = !entityManager.createQuery(
-                        "SELECT s FROM Person s WHERE s.email = :email AND s.id <> :id", Person.class)
+                        "SELECT s FROM Persons s WHERE s.email = :email AND s.id <> :id", Persons.class)
                 .setParameter("email", email)
                 .setParameter("id", id)
                 .getResultList().isEmpty();
@@ -262,7 +262,7 @@ public class AdminPost {
 
         // Kiểm tra số điện thoại trùng lặp với học sinh khác
         boolean phoneExists = !entityManager.createQuery(
-                        "SELECT s FROM Person s WHERE s.phoneNumber = :phoneNumber AND s.id <> :id", Person.class)
+                        "SELECT s FROM Persons s WHERE s.phoneNumber = :phoneNumber AND s.id <> :id", Persons.class)
                 .setParameter("phoneNumber", phoneNumber)
                 .setParameter("id", id)
                 .getResultList().isEmpty();
@@ -295,7 +295,7 @@ public class AdminPost {
 
         // Cập nhật nhân viên phụ trách nếu có
         if (employeeID != null && !employeeID.isEmpty()) {
-            Employees employee = entityManager.find(Employees.class, employeeID);
+            Staffs employee = entityManager.find(Staffs.class, employeeID);
             student.setEmployee(employee);
         } else {
             student.setEmployee(null); // Cho phép bỏ chọn nhân viên
@@ -325,8 +325,8 @@ public class AdminPost {
         }
 
         // Kiểm tra trùng email (trừ giáo viên hiện tại)
-        TypedQuery<Person> emailQuery = entityManager.createQuery(
-                "SELECT t FROM Person t WHERE t.email = :email AND t.id <> :id", Person.class);
+        TypedQuery<Persons> emailQuery = entityManager.createQuery(
+                "SELECT t FROM Persons t WHERE t.email = :email AND t.id <> :id", Persons.class);
         emailQuery.setParameter("email", email);
         emailQuery.setParameter("id", id);
         if (!emailQuery.getResultList().isEmpty()) {
@@ -335,8 +335,8 @@ public class AdminPost {
         }
 
         // Kiểm tra trùng số điện thoại (trừ giáo viên hiện tại)
-        TypedQuery<Person> phoneQuery = entityManager.createQuery(
-                "SELECT t FROM Person t WHERE t.phoneNumber = :phoneNumber AND t.id <> :id", Person.class);
+        TypedQuery<Persons> phoneQuery = entityManager.createQuery(
+                "SELECT t FROM Persons t WHERE t.phoneNumber = :phoneNumber AND t.id <> :id", Persons.class);
         phoneQuery.setParameter("phoneNumber", phoneNumber);
         phoneQuery.setParameter("id", id);
         if (!phoneQuery.getResultList().isEmpty()) {
@@ -365,7 +365,7 @@ public class AdminPost {
 
         // Cập nhật nhân viên phụ trách nếu có
         if (employeeID != null && !employeeID.isEmpty()) {
-            Employees employee = entityManager.find(Employees.class, employeeID);
+            Staffs employee = entityManager.find(Staffs.class, employeeID);
             if (employee != null) {
                 teacher.setEmployee(employee);
             } else {
@@ -385,32 +385,32 @@ public class AdminPost {
 
     @PostMapping("/SuaNhanVien/{id}")
     public String CapNhatNhanVien(@PathVariable("id") String id,
-                                  @ModelAttribute Employees updatedEmployee,
+                                  @ModelAttribute Staffs updatedEmployee,
                                   RedirectAttributes redirectAttributes) {
 
-        Employees existingEmployee = entityManager.find(Employees.class, id);
+        Staffs existingEmployee = entityManager.find(Staffs.class, id);
         if (existingEmployee == null) {
             redirectAttributes.addFlashAttribute("error", "Nhân viên không tồn tại!");
             return "redirect:/DanhSachNhanVien";
         }
 
         // Kiểm tra trùng Email
-        TypedQuery<Person> emailQuery = entityManager.createQuery(
-                "SELECT e FROM Person e WHERE e.email = :email AND e.id <> :id", Person.class);
+        TypedQuery<Persons> emailQuery = entityManager.createQuery(
+                "SELECT e FROM Persons e WHERE e.email = :email AND e.id <> :id", Persons.class);
         emailQuery.setParameter("email", updatedEmployee.getEmail());
         emailQuery.setParameter("id", id);
-        List<Person> emailList = emailQuery.getResultList();
+        List<Persons> emailList = emailQuery.getResultList();
         if (!emailList.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Email đã tồn tại!");
             return "redirect:/SuaNhanVien/" + id;
         }
 
         // Kiểm tra trùng số điện thoại
-        TypedQuery<Person> phoneQuery = entityManager.createQuery(
-                "SELECT e FROM Person e WHERE e.phoneNumber = :phone AND e.id <> :id", Person.class);
+        TypedQuery<Persons> phoneQuery = entityManager.createQuery(
+                "SELECT e FROM Persons e WHERE e.phoneNumber = :phone AND e.id <> :id", Persons.class);
         phoneQuery.setParameter("phone", updatedEmployee.getPhoneNumber());
         phoneQuery.setParameter("id", id);
-        List<Person> phoneList = phoneQuery.getResultList();
+        List<Persons> phoneList = phoneQuery.getResultList();
         if (!phoneList.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Số điện thoại đã tồn tại!");
             return "redirect:/SuaNhanVien/" + id;
@@ -477,18 +477,18 @@ public class AdminPost {
     public String TimKiemNhanVien(@RequestParam("searchType") String searchType,
                                   @RequestParam("keyword") String keyword,
                                   ModelMap model) {
-        List<Employees> searchResults;
+        List<Staffs> searchResults;
 
         if (searchType.equalsIgnoreCase("name")) {
             searchResults = entityManager.createQuery(
-                            "SELECT e FROM Employees e " +
+                            "SELECT e FROM Staffs e " +
                                     "WHERE LOWER(e.firstName) LIKE LOWER(:keyword) " +
                                     "OR LOWER(e.lastName) LIKE LOWER(:keyword) " +
-                                    "OR LOWER(CONCAT(e.firstName, ' ', e.lastName)) LIKE LOWER(:keyword)", Employees.class)
+                                    "OR LOWER(CONCAT(e.firstName, ' ', e.lastName)) LIKE LOWER(:keyword)", Staffs.class)
                     .setParameter("keyword", "%" + keyword + "%")
                     .getResultList();
         } else if (searchType.equalsIgnoreCase("id")) {
-            Employees employee = entityManager.find(Employees.class, keyword);
+            Staffs employee = entityManager.find(Staffs.class, keyword);
             searchResults = (employee != null) ? List.of(employee) : List.of();
         } else {
             searchResults = List.of();
@@ -508,7 +508,7 @@ public class AdminPost {
     @PostMapping("/XoaTatCaNhanVienWithAttributes")
     public String xoaTatCaNhanVien(@RequestParam("keyword") String keyword, RedirectAttributes redirectAttributes) {
         int deletedCount = entityManager.createQuery(
-                        "DELETE FROM Employees e WHERE LOWER(e.firstName) LIKE LOWER(:keyword) " +
+                        "DELETE FROM Staffs e WHERE LOWER(e.firstName) LIKE LOWER(:keyword) " +
                                 "OR LOWER(e.lastName) LIKE LOWER(:keyword) " +
                                 "OR LOWER(CONCAT(e.firstName, ' ', e.lastName)) LIKE LOWER(:keyword)")
                 .setParameter("keyword", "%" + keyword + "%")

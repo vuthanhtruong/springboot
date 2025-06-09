@@ -21,7 +21,7 @@ public class Rooms extends Room {
     @Column(name = "Address", nullable = true, length = 500)
     private String address;
 
-    public Rooms(String roomId, String roomName, String address, Boolean status, Employees employee, LocalDateTime startTime, LocalDateTime endTime) {
+    public Rooms(String roomId, String roomName, String address, Boolean status, Staffs employee, LocalDateTime startTime, LocalDateTime endTime) {
         super(roomId, roomName, status, employee, startTime, endTime);
         this.address = address;
     }

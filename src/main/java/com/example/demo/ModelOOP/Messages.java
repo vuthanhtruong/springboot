@@ -22,17 +22,17 @@ public class Messages {
     @ManyToOne
     @JoinColumn(name = "MessageSenderID", nullable = false, foreignKey = @ForeignKey(name = "FK_Messages_Sender"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Person sender;  // Người gửi tin nhắn
+    private Persons sender;  // Người gửi tin nhắn
 
     @ManyToOne
     @JoinColumn(name = "MessageRecipientID", nullable = false, foreignKey = @ForeignKey(name = "FK_Messages_Recipient"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Person recipient;  // Người nhận tin nhắn
+    private Persons recipient;  // Người nhận tin nhắn
 
     @ManyToOne
     @JoinColumn(name = "EventID", nullable = false, foreignKey = @ForeignKey(name = "FK_Messages_Event"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Events event;  // Sự kiện liên quan đến tin nhắn
+    private Notifications event;  // Sự kiện liên quan đến tin nhắn
 
     @Column(name = "Datetime", nullable = false)
     private LocalDateTime datetime;
@@ -44,7 +44,7 @@ public class Messages {
     public Messages() {
     }
 
-    public Messages(Person sender, Person recipient, Events event, LocalDateTime datetime, String text) {
+    public Messages(Persons sender, Persons recipient, Notifications event, LocalDateTime datetime, String text) {
         this.sender = sender;
         this.recipient = recipient;
         this.event = event;

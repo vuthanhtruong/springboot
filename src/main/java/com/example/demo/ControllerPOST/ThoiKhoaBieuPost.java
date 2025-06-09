@@ -45,7 +45,7 @@ public class ThoiKhoaBieuPost {
         String employeeId = authentication.getName();
 
         try {
-            Employees employee = entityManager.find(Employees.class, employeeId);
+            Staffs employee = entityManager.find(Staffs.class, employeeId);
             if (employee == null) {
                 redirectAttributes.addAttribute("error", "EmployeeNotFound");
                 return "redirect:/ThoiKhoaBieu?year=" + year + "&week=" + week;
@@ -266,7 +266,7 @@ public class ThoiKhoaBieuPost {
             }
 
             Teachers markingTeacher = entityManager.find(Teachers.class, userId);
-            Employees markingEmployee = entityManager.find(Employees.class, userId);
+            Staffs markingEmployee = entityManager.find(Staffs.class, userId);
             if (markingTeacher == null && markingEmployee == null) {
                 redirectAttributes.addAttribute("error", "UserNotFound");
                 return "redirect:/ChiTietBuoiHoc?timetableId=" + timetableId;

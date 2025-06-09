@@ -33,7 +33,7 @@ public class DanhSachLopHocGet {
         // Lấy thông tin người dùng hiện tại
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        Person person = entityManager.find(Person.class, userId);
+        Persons person = entityManager.find(Persons.class, userId);
 
         // Kiểm tra nếu người dùng không tồn tại
         if (person == null) {
@@ -110,7 +110,7 @@ public class DanhSachLopHocGet {
 
         String username = authentication.getName();
 
-        Person member = entityManager.find(Person.class, username);
+        Persons member = entityManager.find(Persons.class, username);
         if (member instanceof Students) {
             model.addAttribute("homePage", "/TrangChuHocSinh");
         } else {
@@ -156,7 +156,7 @@ public class DanhSachLopHocGet {
         List<Teachers> teachers = new ArrayList<>();
 
         for (ClassroomDetails classroomDetail : classroomDetails) {
-            Person member = classroomDetail.getMember();
+            Persons member = classroomDetail.getMember();
             if (member instanceof Students) {
                 students.add((Students) member);
             } else if (member instanceof Teachers) {
@@ -170,7 +170,7 @@ public class DanhSachLopHocGet {
         // Lấy user hiện tại từ Spring Security
         String username = authentication.getName();
 
-        Person member = entityManager.find(Person.class, username);
+        Persons member = entityManager.find(Persons.class, username);
         if (member instanceof Students) {
             model.addAttribute("homePage", "/TrangChuHocSinh");
         } else {

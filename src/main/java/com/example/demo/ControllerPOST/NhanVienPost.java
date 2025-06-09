@@ -68,7 +68,7 @@ public class NhanVienPost {
         System.out.println("Bắt đầu đăng ký nhân viên...");
 
         // Kiểm tra EmployeeID đã tồn tại chưa
-        if (entityManager.find(Person.class, employeeID) != null) {
+        if (entityManager.find(Persons.class, employeeID) != null) {
             model.addAttribute("employeeIDError", "Mã nhân viên đã tồn tại.");
             addFormDataToModel(model, employeeID, firstName, lastName, email, phoneNumber, password, confirmPassword, dateOfBirth, gender, country, province, district, ward, street, postalCode);
             return "DangKyNhanVien";
@@ -82,8 +82,8 @@ public class NhanVienPost {
         }
 
         // Kiểm tra Email đã tồn tại chưa
-        List<Person> existingEmployeesByEmail = entityManager.createQuery(
-                        "SELECT e FROM Person e WHERE e.email = :email", Person.class)
+        List<Persons> existingEmployeesByEmail = entityManager.createQuery(
+                        "SELECT e FROM Persons e WHERE e.email = :email", Persons.class)
                 .setParameter("email", email)
                 .getResultList();
         if (!existingEmployeesByEmail.isEmpty()) {
@@ -104,8 +104,8 @@ public class NhanVienPost {
         }
 
         // Kiểm tra số điện thoại đã tồn tại chưa
-        List<Person> existingEmployeesByPhone = entityManager.createQuery(
-                        "SELECT e FROM Person e WHERE e.phoneNumber = :phoneNumber", Person.class)
+        List<Persons> existingEmployeesByPhone = entityManager.createQuery(
+                        "SELECT e FROM Persons e WHERE e.phoneNumber = :phoneNumber", Persons.class)
                 .setParameter("phoneNumber", phoneNumber)
                 .getResultList();
         if (!existingEmployeesByPhone.isEmpty()) {
@@ -154,7 +154,7 @@ public class NhanVienPost {
         Admin admin = admins.get(0);
 
         // Tạo nhân viên mới
-        Employees employees = new Employees();
+        Staffs employees = new Staffs();
         employees.setId(employeeID);
         employees.setFirstName(firstName);
         employees.setLastName(lastName);
@@ -230,8 +230,8 @@ public class NhanVienPost {
         // Lấy thông tin nhân viên từ Authentication
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName();
-        Person person = entityManager.find(Person.class, employeeId);
-        if (!(person instanceof Employees employee)) {
+        Persons person = entityManager.find(Persons.class, employeeId);
+        if (!(person instanceof Staffs employee)) {
             redirectAttributes.addFlashAttribute("error", "Bạn không có quyền thêm giáo viên!");
             return "redirect:/ThemGiaoVienCuaBan";
         }
@@ -248,7 +248,7 @@ public class NhanVienPost {
         }
 
         // Kiểm tra TeacherID đã tồn tại chưa
-        if (entityManager.find(Person.class, teacherID) != null) {
+        if (entityManager.find(Persons.class, teacherID) != null) {
             redirectAttributes.addFlashAttribute("errorTeacherID", "Mã giáo viên đã tồn tại!");
             return "redirect:/ThemGiaoVienCuaBan";
         }
@@ -261,7 +261,7 @@ public class NhanVienPost {
 
         // Kiểm tra Email đã tồn tại chưa
         boolean emailExists = entityManager.createQuery(
-                        "SELECT COUNT(t) > 0 FROM Person t WHERE t.email = :email", Boolean.class)
+                        "SELECT COUNT(t) > 0 FROM Persons t WHERE t.email = :email", Boolean.class)
                 .setParameter("email", email)
                 .getSingleResult();
         if (emailExists) {
@@ -280,7 +280,7 @@ public class NhanVienPost {
 
         // Kiểm tra số điện thoại đã tồn tại chưa
         boolean phoneExists = entityManager.createQuery(
-                        "SELECT COUNT(t) > 0 FROM Person t WHERE t.phoneNumber = :phoneNumber", Boolean.class)
+                        "SELECT COUNT(t) > 0 FROM Persons t WHERE t.phoneNumber = :phoneNumber", Boolean.class)
                 .setParameter("phoneNumber", phoneNumber)
                 .getSingleResult();
         if (phoneExists) {
@@ -350,8 +350,8 @@ public class NhanVienPost {
         // Lấy thông tin nhân viên từ Authentication
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName();
-        Person person = entityManager.find(Person.class, employeeId);
-        if (!(person instanceof Employees employee)) {
+        Persons person = entityManager.find(Persons.class, employeeId);
+        if (!(person instanceof Staffs employee)) {
             redirectAttributes.addFlashAttribute("error", "Bạn không có quyền thêm học sinh!");
             return "redirect:/ThemHocSinhCuaBan";
         }
@@ -368,7 +368,7 @@ public class NhanVienPost {
         }
 
         // Kiểm tra StudentID đã tồn tại chưa
-        if (entityManager.find(Person.class, studentID) != null) {
+        if (entityManager.find(Persons.class, studentID) != null) {
             redirectAttributes.addFlashAttribute("errorStudentID", "Mã học sinh đã tồn tại!");
             return "redirect:/ThemHocSinhCuaBan";
         }
@@ -381,7 +381,7 @@ public class NhanVienPost {
 
         // Kiểm tra Email đã tồn tại chưa
         boolean emailExists = entityManager.createQuery(
-                        "SELECT COUNT(s) > 0 FROM Person s WHERE s.email = :email", Boolean.class)
+                        "SELECT COUNT(s) > 0 FROM Persons s WHERE s.email = :email", Boolean.class)
                 .setParameter("email", email)
                 .getSingleResult();
         if (emailExists) {
@@ -401,7 +401,7 @@ public class NhanVienPost {
 
         // Kiểm tra số điện thoại đã tồn tại chưa
         boolean phoneExists = entityManager.createQuery(
-                        "SELECT COUNT(s) > 0 FROM Person s WHERE s.phoneNumber = :phoneNumber", Boolean.class)
+                        "SELECT COUNT(s) > 0 FROM Persons s WHERE s.phoneNumber = :phoneNumber", Boolean.class)
                 .setParameter("phoneNumber", phoneNumber)
                 .getSingleResult();
         if (phoneExists) {
@@ -499,15 +499,15 @@ public class NhanVienPost {
         lastName = formatName(lastName);
 
         // Tìm giáo viên theo ID
-        Person teacher = entityManager.find(Person.class, teacherID);
+        Persons teacher = entityManager.find(Persons.class, teacherID);
         if (teacher == null) {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy giáo viên!");
             return "redirect:/DanhSachGiaoVienCuaBan";  // Redirect to the list page if teacher not found
         }
 
         // Kiểm tra trùng email với giáo viên khác
-        List<Person> teachersWithEmail = entityManager.createQuery(
-                        "SELECT t FROM Person t WHERE t.email = :email AND t.id <> :teacherID", Person.class)
+        List<Persons> teachersWithEmail = entityManager.createQuery(
+                        "SELECT t FROM Persons t WHERE t.email = :email AND t.id <> :teacherID", Persons.class)
                 .setParameter("email", email)
                 .setParameter("teacherID", teacherID)
                 .getResultList();
@@ -518,8 +518,8 @@ public class NhanVienPost {
         }
 
         // Kiểm tra trùng số điện thoại với giáo viên khác
-        List<Person> teachersWithPhone = entityManager.createQuery(
-                        "SELECT t FROM Person t WHERE t.phoneNumber = :phoneNumber AND t.id <> :teacherID", Person.class)
+        List<Persons> teachersWithPhone = entityManager.createQuery(
+                        "SELECT t FROM Persons t WHERE t.phoneNumber = :phoneNumber AND t.id <> :teacherID", Persons.class)
                 .setParameter("phoneNumber", phoneNumber)
                 .setParameter("teacherID", teacherID)
                 .getResultList();
@@ -581,8 +581,8 @@ public class NhanVienPost {
         }
 
         // Kiểm tra trùng email với học sinh khác
-        List<Person> studentsWithEmail = entityManager.createQuery(
-                        "SELECT s FROM Person s WHERE s.email = :email AND s.id <> :studentID", Person.class)
+        List<Persons> studentsWithEmail = entityManager.createQuery(
+                        "SELECT s FROM Persons s WHERE s.email = :email AND s.id <> :studentID", Persons.class)
                 .setParameter("email", email)
                 .setParameter("studentID", studentID)
                 .getResultList();
@@ -593,8 +593,8 @@ public class NhanVienPost {
         }
 
         // Kiểm tra trùng số điện thoại với học sinh khác
-        List<Person> studentsWithPhone = entityManager.createQuery(
-                        "SELECT s FROM Person s WHERE s.phoneNumber = :phoneNumber AND s.id <> :studentID", Person.class)
+        List<Persons> studentsWithPhone = entityManager.createQuery(
+                        "SELECT s FROM Persons s WHERE s.phoneNumber = :phoneNumber AND s.id <> :studentID", Persons.class)
                 .setParameter("phoneNumber", phoneNumber)
                 .setParameter("studentID", studentID)
                 .getResultList();
@@ -625,8 +625,8 @@ public class NhanVienPost {
                                RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName();
-        Person person = entityManager.find(Person.class, employeeId);
-        Employees employee = (Employees) person;
+        Persons person = entityManager.find(Persons.class, employeeId);
+        Staffs employee = (Staffs) person;
         // Kiểm tra trùng ID
         Rooms existingRoomById = entityManager.find(Rooms.class, roomId);
         if (existingRoomById != null) {
@@ -665,8 +665,8 @@ public class NhanVienPost {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName();
-        Person person = entityManager.find(Person.class, employeeId);
-        if (!(person instanceof Employees employee)) {
+        Persons person = entityManager.find(Persons.class, employeeId);
+        if (!(person instanceof Staffs employee)) {
             redirectAttributes.addFlashAttribute("error", "Bạn không có quyền thêm phòng học.");
             return "redirect:/ThemPhongHocOnline";
         }
@@ -723,8 +723,8 @@ public class NhanVienPost {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName();
-        Person person = entityManager.find(Person.class, employeeId);
-        Employees employee = (Employees) person;
+        Persons person = entityManager.find(Persons.class, employeeId);
+        Staffs employee = (Staffs) person;
 
         // Kiểm tra xem tên phòng mới đã tồn tại chưa
         TypedQuery<Rooms> query = entityManager.createQuery(
@@ -760,8 +760,8 @@ public class NhanVienPost {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String employeeId = authentication.getName();
-        Person person = entityManager.find(Person.class, employeeId);
-        Employees employee = (Employees) person;
+        Persons person = entityManager.find(Persons.class, employeeId);
+        Staffs employee = (Staffs) person;
 
 
         // Kiểm tra trùng tên phòng (trừ phòng hiện tại)
@@ -790,7 +790,7 @@ public class NhanVienPost {
         String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
 
         // Tìm Employee trong database bằng EntityManager
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
         // Tìm Room theo roomId
         Room room = entityManager.find(Room.class, roomId);
         if (room == null) {
@@ -809,7 +809,7 @@ public class NhanVienPost {
 
         for (String teacherId : teacherIds) {
             // Tìm Teacher theo teacherId
-            Person teacher = entityManager.find(Person.class, teacherId);
+            Persons teacher = entityManager.find(Persons.class, teacherId);
             if (teacher == null || !(teacher instanceof Teachers)) {
                 throw new IllegalArgumentException("Không tìm thấy giáo viên với ID: " + teacherId);
             }
@@ -825,7 +825,7 @@ public class NhanVienPost {
             if (count == 0) {
                 // Thêm giáo viên vào lớp
                 ClassroomDetails classroomDetail = new ClassroomDetails(room, teacher);
-                Events event = entityManager.find(Events.class, 9); // Giả định event ID 9 là sự kiện mặc định
+                Notifications event = entityManager.find(Notifications.class, 9); // Giả định event ID 9 là sự kiện mặc định
                 classroomDetail.setEvent(event);
                 entityManager.persist(classroomDetail);
 
@@ -861,9 +861,9 @@ public class NhanVienPost {
         return "redirect:/ChiTietLopHoc/" + roomId + "?success=updated";
     }
 
-    private void sendNotification(String memberId, String roomId, String message, Employees sender, String email) {
+    private void sendNotification(String memberId, String roomId, String message, Staffs sender, String email) {
         // Tìm đối tượng Person từ memberId
-        Person member = entityManager.find(Person.class, memberId);
+        Persons member = entityManager.find(Persons.class, memberId);
         if (member == null) {
             throw new IllegalArgumentException("Không tìm thấy thành viên với ID: " + memberId);
         }
@@ -893,7 +893,7 @@ public class NhanVienPost {
         String employeeId = authentication.getName(); // EmployeeID đã đăng nhập
 
         // Tìm Employee trong database bằng EntityManager
-        Employees employee = entityManager.find(Employees.class, employeeId);
+        Staffs employee = entityManager.find(Staffs.class, employeeId);
         // Tìm Room theo roomId
 
         if (studentIds == null || studentIds.isEmpty() || studentIds.size() == 0) {
@@ -911,7 +911,7 @@ public class NhanVienPost {
 
         for (String studentId : studentIds) {
             // Tìm Student theo studentId
-            Person student = entityManager.find(Person.class, studentId);
+            Persons student = entityManager.find(Persons.class, studentId);
             if (student == null || !(student instanceof Students)) {
                 throw new IllegalArgumentException("Không tìm thấy học sinh với ID: " + studentId);
             }
@@ -927,7 +927,7 @@ public class NhanVienPost {
             if (count == 0) {
                 // Thêm học sinh vào lớp
                 ClassroomDetails classroomDetail = new ClassroomDetails(room, student);
-                Events event = entityManager.find(Events.class, 10); // Giả định event ID 10 là sự kiện mặc định
+                Notifications event = entityManager.find(Notifications.class, 10); // Giả định event ID 10 là sự kiện mặc định
                 classroomDetail.setEvent(event);
                 entityManager.persist(classroomDetail);
 
